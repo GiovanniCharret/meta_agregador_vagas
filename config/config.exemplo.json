@@ -1,23 +1,5 @@
-﻿{
+{
   "perfis": [
-    {
-      "nome": "dados",
-      "lado": "meu",
-      "termos": ["cientista de dados", "analista de dados"],
-      "sinonimos": ["data scientist", "engenheiro de dados", "analista de bi"]
-    },
-    {
-      "nome": "dev",
-      "lado": "meu",
-      "termos": ["desenvolvedor"],
-      "sinonimos": ["backend", "fullstack", "python"]
-    },
-    {
-      "nome": "financeiro",
-      "lado": "meu",
-      "termos": ["administrador financeiro", "analista financeiro"],
-      "sinonimos": ["controladoria", "tesouraria", "fpa"]
-    },
     {
       "nome": "odonto",
       "lado": "dela",
@@ -51,4 +33,3 @@
 
   "fontes_ativas": ["bne"]
 }
-

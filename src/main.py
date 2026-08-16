@@ -46,9 +46,14 @@ from src.normaliza import para_slug
 # rede e o buscador de verdade; nos testes ele e substituido por uma funcao falsa.
 from src import rede
 
-# Teto de paginas por termo. Baixo de proposito nesta fase: a coleta para sozinha
-# quando a pagina nao traz nada inedito, e pedir muito seria abusar da fonte.
-PAGINAS_POR_TERMO = 3
+# Teto de paginas por termo. E teto, e nao meta: a coleta para sozinha assim que uma
+# pagina nao traz nada inedito, entao pedir 20 nao significa 20 requisicoes.
+#
+# Subiu de 3 para 20 em 16/08/2026. Com 3 paginas de 20 vagas, a coleta trazia 60 das
+# 275 vagas de dentista que o BNE anuncia - dois tercos do acervo ficavam de fora sem
+# ninguem perceber. Com o projeto agora focado so em odontologia, deixar vaga para tras
+# custa muito mais caro do que as requisicoes extras.
+PAGINAS_POR_TERMO = 20
 
 
 def _coleta_tudo(configuracao, buscador):

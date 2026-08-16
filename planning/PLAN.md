@@ -84,6 +84,35 @@ Desenvolver um modelo MVP de plataforma. Dispõe inicialmenete só do feed e ale
 - Ingestão por e-mail sai da fase 1 — a fase 1 é 100% leitura de página pública.
 - Critério de seleção de fonte: **fácil de puxar primeiro**, workaround fica para depois.
 
+## Foco em odontologia — 16/08/2026
+
+Decisão sua, urgente: **desligar `dados`, `dev` e `financeiro`. Só odontologia, inclusive
+nesta fase de desenvolvimento.** Aplicado na configuração e no banco (126 vagas dos perfis
+desligados removidas; nenhuma marcação foi perdida).
+
+### O que a sondagem do vocabulário do BNE mostrou
+
+| Slug | Vagas | Serve? |
+|---|---|---|
+| `dentista` | 275 | **sim** — é o único slug para cirurgiã-dentista |
+| `auxiliar-de-saude-bucal` | 1.639 | **não** — é cargo auxiliar, não posição de dentista |
+| `tecnico-em-saude-bucal` | 700 | **não** — idem |
+| `protesista` | 62 | **não** — técnico de laboratório |
+| `cirurgiao-dentista`, `odontologia`, `ortodontista`, `endodontista`, `implantodontista`, `odontopediatra`, `periodontista` | — | **não existem** no vocabulário do BNE |
+
+**Decisão de julgamento:** não incluí os cargos auxiliares, apesar de somarem 2.339 vagas. Eles
+inundariam o feed com posições que ela não ocuparia, e volume não é qualidade. Se algum dia
+fizer sentido, é uma linha na configuração.
+
+### Subcoleta encontrada e corrigida
+
+O teto de páginas por termo estava em **3**, o que trazia 60 das 275 vagas — **dois terços do
+acervo ficavam de fora sem ninguém perceber**. Subiu para 20. É teto e não meta: a coleta para
+sozinha quando a página não traz nada inédito.
+
+Resultado: **269 vagas de odontologia, cobrindo 23 UFs**. Só 1 é remota, o que reforça que o
+eixo geográfico importa mais para este perfil do que para os outros.
+
 ## Pendências que travam a implementação
 
 1. **Lista de UFs** onde ela não trabalharia. Bloqueia a subfase S-P (coletor de CRO) e alimenta a
