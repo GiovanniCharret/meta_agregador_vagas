@@ -58,8 +58,8 @@ def main(caminho=None, usar_padrao=True):
     # Fase 4: confirmacao curta do que foi lido, para o usuario ver que a configuracao
     # esta sendo enxergada como ele espera.
     print(
-        "Configuracao lida: {} perfil(is), {} UF(s) bloqueada(s).".format(
-            len(configuracao.perfis), len(configuracao.ufs_bloqueadas)
+        "Configuracao lida: {} perfil(is), {} estado(s) liberado(s).".format(
+            len(configuracao.perfis), len(configuracao.ufs_liberadas)
         )
     )
     # Saida: zero significa rodada bem sucedida.

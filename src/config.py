@@ -53,9 +53,13 @@ class Config:
 
     # Buscas nomeadas, na ordem em que o usuario escreveu.
     perfis: list
-    # Siglas de UF que descartam a vaga direto (decisao 3.2).
-    ufs_bloqueadas: list
-    # Cidades especificas que descartam a vaga direto.
+    # Lista BRANCA de estados: so vaga em UF desta lista sobrevive ao filtro.
+    # Comeca com as 27 unidades federativas e vai sendo podada com o tempo. E lista
+    # branca, e nao negra, porque o conjunto de estados e pequeno e fechado - podar
+    # uma lista pronta e mais facil do que lembrar de proibir um a um (decisao 3.2).
+    ufs_liberadas: list
+    # Cidades especificas que descartam a vaga direto. Aqui a lista e NEGRA, porque
+    # sao milhares de cidades e enumerar as aceitas seria impraticavel.
     cidades_bloqueadas: list
     # Cidades que sobem ao topo do feed.
     cidades_desejadas: list
@@ -142,12 +146,12 @@ def _monta_perfil(bruto, posicao):
 
 
 def _valida_ufs(siglas):
-    """Confere se cada UF bloqueada e uma sigla de duas letras.
+    """Confere se cada UF liberada e uma sigla de duas letras.
 
-    Por que esta funcao existe: a lista de UFs vem de fora do sistema, escrita a mao.
-    Se alguem escrever "Acre" em vez de "AC", o filtro nao casa com nada e a cidade
-    bloqueada aparece no feed assim mesmo - exatamente o tipo de limitacao silenciosa
-    que o projeto proibe.
+    Por que esta funcao existe: a lista de estados e podada a mao, por fora do sistema.
+    Se alguem escrever "Parana" em vez de "PR", a sigla nao casa com o que vem da fonte
+    e o estado inteiro some do feed sem aviso - exatamente o tipo de limitacao
+    silenciosa que o projeto proibe.
 
     Entrada -> a lista de siglas exatamente como escrita no arquivo, ainda sem
                normalizar, para a mensagem poder cita-la do jeito que o usuario a ve.
@@ -159,8 +163,8 @@ def _valida_ufs(siglas):
         # isalpha() recusa numero e pontuacao; len() recusa nome de estado por extenso.
         if len(sigla) != 2 or not sigla.isalpha():
             raise EntradaInvalida(
-                'A UF bloqueada "{}" nao e uma sigla valida. '
-                "Use a sigla de duas letras do estado, como: AC, RR, SP.".format(sigla)
+                'A UF liberada "{}" nao e uma sigla valida. '
+                "Use a sigla de duas letras do estado, como: SC, PR, SP.".format(sigla)
             )
 
 
@@ -221,19 +225,30 @@ def carregar_config(caminho):
     # a list comprehension preserva a ordem, exigencia de determinismo.
     perfis = [_monta_perfil(p, i) for i, p in enumerate(bruto["perfis"])]
 
-    # Fase 6: a validacao vem ANTES da normalizacao de proposito. A mensagem de erro
-    # precisa citar o valor exatamente como esta escrito no arquivo, senao o usuario
-    # procura por "Acre" no editor e nao encontra o "ACRE" que a mensagem mostrou.
-    ufs_escritas = _lista(bruto, "ufs_bloqueadas")
+    # Fase 6: a lista branca de estados e obrigatoria. Ausente ou vazia seria ambigua -
+    # poderia significar "todos os estados" ou "nenhum" - e qualquer das duas escolhida
+    # em silencio produziria um feed errado sem o usuario perceber.
+    if not bruto.get("ufs_liberadas"):
+        raise EntradaInvalida(
+            'O arquivo {} nao tem a lista "ufs_liberadas". '
+            "Liste as siglas dos estados onde voces aceitariam trabalhar; "
+            "o modelo config/config.exemplo.json ja vem com as 27 para voce podar."
+            .format(caminho)
+        )
+
+    # A validacao vem ANTES da normalizacao de proposito. A mensagem de erro precisa
+    # citar o valor exatamente como esta escrito no arquivo, senao o usuario procura
+    # por "Parana" no editor e nao encontra o "PARANA" que a mensagem mostrou.
+    ufs_escritas = _lista(bruto, "ufs_liberadas")
     _valida_ufs(ufs_escritas)
-    # So depois de aceitas, as siglas viram maiusculas: assim "ac" escrito a mao ainda
-    # casa com o "AC" que vem da fonte, e o filtro nao falha em silencio.
+    # So depois de aceitas, as siglas viram maiusculas: assim "sc" escrito a mao ainda
+    # casa com o "SC" que vem da fonte, e o filtro nao falha em silencio.
     ufs = [uf.upper() for uf in ufs_escritas]
 
     # Fase 7 e saida: monta a estrutura final com as listas opcionais ja resolvidas.
     return Config(
         perfis=perfis,
-        ufs_bloqueadas=ufs,
+        ufs_liberadas=ufs,
         cidades_bloqueadas=_lista(bruto, "cidades_bloqueadas"),
         cidades_desejadas=_lista(bruto, "cidades_desejadas"),
         termos_reprovacao=_lista(bruto, "termos_reprovacao"),

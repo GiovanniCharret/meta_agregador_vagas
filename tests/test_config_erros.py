@@ -158,19 +158,45 @@ def test_lado_invalido_lista_os_valores_aceitos(tmp_path):
     assert "meu" in mensagem and "dela" in mensagem
 
 
-def test_uf_bloqueada_com_formato_errado_e_recusada(tmp_path):
-    """Por que este teste existe: a lista de UFs vem da namorada por fora do sistema.
-    Se ela escrever 'Acre' em vez de 'AC', o filtro nao casa com nada e a cidade
-    bloqueada aparece no feed assim mesmo - limitacao silenciosa."""
+def test_uf_liberada_com_formato_errado_e_recusada(tmp_path):
+    """Por que este teste existe: a lista de estados e podada a mao, por fora do
+    sistema. Se alguem escrever 'Parana' em vez de 'PR', o estado deixa de casar com o
+    que vem da fonte e some do feed sem aviso - limitacao silenciosa."""
     from src.config import carregar_config
     from src.erros import EntradaInvalida
     torta = json.loads(json.dumps(CONFIG_VALIDA))
-    torta["ufs_bloqueadas"] = ["Acre"]
+    torta["ufs_liberadas"] = ["Parana"]
     caminho = escreve_config(tmp_path, torta)
     with pytest.raises(EntradaInvalida) as erro:
         carregar_config(caminho)
-    # A mensagem cita o valor recusado e explica o formato esperado.
-    assert "Acre" in str(erro.value)
+    # A mensagem cita o valor recusado exatamente como escrito no arquivo.
+    assert "Parana" in str(erro.value)
+
+
+def test_sem_ufs_liberadas_e_recusado(tmp_path):
+    """Por que este teste existe: lista branca ausente e ambigua - poderia significar
+    'todos os estados' ou 'nenhum'. Qualquer das duas interpretacoes escolhida em
+    silencio produziria um feed errado sem o usuario perceber. Melhor recusar."""
+    from src.config import carregar_config
+    from src.erros import EntradaInvalida
+    caminho = escreve_config(tmp_path, config_sem("ufs_liberadas"))
+    with pytest.raises(EntradaInvalida) as erro:
+        carregar_config(caminho)
+    assert "ufs_liberadas" in str(erro.value)
+
+
+def test_lista_de_ufs_liberadas_vazia_e_recusada(tmp_path):
+    """Por que este teste existe: lista vazia passaria por qualquer checagem de
+    existencia e faria o filtro reprovar todas as vagas do Brasil, produzindo um feed
+    vazio que pareceria 'nao tem vaga' em vez de 'a configuracao esta errada'."""
+    from src.config import carregar_config
+    from src.erros import EntradaInvalida
+    vazia = json.loads(json.dumps(CONFIG_VALIDA))
+    vazia["ufs_liberadas"] = []
+    caminho = escreve_config(tmp_path, vazia)
+    with pytest.raises(EntradaInvalida) as erro:
+        carregar_config(caminho)
+    assert "ufs_liberadas" in str(erro.value)
 
 
 def test_entrada_invalida_nao_e_confundida_com_bug_de_programa():

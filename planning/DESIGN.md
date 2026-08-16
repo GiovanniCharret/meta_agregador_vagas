@@ -139,8 +139,19 @@ Esclarecido na triagem: é **arquivo de configuração**, não formato de dado d
 editado à mão. Conteúdo:
 
 - `perfis` — nome, lado (`meu` | `dela`), termos-semente, sinônimos (`3.1`, `3.5`)
-- `ufs_bloqueadas` e `cidades_bloqueadas` (`3.2`) — **inclui o insumo pendente da V4**
+- `ufs_liberadas` (`3.2`) — **lista branca, obrigatória e não vazia**. Começa com as 27
+  unidades federativas e vai sendo podada. Ver `planning/ESTADOS.md`.
+- `cidades_bloqueadas` (`3.2`) — lista **negra**
 - `cidades_desejadas` — sobem no topo (`3.2`)
+
+**Por que estado é lista branca e cidade é lista negra.** São 27 estados — conjunto pequeno e
+fechado, onde podar uma lista pronta é mais fácil do que lembrar de proibir um a um, e o
+resultado é visível de bater o olho. Cidades são milhares: enumerar as aceitas seria
+impraticável. A assimetria é deliberada, não descuido.
+
+`ufs_liberadas` ausente ou vazia é **recusada**, e não interpretada. Ausente poderia significar
+"todos os estados" ou "nenhum", e qualquer das duas escolhida em silêncio produziria um feed
+errado sem o usuário perceber.
 - `termos_reprovacao` (`3.6`)
 - `fontes_ativas`
 
@@ -345,15 +356,15 @@ Cada uma entrega algo que você consegue abrir e conferir sozinho.
 | **S10** | Alertas por e-mail e Telegram | `5.2` |
 | **S-P** | **Coletor de CRO — PENDENTE** | ver abaixo |
 
-### S-P — coletor de CRO (bloqueada)
+### S-P — coletor de CRO (aguardando decisão, não mais insumo)
 
-**Bloqueada por insumo, não por técnica.** São 27 conselhos com sites heterogêneos, feitos à mão.
-O tamanho do trabalho depende inteiramente da **lista de UFs que sua namorada não considera** —
-ela decide se são 27 coletores ou 12. Sem essa lista, a subfase não é estimável e qualquer prazo
-seria chute.
+**Mudou de status em 16/08/2026.** O mecanismo e o dado já existem: `ufs_liberadas` está na
+config com as 27 unidades federativas, e `planning/ESTADOS.md` traz a tabela por região para a
+poda. São 27 conselhos com sites heterogêneos, feitos à mão, e o tamanho do trabalho é
+exatamente o número de estados que sobrarem — 27 se nada for podado, 13 se cair pela metade.
 
-Quando a lista chegar, ela entra na config (`ufs_bloqueadas`, D3) e alimenta ao mesmo tempo o
-filtro `3.2` e o recorte desta subfase. O mecanismo já existe; falta só o dado.
+O que falta é a **decisão** de quais estados saem, não o dado. Enquanto a poda não acontecer, a
+subfase continua sem estimativa, mas por escolha em aberto e não por falta de insumo.
 
 ---
 
@@ -365,8 +376,10 @@ filtro `3.2` e o recorte desta subfase. O mecanismo já existe; falta só o dado
 
 ### Pendências restantes
 
-1. **Lista de UFs** — bloqueia S-P e alimenta `3.2`. Ainda não pronta.
-2. **Qual é a "fonte mais fácil"** de S1 — sem palpite; será decidida testando, na própria S1.
+1. **Poda dos estados** — a lista completa já está na config e em `planning/ESTADOS.md`.
+   Falta decidir quais saem. Dimensiona a S-P.
+2. **Qual é a "fonte mais fácil"** de S1 — sem palpite; será decidida sondando duas ou três
+   candidatas no início da própria S1, abordagem aprovada em 16/08/2026.
 
 `V1` deixou de ser pendência: se puxar vaga do PCI se mostrar difícil, a S9 cai para a fase
 seguinte, conforme acordado.

@@ -36,7 +36,7 @@ CONFIG_VALIDA = {
         },
         {"nome": "odonto", "lado": "dela", "termos": ["dentista"]},
     ],
-    "ufs_bloqueadas": ["ac", "RR"],
+    "ufs_liberadas": ["sc", "PR"],
     "cidades_bloqueadas": ["Rio Branco/AC"],
     "cidades_desejadas": ["Florianopolis/SC"],
     "termos_reprovacao": ["estagio"],
@@ -79,15 +79,15 @@ def test_sinonimos_ausentes_viram_lista_vazia(tmp_path):
     assert cfg.perfis[1].sinonimos == []
 
 
-def test_ufs_bloqueadas_viram_maiusculas(tmp_path):
-    """Por que este teste existe: o usuario edita o arquivo a mao e vai escrever 'ac'
-    e 'AC' de forma inconsistente. Normalizar na entrada evita que o filtro de cidade
+def test_ufs_liberadas_viram_maiusculas(tmp_path):
+    """Por que este teste existe: o usuario edita o arquivo a mao e vai escrever 'sc'
+    e 'SC' de forma inconsistente. Normalizar na entrada evita que o filtro de estado
     falhe em silencio - que seria uma limitacao silenciosa, proibida pelo projeto."""
     from src.config import carregar_config
     caminho = escreve_config(tmp_path, CONFIG_VALIDA)
     cfg = carregar_config(caminho)
-    # 'ac' foi escrito em minuscula no arquivo e tem que voltar normalizado.
-    assert cfg.ufs_bloqueadas == ["AC", "RR"]
+    # 'sc' foi escrito em minuscula no arquivo e tem que voltar normalizado.
+    assert cfg.ufs_liberadas == ["SC", "PR"]
 
 
 def test_carrega_as_listas_simples(tmp_path):
@@ -106,12 +106,14 @@ def test_listas_opcionais_ausentes_viram_vazias(tmp_path):
     """Por que este teste existe: no comeco do projeto so os perfis existem de fato.
     Exigir todas as listas desde o primeiro dia travaria a S1 sem necessidade."""
     from src.config import carregar_config
-    # Configuracao com o minimo indispensavel: apenas os perfis.
-    minima = {"perfis": [{"nome": "dados", "lado": "meu", "termos": ["python"]}]}
+    # Configuracao com o minimo indispensavel: perfis e a lista branca de estados.
+    minima = {
+        "perfis": [{"nome": "dados", "lado": "meu", "termos": ["python"]}],
+        "ufs_liberadas": ["SC"],
+    }
     caminho = escreve_config(tmp_path, minima)
     cfg = carregar_config(caminho)
     # Todas as listas opcionais tem que existir vazias, nunca None.
-    assert cfg.ufs_bloqueadas == []
     assert cfg.cidades_bloqueadas == []
     assert cfg.cidades_desejadas == []
     assert cfg.termos_reprovacao == []

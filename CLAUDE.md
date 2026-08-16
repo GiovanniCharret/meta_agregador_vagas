@@ -27,8 +27,13 @@ uv pip install <pacotes>                 # instalar dependencias
 uv pip freeze > requirements.txt         # congelar
 ```
 
-> **NUNCA fazer `git push`** — o repositório permanece local; publicar no GitHub é decisão do
-> humano. Commits locais frequentes, mensagens `feat:`/`fix:`/`test:`/`docs:`/`chore:` em português.
+> **NUNCA fazer `git push`.** O repositório **já existe no GitHub** (`origin` aponta para
+> `GiovanniCharret/meta_agregador_vagas`, branch `main` rastreando `origin/main`) — mas publicar
+> continua sendo ato do humano, não do agente. Faça commits locais frequentes e pare aí.
+> Mensagens `feat:`/`fix:`/`test:`/`docs:`/`chore:` em português.
+>
+> Como o remote existe, **`config/config.json` está no `.gitignore`**: ele contém perfis, estados
+> e cidades da busca de emprego do casal. O que é versionado é o `config/config.exemplo.json`.
 
 ## Arquitetura
 

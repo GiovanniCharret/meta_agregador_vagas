@@ -35,7 +35,11 @@ Desenvolver um modelo MVP de plataforma. Dispõe inicialmenete só do feed e ale
 `x` Infraestrutura — venv uv 3.12.13, pytest 9.1.1, `requirements.txt`, `.gitignore`
 `x` **S0 concluída** — `caminhos.py`, `erros.py`, `config.py`, `main.py`, lançador `monitor.py`.
   27 testes passando, executável verificado rodando de outro diretório.
-`[ ]` S1 — uma fonte só, ponta a ponta até JSON normalizado
+`x` Lista de estados — `ufs_liberadas` com as 27 UFs na config; tabela por região em
+  `planning/ESTADOS.md`. **Modelo invertido para lista branca**, a ser podada com o tempo.
+`[ ]` Poda dos estados — decidir quais saem. Dimensiona a S-P (27 conselhos ou menos).
+`[ ]` S1 — uma fonte só, ponta a ponta até JSON normalizado. Começa sondando duas ou três
+  candidatas antes de escrever o coletor (aprovado em 16/08/2026).
 
 ## Decisões tomadas
 
