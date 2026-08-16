@@ -48,7 +48,7 @@ MOTIVOS = (
 # Colunas da vaga que vem do pipeline, na ordem usada nas escritas e leituras.
 COLUNAS_VAGA = (
     "fonte", "id_na_fonte", "url", "titulo_bruto", "empresa_bruta",
-    "cidade", "uf", "modalidade", "salario_texto", "data_publicacao",
+    "cidade", "uf", "modalidade", "salario_texto", "data_publicacao", "perfil",
 )
 
 # Colunas que so a pagina de detalhe preenche (subfase S3b). Ficam separadas porque a
@@ -89,6 +89,7 @@ def criar_esquema(conexao):
             modalidade      TEXT,
             salario_texto   TEXT,
             data_publicacao TEXT,
+            perfil          TEXT,
             primeira_coleta TEXT NOT NULL,
             ultima_coleta   TEXT NOT NULL,
             subtitulo       TEXT,
@@ -103,7 +104,7 @@ def criar_esquema(conexao):
     # tabela que ja existe, entao o banco de producao - com centenas de vagas gravadas
     # antes desta subfase - ficaria sem as colunas novas e quebraria em silencio.
     existentes = {linha[1] for linha in conexao.execute("PRAGMA table_info(vaga)")}
-    for coluna in COLUNAS_DETALHE:
+    for coluna in COLUNAS_DETALHE + ("perfil",):
         if coluna not in existentes:
             # ADD COLUMN e barato e nao reescreve a tabela; os valores nascem nulos, que
             # e exatamente o que significa "ainda nao enriquecida".

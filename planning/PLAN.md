@@ -64,6 +64,11 @@ Desenvolver um modelo MVP de plataforma. Dispõe inicialmenete só do feed e ale
   - Hoje remove **2 de 265**. A lista configurada era quase decorativa.
   - **Sinônimos (`3.5`) não entraram**: os termos de especialidade não existem no vocabulário
     do BNE — virariam 404 sem trazer vaga.
+`x` **S6 concluída** — "por que esta vaga apareceu" (`4.2`). **259 dos 262 cards com etiqueta.**
+  Os sinônimos, dispensados na S5 como busca, viraram leitura rápida de especialidade:
+  `clinico geral` em 84 cards, `odontologia` em 75. O campo `perfil` passou a ser gravado.
+  A parte de múltiplos perfis (`3.1`) ficou **dormente, não removida**. **178 testes.**
+`x` **Acervo 100% enriquecido** — as 110 vagas que faltavam foram processadas. 271 no banco.
 `x` **Decidido em 16/08/2026: `autônomo` e `freelancer` NÃO são motivo de reprovação.**
   Ela aceita trabalhar como autônoma — é comum no meio da odontologia. São 34 vagas, 13% do
   acervo, que permanecem no feed. **Não acrescentar esses termos a `termos_reprovacao`.**

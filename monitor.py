@@ -63,6 +63,9 @@ def servir():
         ufs_liberadas=configuracao.ufs_liberadas,
         cidades_bloqueadas=configuracao.cidades_bloqueadas,
         termos_reprovacao=configuracao.termos_reprovacao,
+        termos_por_perfil={
+            p.nome: list(p.termos) + list(p.sinonimos) for p in configuracao.perfis
+        },
     )
 
     # Fase 3: 127.0.0.1 de proposito, e nao 0.0.0.0 - o servidor nao deve ficar exposto

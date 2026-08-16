@@ -134,6 +134,35 @@ def test_card_de_copia_unica_nao_ganha_aviso_de_agrupamento():
     assert "anuncios" not in html
 
 
+def test_card_mostra_por_que_a_vaga_apareceu():
+    """Por que este teste existe: e a decisao 4.2. Sem a etiqueta, quando o feed trouxer
+    lixo voce nao consegue distinguir se o problema e o sinonimo, a cidade ou a fonte.
+
+    Com um perfil so, ela ganhou um segundo uso que nao estava previsto: como os sinonimos
+    sao termos de especialidade, a etiqueta virou leitura rapida do tipo de vaga - medido,
+    `clinico geral` aparece em 50 das 161 vagas com texto."""
+    from src.feed import montar_feed
+    html = montar_feed([vaga(termos_casados=["dentista", "clinico geral"])])
+    assert "clinico geral" in html
+    assert "casou por" in html.lower()
+
+
+def test_card_sem_casamento_nao_ganha_etiqueta_vazia():
+    """Por que este teste existe: vaga ainda nao enriquecida tem so o titulo generico e
+    pode nao casar com nada. Uma etiqueta vazia abriria um buraco no card sem informar."""
+    from src.feed import montar_feed
+    assert "casou por" not in montar_feed([vaga(termos_casados=[])]).lower()
+
+
+def test_termos_casados_sao_escapados():
+    """Por que este teste existe: os termos vem do arquivo de configuracao, que e escrito
+    a mao. Nao e texto de terceiro, mas passa pelo mesmo caminho e merece o mesmo cuidado."""
+    from src.feed import montar_feed
+    html = montar_feed([vaga(termos_casados=["<b>orto</b>"])])
+    assert "<b>orto</b>" not in html
+    assert "&lt;b&gt;orto&lt;/b&gt;" in html
+
+
 def test_texto_da_fonte_e_escapado():
     """Por que este teste existe: nome de empresa vem de terceiro e pode conter `&` ou
     `<`. Sem escape, o HTML quebra na melhor hipotese e injeta marcacao na pior."""

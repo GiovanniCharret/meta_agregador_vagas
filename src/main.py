@@ -28,8 +28,8 @@ from src.caminhos import ARQUIVO_CONFIG, DIR_DADOS, DIR_SAIDA
 # montar_feed transforma a lista de vagas na pagina que o usuario abre.
 from src.feed import montar_feed
 
-# aplicar roda os filtros de lugar e de termo antes de a pagina ser montada.
-from src.filtros import aplicar
+# aplicar roda os filtros; anotar_casamentos explica por que a vaga apareceu.
+from src.filtros import anotar_casamentos, aplicar
 
 # As funcoes de persistencia: sem elas a coleta se perderia a cada execucao.
 from src.armazena import (
@@ -62,6 +62,21 @@ from src import rede
 # ninguem perceber. Com o projeto agora focado so em odontologia, deixar vaga para tras
 # custa muito mais caro do que as requisicoes extras.
 PAGINAS_POR_TERMO = 20
+
+
+def _termos_por_perfil(configuracao):
+    """Monta o vocabulario de cada perfil: termos-semente mais sinonimos.
+
+    Por que os dois entram juntos: para a busca, so os termos-semente valem, porque sao
+    eles que viram URL. Para EXPLICAR por que a vaga apareceu, os sinonimos valem tanto
+    quanto - e no caso da odontologia valem mais, porque sao termos de especialidade e
+    viraram a leitura rapida do tipo de vaga.
+
+    Entrada -> a configuracao lida.
+    Saida   -> um dicionario de nome do perfil para a lista de termos dele.
+    """
+    # Os sinonimos vem depois das sementes, e a ordem se preserva na etiqueta do card.
+    return {p.nome: list(p.termos) + list(p.sinonimos) for p in configuracao.perfis}
 
 
 def _coleta_tudo(configuracao, buscador):
@@ -98,7 +113,8 @@ def _coleta_tudo(configuracao, buscador):
                 # interrupcao - uma fonte quebrada nao pode impedir a coleta das outras.
                 try:
                     vagas = coletar_fonte(
-                        nome_da_fonte, alvo, PAGINAS_POR_TERMO, buscador
+                        nome_da_fonte, alvo, PAGINAS_POR_TERMO, buscador,
+                        perfil=perfil.nome,
                     )
                 except EntradaInvalida as erro:
                     # Fonte sem coletor: avisa uma vez e passa para a proxima fonte.
@@ -297,6 +313,9 @@ def main(caminho=None, usar_padrao=True, buscador=None, destino=None,
     if filtradas["fora_do_mapa"] or filtradas["reprovadas"]:
         print("Filtradas: {} fora dos estados, {} por termo.".format(
             filtradas["fora_do_mapa"], sum(filtradas["reprovadas"].values())))
+
+    # Anota por que cada vaga apareceu, com os termos e sinonimos do perfil dela.
+    vagas = anotar_casamentos(vagas, _termos_por_perfil(configuracao))
 
     # newline="" impede o Windows de trocar \n por \r\n na gravacao, o que faria o
     # arquivo mudar de tamanho entre plataformas sem nenhuma mudanca de conteudo.

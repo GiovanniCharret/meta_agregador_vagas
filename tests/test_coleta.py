@@ -145,6 +145,30 @@ def test_pagina_sem_o_bloco_interrompe_a_coleta_com_erro():
         coletar_fonte("bne", "dentista", paginas=1, buscador=busca)
 
 
+def test_a_vaga_guarda_de_qual_perfil_veio():
+    """Por que este teste existe: hoje ha um perfil so, e o campo parece constante. Mas a
+    decisao registrada em 16/08/2026 e explicita - os perfis dele voltam em dias ou meses,
+    e nada da maquina de multiplos perfis deve ser simplificado.
+
+    Guardar o perfil agora custa uma coluna; descobrir depois que o acervo inteiro nao
+    sabe de onde veio custaria uma remigracao."""
+    from src.coleta import coletar_fonte
+    url = "https://www.bne.com.br/vagas-de-emprego-para-dentista"
+    busca, _ = buscador_fixo({url: pagina_real()})
+    vagas = coletar_fonte("bne", "dentista", paginas=1, buscador=busca, perfil="odonto")
+    assert {v["perfil"] for v in vagas} == {"odonto"}
+
+
+def test_sem_perfil_informado_a_vaga_fica_sem_perfil():
+    """Por que este teste existe: o parametro e opcional para nao quebrar quem chama sem
+    ele. Mas o campo tem que existir mesmo assim, senao o resto do pipeline precisaria
+    checar a presenca da chave em todo lugar."""
+    from src.coleta import coletar_fonte
+    url = "https://www.bne.com.br/vagas-de-emprego-para-dentista"
+    busca, _ = buscador_fixo({url: pagina_real()})
+    assert coletar_fonte("bne", "dentista", paginas=1, buscador=busca)[0]["perfil"] is None
+
+
 def test_fonte_desconhecida_e_recusada():
     """Por que este teste existe: `fontes_ativas` e escrita a mao no config. Um erro de
     digitacao ali faria a fonte ser ignorada em silencio, e o usuario acharia que ela

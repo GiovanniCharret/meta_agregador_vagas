@@ -143,6 +143,56 @@ def test_termo_com_mais_de_uma_palavra_funciona():
     assert termo_que_reprova(texto, ["percentual de producao"]) == "percentual de producao"
 
 
+def test_termos_que_casam_devolve_os_que_aparecem_no_texto():
+    """Por que este teste existe: e a decisao 4.2 - "por que esta vaga apareceu". Sem
+    isso, quando o feed trouxer lixo voce nao consegue distinguir se o problema e o
+    sinonimo, a cidade ou a fonte, e teria que abrir o codigo para descobrir."""
+    from src.filtros import termos_que_casam
+    v = vaga(descricao="clinica contrata dentista para odontologia estetica")
+    assert termos_que_casam(v, ["dentista", "odontologia", "ortodontia"]) == \
+        ["dentista", "odontologia"]
+
+
+def test_termos_que_casam_ignora_acento_e_caixa():
+    """Por que este teste existe: a lista e escrita a mao e o anuncio escreve como quer.
+    Sem normalizar, "Odontologia" nao casaria com "odontologia" e a etiqueta sumiria."""
+    from src.filtros import termos_que_casam
+    assert termos_que_casam(vaga(descricao="vaga em ODONTOLOGIA estética"),
+                            ["odontologia", "estetica"]) == ["odontologia", "estetica"]
+
+
+def test_termos_que_casam_exige_palavra_inteira():
+    """Por que este teste existe: e a mesma armadilha do filtro de reprovacao, medida no
+    acervo real. Aqui ela nao esconde vaga, mas mentiria na explicacao - e explicacao
+    errada e pior que explicacao nenhuma, porque voce confiaria nela para calibrar."""
+    from src.filtros import termos_que_casam
+    assert termos_que_casam(vaga(descricao="atende ao meio dia"), ["mei"]) == []
+
+
+def test_termos_que_casam_preserva_a_ordem_da_configuracao():
+    """Por que este teste existe: determinismo. Ordem instavel faria a etiqueta do card
+    mudar entre execucoes sem o dado mudar, e quebraria o teste de bytes identicos."""
+    from src.filtros import termos_que_casam
+    v = vaga(descricao="odontologia e dentista")
+    assert termos_que_casam(v, ["dentista", "odontologia"]) == ["dentista", "odontologia"]
+
+
+def test_termos_que_casam_nao_repete():
+    """Por que este teste existe: a palavra aparece varias vezes no anuncio. A etiqueta
+    tem que dizer QUAIS termos casaram, e nao quantas vezes cada um apareceu."""
+    from src.filtros import termos_que_casam
+    v = vaga(descricao="dentista, dentista e mais dentista")
+    assert termos_que_casam(v, ["dentista"]) == ["dentista"]
+
+
+def test_termos_que_casam_com_vaga_sem_texto():
+    """Por que este teste existe: vaga ainda nao enriquecida tem so o titulo generico. A
+    explicacao fica pobre, mas nao pode estourar."""
+    from src.filtros import termos_que_casam
+    assert termos_que_casam(
+        {"titulo_bruto": None, "subtitulo": None, "descricao": None}, ["dentista"]) == []
+
+
 def test_aplicar_separa_o_que_passa_do_que_nao_passa():
     """Por que este teste existe: o feed precisa das duas coisas ao mesmo tempo - a lista
     filtrada e a contagem do que sumiu. Fazer duas passadas separadas abriria espaco para

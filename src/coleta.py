@@ -49,7 +49,7 @@ def _url_da_pagina(nome, termo, pagina):
     return "{}?page={}".format(base, pagina)
 
 
-def coletar_fonte(nome, termo, paginas, buscador):
+def coletar_fonte(nome, termo, paginas, buscador, perfil=None):
     """Percorre as paginas de uma fonte e devolve as vagas ja no formato do projeto.
 
     Por que esta funcao existe: e o ponto onde a coleta deixa de ser assunto de uma
@@ -97,6 +97,10 @@ def coletar_fonte(nome, termo, paginas, buscador):
         # Fase 3: traduz cada registro e guarda so o que ainda nao foi visto.
         for registro in fonte.extrai_vagas(html, endereco):
             vaga = fonte.para_vaga(registro)
+            # De qual perfil veio a busca. Hoje ha um perfil so e o campo parece
+            # constante, mas os perfis dele voltam - e descobrir depois que o acervo nao
+            # sabe de onde veio custaria uma remigracao.
+            vaga["perfil"] = perfil
             chave = vaga["id_na_fonte"]
             if chave in encontradas:
                 continue

@@ -412,6 +412,52 @@ vaga nenhuma. O mecanismo espera uma fonte cujo vocabulário recompense.
 
 ---
 
+## S6 — por que esta vaga apareceu
+
+**Estado: 178 testes passando. 259 dos 262 cards com etiqueta.**
+
+Com um perfil só, a parte de cruzar múltiplos perfis ficou dormente — conforme a decisão de
+16/08/2026, o mecanismo **não foi simplificado**, só não tem o que cruzar. Sobrou a `4.2`.
+
+### O que os testes travam
+
+`termos_que_casam` é a contrapartida de `termo_que_reprova`: uma tira a vaga do feed, a outra
+explica por que ela está lá. Ambas exigem **fronteira de palavra**, pela mesma razão — aqui
+casar pedaço não esconderia vaga, mas mentiria na explicação, e explicação errada é pior que
+explicação nenhuma, porque você confiaria nela para calibrar.
+
+Também travam: ordem da configuração preservada (determinismo), termo não repetido, e vaga
+sem texto não estourando.
+
+O campo `perfil` passou a ser gravado na vaga. Hoje é constante, mas a decisão registrada diz
+que os perfis dele voltam — e descobrir depois que o acervo não sabe de onde veio custaria
+uma remigração.
+
+### O uso que não estava previsto
+
+Os sinônimos, que a S5 dispensou como expansão de busca, **ganharam função aqui**. Como são
+termos de especialidade, a etiqueta virou leitura rápida do tipo de vaga:
+
+| Termo | Cards |
+|---|---|
+| `dentista` | 259 |
+| `clinico geral` | **84** |
+| `odontologia` | **75** |
+| `cirurgiao-dentista` | 3 |
+| `odontopediatra` | 1 |
+
+Um terço dos cards mostra `clinico geral`, o que dá para bater o olho e separar generalista de
+especialista sem ler o subtítulo inteiro.
+
+### Uma feiura que é da fonte, não nossa
+
+Alguns subtítulos trazem palavras grudadas, como `GERALEstamos`. **Verificado no JSON-LD cru:
+o BNE já publica assim** — a quebra de linha se perde antes de chegar até nós. Não foi
+"corrigido" inserindo espaço entre minúscula e maiúscula, porque isso quebraria siglas e
+nomes próprios legítimos.
+
+---
+
 ## Subfases seguintes — o que cada uma precisa provar
 
 Registro antecipado para o teste não virar reflexão tardia. **Subfase sem teste não conta

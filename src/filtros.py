@@ -134,6 +134,78 @@ def termo_que_reprova(vaga, termos):
     return None
 
 
+def termos_que_casam(vaga, termos):
+    """Devolve quais termos do perfil aparecem no texto da vaga.
+
+    Por que esta funcao existe: e a decisao 4.2, "por que esta vaga apareceu". Sem ela,
+    quando o feed trouxer lixo voce nao consegue distinguir se o problema e o sinonimo, a
+    cidade ou a fonte - teria que abrir o codigo para descobrir.
+
+    E a contrapartida de `termo_que_reprova`: uma funcao tira vaga do feed, esta explica
+    por que a vaga esta la. Ambas usam a mesma busca por palavra inteira, pela mesma razao
+    - casar pedaco de palavra aqui nao esconderia vaga, mas mentiria na explicacao, e
+    explicacao errada e pior que explicacao nenhuma, porque voce confiaria nela.
+
+    Efeito colateral util: e aqui que os SINONIMOS finalmente servem. Eles nao funcionam
+    como expansao de busca no BNE, porque o vocabulario da fonte nao os conhece - mas
+    funcionam como leitura rapida da especialidade. Medido no acervo: `clinico geral`
+    aparece em 50 vagas e `odontologia` em 47.
+
+    Entrada -> a vaga e a lista de termos do perfil, sementes mais sinonimos.
+    Fase 1  -> monta o texto onde procurar.
+    Fase 2  -> guarda cada termo presente, uma vez so, na ordem da configuracao.
+    Saida   -> a lista de termos que casaram.
+    """
+    # Fase 1: sem texto a explicacao fica pobre, mas nao pode estourar.
+    texto = _texto_da_vaga(vaga)
+    if not texto:
+        return []
+
+    # Fase 2: a ordem e a da configuracao, e nao a de aparicao no texto - ordem instavel
+    # faria a etiqueta do card mudar entre execucoes sem o dado mudar.
+    casados = []
+    for termo in termos:
+        alvo = normalizar(termo)
+        # Termo vazio ou ja registrado nao entra de novo: a etiqueta diz QUAIS casaram,
+        # e nao quantas vezes cada um apareceu.
+        if not alvo or alvo in casados:
+            continue
+        if re.search(r"\b{}\b".format(re.escape(alvo)), texto):
+            casados.append(alvo)
+
+    # Saida.
+    return casados
+
+
+def anotar_casamentos(vagas, termos_por_perfil):
+    """Acrescenta a cada vaga a lista de termos do seu perfil que aparecem no texto.
+
+    Por que a anotacao acontece na LEITURA e nao fica gravada: ela depende da lista de
+    sinonimos, que muda no arquivo de configuracao. Gravada, mudar a lista exigiria
+    recoletar o acervo inteiro para ver o efeito.
+
+    Por que aqui e nao dentro da montagem da pagina: mantem `feed.py` apenas
+    apresentacional - ele recebe dado pronto e desenha. Casar texto e trabalho deste
+    modulo, que ja tem a normalizacao e a busca por palavra inteira.
+
+    Entrada -> as vagas e um dicionario de perfil para a lista de termos dele.
+    Fase 1  -> descobre os termos do perfil de cada vaga.
+    Fase 2  -> anota, sem alterar o dicionario original.
+    Saida   -> a lista de vagas anotadas.
+    """
+    anotadas = []
+    for vaga in vagas:
+        # Fase 1: vaga de perfil desconhecido - ou sem perfil, do acervo antigo - fica
+        # sem termos, e o card simplesmente nao mostra a etiqueta.
+        termos = termos_por_perfil.get(vaga.get("perfil")) or []
+        # Fase 2: copia rasa para nao alterar o que veio do banco.
+        copia = dict(vaga)
+        copia["termos_casados"] = termos_que_casam(vaga, termos)
+        anotadas.append(copia)
+    # Saida.
+    return anotadas
+
+
 def aplicar(vagas, ufs_liberadas, cidades_bloqueadas, termos_reprovacao):
     """Aplica os dois filtros e devolve o que passou junto com a contagem do que sumiu.
 

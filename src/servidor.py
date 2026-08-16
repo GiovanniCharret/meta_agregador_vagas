@@ -34,12 +34,12 @@ from src.erros import EntradaInvalida
 # montar_feed transforma a lista de vagas na pagina.
 from src.feed import montar_feed
 
-# aplicar roda os filtros de lugar e de termo sobre o que veio do banco.
-from src.filtros import aplicar
+# aplicar roda os filtros; anotar_casamentos explica por que a vaga apareceu.
+from src.filtros import anotar_casamentos, aplicar
 
 
 def criar_app(caminho_banco, cidades_desejadas=(), ufs_liberadas=(),
-              cidades_bloqueadas=(), termos_reprovacao=()):
+              cidades_bloqueadas=(), termos_reprovacao=(), termos_por_perfil=None):
     """Monta o aplicativo apontado para um banco.
 
     Por que o caminho do banco entra por parametro em vez de vir da ancora de caminhos:
@@ -106,6 +106,10 @@ def criar_app(caminho_banco, cidades_desejadas=(), ufs_liberadas=(),
         visiveis, filtradas = aplicar(
             visiveis, ufs_liberadas, cidades_bloqueadas, termos_reprovacao
         )
+
+        # A anotacao do "por que apareceu" tambem roda na leitura, pela mesma razao dos
+        # filtros: mudar a lista de sinonimos passa a ter efeito imediato.
+        visiveis = anotar_casamentos(visiveis, termos_por_perfil or {})
 
         # Fase 4 e saida: os contadores evitam a limitacao silenciosa de o feed encolher
         # sem explicacao.

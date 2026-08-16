@@ -67,6 +67,12 @@ h1 { font-family:var(--serif); font-weight:500; font-size:clamp(30px,4vw,42px);
 .empresa { font-size:14px; color:var(--g700); margin:6px 0 0; }
 .subtitulo { font-size:13.5px; color:var(--slate); margin:8px 0 0;
              padding-left:10px; border-left:2px solid var(--oat); }
+.casamento { margin:8px 0 0; font-size:11.5px; color:var(--g500);
+             display:flex; flex-wrap:wrap; gap:6px; align-items:baseline; }
+.casamento span { font-family:var(--mono); font-size:10px; letter-spacing:.08em;
+                  text-transform:uppercase; }
+.casamento em { font-style:normal; background:var(--g100); border:1px solid var(--g200);
+                border-radius:999px; padding:1px 8px; color:var(--g700); }
 .meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
 .selo { font-family:var(--mono); font-size:10.5px; font-weight:700;
         letter-spacing:.05em; border-radius:999px; padding:3px 10px;
@@ -294,6 +300,16 @@ def _card(vaga, desejadas, quem=None, motivos=()):
     if vaga.get("subtitulo"):
         linhas.append(
             '        <p class="subtitulo">{}</p>'.format(escape(vaga["subtitulo"]))
+        )
+
+    # "Por que esta vaga apareceu" (decisao 4.2). Com um perfil so, a etiqueta virou
+    # tambem uma leitura rapida da especialidade, porque os sinonimos sao termos de area.
+    casados = vaga.get("termos_casados") or []
+    if casados:
+        linhas.append(
+            '        <p class="casamento"><span>casou por</span> {}</p>'.format(
+                "".join('<em>{}</em>'.format(escape(t)) for t in casados)
+            )
         )
 
     linhas += [
