@@ -69,13 +69,15 @@ entidade separada, unificada só na apresentação.
 | `fonte` | texto | `catho`, `indeed`, `gupy`, … |
 | `id_na_fonte` | texto | identificador externo, quando existir |
 | `url` | texto | link original |
-| `titulo_bruto` / `titulo_normalizado` | texto | |
-| `empresa_bruta` / `empresa_normalizada` | texto | |
+| `titulo_bruto` / `titulo_normalizado` | texto | no BNE é a função normalizada por eles, não o título do anúncio |
+| `subtitulo` | texto | vem de `responsibilities` da página de detalhe; é onde mora a especialidade |
+| `descricao` | texto | texto completo do anúncio, só disponível na página de detalhe |
+| `empresa_bruta` / `empresa_normalizada` | texto | `Confidencial` aparece em 25% das vagas do BNE e **não é nome de empresa** |
 | `cidade` / `uf` | texto | normalizados |
 | `modalidade` | enum | `presencial`, `hibrido`, `remoto`, `desconhecido` |
 | `perfil` | texto | qual perfil casou: `dados`, `dev`, `financeiro`, `odonto` |
 | `termos_casados` | lista | alimenta a `4.2` |
-| `salario_texto` | texto | **cru, sem parsing** — a maioria não informa |
+| `salario_texto` | texto | **cru, sem parsing.** A listagem do BNE manda `0.0` sempre; o valor real só aparece na página de detalhe, em `baseSalary` |
 | `data_publicacao` | data | quando a fonte informa |
 | `capturado_em` | timestamp | quando entrou aqui |
 | `ativa` | booleano | falsa quando some da fonte |
@@ -120,18 +122,30 @@ que vai guiar as próximas fases. Coletar agora custa pouco; recuperar depois é
 ```
 config (JSON/XLSX)
    ↓
-[1] coleta por fonte  →  bruto + prova de origem
+[1] coleta por fonte     →  listagem: bruto + prova de origem
    ↓
-[2] normalização      →  cidade, UF, modalidade, título, empresa
+[2] enriquecimento       →  pagina de detalhe de cada vaga INEDITA
+   ↓                         descricao, subtitulo, salario real
+[3] normalização         →  cidade, UF, modalidade, título, empresa
    ↓
-[3] deduplicação      →  id_canonico
+[4] deduplicação         →  id_canonico
    ↓
-[4] filtros           →  cidades bloqueadas, palavras de reprovação
+[5] filtros              →  cidades bloqueadas, palavras de reprovação
    ↓
-[5] persistência      →  vaga / concurso / estado_item / evento
+[6] persistência         →  vaga / concurso / estado_item / evento
    ↓
-[6] feed HTML
+[7] feed HTML
 ```
+
+**Por que o enriquecimento é um passo próprio.** A listagem não traz descrição nem salário
+real; a página de detalhe traz os dois, em JSON-LD `JobPosting` (schema.org). Custa uma
+requisição por vaga, e por isso só roda para vaga **inédita** — o que exige que o estado já
+exista. Daí ele ser a subfase S3b, depois da persistência e antes da deduplicação, que
+depende dele.
+
+`JobPosting` em JSON-LD é padrão de indústria, publicado para o Google Empregos. Se as outras
+fontes também publicarem, existe um caminho de extração único para todas — vale sondar antes
+de escrever o segundo coletor.
 
 ### Entrada — o "JSON fechado" do PLAN.md
 
@@ -159,10 +173,63 @@ Arquivo ausente ou malformado levanta `EntradaInvalida` com mensagem pronta para
 
 ### Chave canônica da deduplicação
 
-`hash(empresa_normalizada + titulo_normalizado + cidade + uf)`
+```
+empresa + cargo + cidade + UF + (hash da descricao normalizada
+                                 ou id_na_fonte, quando nao houver descricao)
+```
 
-**Revisada em 16/08/2026.** A versão anterior incluía `modalidade`; foi retirada. Registro do
-raciocínio, porque a escolha não é óbvia:
+**Revisada duas vezes em 16/08/2026.** A segunda revisão veio de dado real, não de teoria.
+
+#### Segunda revisão: a chave anterior estava fundindo vagas de verdade
+
+Medido sobre as 178 vagas coletadas do BNE na S1:
+
+| Medida | Valor |
+|---|---|
+| Chaves que juntavam mais de uma vaga | **26** |
+| Pior caso — `Confidencial + desenvolvedor + São Paulo + SP` | **10 vagas num card só** |
+| Vagas cuja empresa é `Confidencial` | **44 de 178 (25%)** |
+
+`Confidencial` não é nome de empresa, é ausência de nome. E o problema não se limita a ela:
+`pasqualisolution + desenvolvedor + São Paulo` juntava seis vagas distintas, porque o cargo
+que o BNE expõe é genérico. Isso é **fusão falsa acontecendo em produção** — o pior erro
+possível, porque é silencioso.
+
+#### O que entra, e por quê
+
+- **`empresa` fica.** Sem ela, duas clínicas diferentes da mesma cidade com descrições
+  parecidas se fundem. Custo de manter é zero.
+- **`descricao` entra, como hash da versão normalizada** — minúscula, sem acento, espaços
+  colapsados, boilerplate removido. Não o texto cru: um espaço a mais faria a mesma vaga
+  virar nova. É o campo onde mora a especialidade ("dentista especialista em ortodontia"),
+  que é o que de fato discrimina duas vagas da mesma clínica.
+- **`id_na_fonte` entra apenas como último recurso**, quando não houver descrição. É o caso
+  das vagas anônimas sem texto: sem nada que as identifique, o identificador de origem é a
+  única honestidade possível. **Nunca como componente fixo** — se entrasse sempre, cada fonte
+  daria um identificador diferente para o mesmo anúncio e a deduplicação morreria inteira.
+
+#### Uma correção de premissa que eu tinha errada
+
+Eu havia argumentado que texto livre na chave mataria a deduplicação **entre fontes**. O
+argumento não se sustenta: empresa e cidade também vêm escritas de forma diferente em cada
+site. **Hash exato nunca vai cruzar fontes**, com ou sem descrição.
+
+A consequência é de sequenciamento, não de desenho: o hash exato serve para juntar cópias
+idênticas — recoleta, republicação, mesma fonte. **Cruzar fontes é problema da S4 e vai exigir
+comparação por similaridade**, como a pesquisa original já recomendava (similaridade de título
+após stemming, com janela de publicação).
+
+#### Consequência: o enriquecimento vira pré-requisito
+
+A descrição **só existe na página de detalhe**, não na listagem. Com isso, o passo de
+enriquecimento deixa de ser um extra desejável e passa a ser **pré-requisito da deduplicação**.
+Ver a subfase S3b.
+
+---
+
+### Primeira revisão: por que `modalidade` saiu da chave
+
+Registro do raciocínio, porque a escolha não é óbvia:
 
 Chave **mais estreita** funde mais, e o risco é **fusão falsa** — duas vagas diferentes viram uma,
 e a que sumiu você nunca saberá que existiu. Chave **mais larga** funde menos, e o risco é
@@ -223,9 +290,14 @@ HTML **o mais simples possível** — exigência sua. Um card por item canônico
 
 ### O card mostra
 
-Título · empresa (ou órgão) · cidade/UF · modalidade · salário como veio · data ·
+Título · **subtítulo** · empresa (ou órgão) · cidade/UF · modalidade · salário como veio · data ·
 links de todas as fontes onde apareceu · **por que apareceu** (`4.2`: qual perfil e quais termos
 casaram) · botões de estado (`3.8`).
+
+**O subtítulo** vem de `responsibilities` da página de detalhe e carrega a informação que o
+título não carrega — a especialidade. Sem ele, todas as vagas de odonto do BNE aparecem como
+"dentista". Precisa de limpeza para exibir: o texto real termina com boilerplate de template
+(`"o link para \nSite da empresa: (Informação Confidencial)."`).
 
 ### Selo de companheiro (`3.4`)
 
@@ -347,6 +419,7 @@ Cada uma entrega algo que você consegue abrir e conferir sozinho.
 | **S1** | **Uma fonte só**, a mais fácil, ponta a ponta até um JSON normalizado | D3 |
 | **S2** | Feed HTML a partir do JSON, sem estado ainda | D5 |
 | **S3** | Persistência + estados nova/salva/descartada + motivo obrigatório | `3.8`, `4.1` |
+| **S3b** | **Enriquecimento pela página de detalhe** — descrição, subtítulo e salário real, só para vaga inédita | pré-requisito da `3.7` |
 | **S4** | Deduplicação: um card, vários links | `3.7` |
 | **S5** | Filtros: cidades bloqueadas/desejadas, palavras de reprovação, sinônimos | `3.2`, `3.5`, `3.6` |
 | **S6** | Múltiplos perfis + "por que apareceu" | `3.1`, `4.2` |

@@ -42,6 +42,9 @@ Desenvolver um modelo MVP de plataforma. Dispõe inicialmenete só do feed e ale
   e deduplicação, slug de termo, camada de rede isolada. **178 vagas reais coletadas**,
   59 testes passando. Detalhes em `planning/TESTES.md`.
 `[ ]` S2 — feed HTML a partir do JSON, sem estado ainda
+`[ ]` S3b — enriquecimento pela página de detalhe (novo, 16/08/2026). Vira **pré-requisito da
+  deduplicação**, porque a descrição só existe lá. Chave canônica revisada no `DESIGN.md` D3
+  depois de medir 26 colisões reais nas 178 vagas coletadas.
 
 ### Achados da S1 que mudam premissas
 
@@ -55,6 +58,14 @@ Desenvolver um modelo MVP de plataforma. Dispõe inicialmenete só do feed e ale
   `cirurgiao-dentista`). Não é erro — é vocabulário próprio da fonte, e o aviso já ensina isso.
 - **BNE não expõe o título do anúncio**, só a função normalizada. Enfraquece a chave canônica
   para esta fonte. Registrado para a S4.
+- **A página de detalhe da vaga resolve isso, e mais.** Ela publica `JobPosting` em JSON-LD
+  (schema.org) com `responsibilities` e `description` — e é ali que aparece a especialidade
+  ("dentista especialista em ortodontia"), que é justamente o que discrimina duas vagas da mesma
+  clínica. Traz também `baseSalary` **que a listagem esconde** (a listagem manda `0.0`; o detalhe
+  traz 1.000–15.000/mês), `employmentType`, `validThrough` e CEP.
+  **Custo:** uma requisição por vaga. **Implicação maior:** `JobPosting` em JSON-LD é padrão de
+  indústria — se as outras fontes também publicarem, existe um caminho de extração único para
+  todas, em vez de um parser por site. Vale sondar antes de escrever o segundo coletor.
 
 ## Decisões tomadas
 

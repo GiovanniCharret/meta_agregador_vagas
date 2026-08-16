@@ -187,7 +187,8 @@ como concluída** (D8).
 | S1 | uma fonte real vira JSON normalizado; erro de rede não derruba a rodada inteira |
 | S2 | o mesmo JSON gera o mesmo HTML **byte a byte** (determinismo, D8) |
 | S3 | estado sobrevive a reinício; descarte sem motivo é recusado |
-| S4 | duas cópias da mesma vaga viram um card com dois links; duas vagas diferentes da mesma empresa e cidade **não** se fundem |
+| S3b | vaga já vista **não** é buscada de novo; página de detalhe sem JSON-LD vira aviso, não falha |
+| S4 | duas cópias da mesma vaga viram um card com dois links; **os 26 casos de colisão medidos na S1 param de fundir** — em especial as 10 vagas de `Confidencial + desenvolvedor + São Paulo`; vaga sem descrição cai no fallback do `id_na_fonte` |
 | S5 | cidade bloqueada não aparece; termo de reprovação descarta; sinônimo encontra o que o termo-semente sozinho não acharia |
 | S6 | vaga casada por dois perfis aparece uma vez, citando os dois; "por que apareceu" mostra os termos certos |
 | S7 | o selo aparece só quando há vaga viva do outro lado na mesma cidade; **remoto não gera selo** |
