@@ -54,6 +54,11 @@ Desenvolver um modelo MVP de plataforma. Dispõe inicialmenete só do feed e ale
     R$ 1.000–15.000, que é preenchimento padrão do BNE. Descartado; sobraram 2 reais.
   - **Testes escreviam no banco de produção.** Corrigido com `banco` explícito em toda
     chamada e a variável `MONITOR_VAGAS_RAIZ`, que redireciona a raiz do projeto.
+`x` **S4 concluída** — `src/dedupe.py` com a chave canônica revisada. **269 vagas viram 265
+  cards**, agrupando 4 republicações reais. A chave antiga formaria 181 grupos, com o pior
+  juntando 8 vagas distintas. Estado passou a pertencer ao grupo; cópias continuam no banco;
+  o card mostra um link por anúncio. **146 testes.** Migração aplicada ao banco de produção.
+`[ ]` S5 — filtros: cidades bloqueadas, palavras de reprovação, sinônimos
 `[ ]` S3b — enriquecimento pela página de detalhe (novo, 16/08/2026). Vira **pré-requisito da
   deduplicação**, porque a descrição só existe lá. Chave canônica revisada no `DESIGN.md` D3
   depois de medir 26 colisões reais nas 178 vagas coletadas.

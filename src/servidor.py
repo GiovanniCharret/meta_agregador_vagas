@@ -109,8 +109,7 @@ def criar_app(caminho_banco, cidades_desejadas=()):
 
     @app.post("/marcar")
     def registrar_marcacao(
-        fonte: str = Form(...),
-        id_na_fonte: str = Form(...),
+        id_canonico: str = Form(...),
         quem: str = Form(...),
         estado: str = Form(...),
         motivo: str = Form(default=""),
@@ -128,7 +127,7 @@ def criar_app(caminho_banco, cidades_desejadas=()):
             # Fase 1: a regra do motivo obrigatorio mora em `marcar`, e nao aqui. Se
             # fosse duplicada, um dia as duas discordariam.
             marcar(
-                conexao, fonte, id_na_fonte, quem=quem, estado=estado,
+                conexao, id_canonico, quem=quem, estado=estado,
                 motivo=motivo or None,
                 agora=datetime.now().isoformat(timespec="seconds"),
             )

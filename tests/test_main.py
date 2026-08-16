@@ -201,7 +201,7 @@ def test_estado_marcado_sobrevive_a_nova_coleta(tmp_path):
     # Descarta uma vaga entre as duas coletas.
     conexao = sqlite3.connect(banco)
     primeira = listar_vagas(conexao)[0]
-    marcar(conexao, primeira["fonte"], primeira["id_na_fonte"], quem="meu",
+    marcar(conexao, primeira["id_canonico"], quem="meu",
            estado="descartada", motivo="cidade", agora="2026-08-16T11:00:00")
     conexao.close()
 

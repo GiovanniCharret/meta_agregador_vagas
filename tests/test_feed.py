@@ -81,6 +81,40 @@ def test_subtitulo_tambem_e_escapado():
     assert "&lt;script&gt;" in html
 
 
+def test_card_agrupado_mostra_um_link_por_copia():
+    """Por que este teste existe: e a metade visivel da decisao 3.7 - "um card, varios
+    links". Agrupar sem mostrar os links faria voce perder o caminho para a republicacao,
+    que as vezes esta mais atualizada que a original."""
+    from src.feed import montar_feed
+    agrupada = vaga(origens=[
+        {"fonte": "bne", "id_na_fonte": "1", "url": "https://bne/1"},
+        {"fonte": "bne", "id_na_fonte": "2", "url": "https://bne/2"},
+    ])
+    html = montar_feed([agrupada])
+    assert "https://bne/1" in html
+    assert "https://bne/2" in html
+
+
+def test_card_agrupado_avisa_quantas_copias_existem():
+    """Por que este teste existe: sem o aviso, o segundo link pareceria um erro. Dizer
+    "2 anuncios" explica por que ha mais de um caminho para a mesma vaga."""
+    from src.feed import montar_feed
+    agrupada = vaga(origens=[
+        {"fonte": "bne", "id_na_fonte": "1", "url": "https://bne/1"},
+        {"fonte": "bne", "id_na_fonte": "2", "url": "https://bne/2"},
+    ])
+    assert "2 anuncios" in montar_feed([agrupada])
+
+
+def test_card_de_copia_unica_nao_ganha_aviso_de_agrupamento():
+    """Por que este teste existe: quase toda vaga e unica - medido, 265 grupos em 269
+    vagas. Marcar "1 anuncio" em todas seria ruido em 98% dos cards."""
+    from src.feed import montar_feed
+    html = montar_feed([vaga(origens=[
+        {"fonte": "bne", "id_na_fonte": "1", "url": "https://bne/1"}])])
+    assert "anuncios" not in html
+
+
 def test_texto_da_fonte_e_escapado():
     """Por que este teste existe: nome de empresa vem de terceiro e pode conter `&` ou
     `<`. Sem escape, o HTML quebra na melhor hipotese e injeta marcacao na pior."""

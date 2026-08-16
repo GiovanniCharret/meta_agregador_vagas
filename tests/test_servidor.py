@@ -29,6 +29,21 @@ def vaga(**mudancas):
     return base
 
 
+def chave(cliente, cidade="Florianopolis"):
+    """Devolve a chave canonica da vaga daquela cidade, lendo do proprio feed.
+
+    Por que existe: a marcacao passou a apontar para o GRUPO, e a chave e um resumo -
+    nao da para escreve-la a mao no teste. Le-la da pagina tambem prova que o formulario
+    esta enviando a chave certa, e nao so que o servidor a aceita.
+    """
+    import re
+    pagina = cliente.get("/?quem=meu").text
+    # Pega o bloco do card daquela cidade e extrai o valor do campo escondido.
+    inicio = pagina.index(cidade)
+    trecho = pagina[max(0, inicio - 2000):inicio + 2000]
+    return re.search(r'name="id_canonico" value="([^"]+)"', trecho).group(1)
+
+
 @pytest.fixture
 def cliente(tmp_path):
     """Servidor apontado para um banco temporario, com duas vagas dentro.
@@ -63,7 +78,7 @@ def test_marcar_como_salva_persiste_e_volta_para_o_feed(cliente):
     persistisse, o botao seria enfeite."""
     resposta = cliente.post(
         "/marcar",
-        data={"fonte": "bne", "id_na_fonte": "1000", "quem": "meu", "estado": "salva"},
+        data={"id_canonico": chave(cliente), "quem": "meu", "estado": "salva"},
         follow_redirects=False,
     )
     # Redireciona de volta para o feed, para o navegador nao reenviar o formulario ao
@@ -80,7 +95,7 @@ def test_descarte_sem_motivo_e_recusado_com_mensagem_legivel(cliente):
     decoracao - bastaria usar o formulario para contorna-la."""
     resposta = cliente.post(
         "/marcar",
-        data={"fonte": "bne", "id_na_fonte": "1000", "quem": "meu",
+        data={"id_canonico": chave(cliente), "quem": "meu",
               "estado": "descartada"},
     )
     assert resposta.status_code == 400
@@ -95,7 +110,7 @@ def test_descarte_com_motivo_valido_some_do_feed(cliente):
     de existir da 3.8. Se a vaga descartada continuasse aparecendo, o horizonte continuo
     que voce escolheu deixaria o feed impraticavel em poucos dias."""
     cliente.post("/marcar", data={
-        "fonte": "bne", "id_na_fonte": "1000", "quem": "meu",
+        "id_canonico": chave(cliente), "quem": "meu",
         "estado": "descartada", "motivo": "cidade"})
     pagina = cliente.get("/?quem=meu").text
     # A vaga descartada saiu; a outra continua.
@@ -108,7 +123,7 @@ def test_descarte_de_uma_pessoa_nao_esconde_a_vaga_da_outra(cliente):
     feed. Se o descarte fosse compartilhado, um descarte dela apagaria a vaga dele - e a
     ferramenta viraria fonte de briga em vez de ajuda."""
     cliente.post("/marcar", data={
-        "fonte": "bne", "id_na_fonte": "1000", "quem": "meu",
+        "id_canonico": chave(cliente), "quem": "meu",
         "estado": "descartada", "motivo": "cidade"})
     assert "Florianopolis" not in cliente.get("/?quem=meu").text
     assert "Florianopolis" in cliente.get("/?quem=dela").text
@@ -129,7 +144,7 @@ def test_vaga_inexistente_e_recusada_sem_estourar(cliente):
     """Por que este teste existe: identificador adulterado na URL nao pode derrubar o
     servidor nem criar estado orfao."""
     resposta = cliente.post("/marcar", data={
-        "fonte": "bne", "id_na_fonte": "9999", "quem": "meu", "estado": "salva"})
+        "id_canonico": "nao-existe", "quem": "meu", "estado": "salva"})
     assert resposta.status_code == 400
     assert "Traceback" not in resposta.text
 
@@ -139,7 +154,7 @@ def test_contagem_de_descartadas_fica_visivel(cliente):
     limitacao silenciosa - voce nao saberia se o feed encolheu porque filtrou bem ou
     porque a coleta falhou."""
     cliente.post("/marcar", data={
-        "fonte": "bne", "id_na_fonte": "1000", "quem": "meu",
+        "id_canonico": chave(cliente), "quem": "meu",
         "estado": "descartada", "motivo": "salario"})
     pagina = cliente.get("/?quem=meu").text
     assert "descartada" in pagina.lower()

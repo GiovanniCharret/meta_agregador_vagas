@@ -23,6 +23,17 @@ def vaga(**mudancas):
     return base
 
 
+def canonico(conexao, indice=0):
+    """Devolve a chave canonica de um item ja gravado.
+
+    Por que existe: a marcacao passou a apontar para o GRUPO, e nao para uma copia. Os
+    testes precisam da chave, e recalcula-la a mao aqui duplicaria a regra do dedupe -
+    um dia as duas versoes discordariam.
+    """
+    from src.armazena import listar_vagas
+    return listar_vagas(conexao)[indice]["id_canonico"]
+
+
 @pytest.fixture
 def banco():
     """Banco em memoria, ja com o esquema criado.
@@ -89,7 +100,7 @@ def test_marcar_como_salva_persiste(banco):
     """Por que este teste existe: e a metade util da 3.8 - guardar o que interessa."""
     from src.armazena import salvar_vagas, marcar, listar_vagas
     salvar_vagas(banco, [vaga()], agora="2026-08-16T10:00:00")
-    marcar(banco, "bne", "1000", quem="meu", estado="salva", agora="2026-08-16T11:00:00")
+    marcar(banco, canonico(banco), quem="meu", estado="salva", agora="2026-08-16T11:00:00")
     assert listar_vagas(banco, quem="meu")[0]["estado"] == "salva"
 
 
@@ -101,7 +112,7 @@ def test_descartar_sem_motivo_e_recusado(banco):
     from src.erros import EntradaInvalida
     salvar_vagas(banco, [vaga()], agora="2026-08-16T10:00:00")
     with pytest.raises(EntradaInvalida) as erro:
-        marcar(banco, "bne", "1000", quem="meu", estado="descartada",
+        marcar(banco, canonico(banco), quem="meu", estado="descartada",
                agora="2026-08-16T11:00:00")
     assert "motivo" in str(erro.value).lower()
 
@@ -114,7 +125,7 @@ def test_descartar_com_motivo_fora_da_lista_e_recusado(banco):
     from src.erros import EntradaInvalida
     salvar_vagas(banco, [vaga()], agora="2026-08-16T10:00:00")
     with pytest.raises(EntradaInvalida) as erro:
-        marcar(banco, "bne", "1000", quem="meu", estado="descartada",
+        marcar(banco, canonico(banco), quem="meu", estado="descartada",
                motivo="nao gostei", agora="2026-08-16T11:00:00")
     mensagem = str(erro.value)
     # Cita o valor recusado e ensina os aceitos.
@@ -127,7 +138,7 @@ def test_descartar_com_motivo_valido_guarda_o_motivo(banco):
     estado sem o motivo perderia justamente a parte que interessa."""
     from src.armazena import salvar_vagas, marcar, listar_vagas
     salvar_vagas(banco, [vaga()], agora="2026-08-16T10:00:00")
-    marcar(banco, "bne", "1000", quem="meu", estado="descartada",
+    marcar(banco, canonico(banco), quem="meu", estado="descartada",
            motivo="salario", agora="2026-08-16T11:00:00")
     guardada = listar_vagas(banco, quem="meu")[0]
     assert guardada["estado"] == "descartada"
@@ -139,7 +150,7 @@ def test_estado_de_cada_pessoa_e_independente(banco):
     feed. Se o estado fosse compartilhado, um descarte dela apagaria a vaga dele."""
     from src.armazena import salvar_vagas, marcar, listar_vagas
     salvar_vagas(banco, [vaga()], agora="2026-08-16T10:00:00")
-    marcar(banco, "bne", "1000", quem="meu", estado="salva", agora="2026-08-16T11:00:00")
+    marcar(banco, canonico(banco), quem="meu", estado="salva", agora="2026-08-16T11:00:00")
     # Para ele esta salva; para ela continua nova, porque ela nao marcou nada.
     assert listar_vagas(banco, quem="meu")[0]["estado"] == "salva"
     assert listar_vagas(banco, quem="dela")[0]["estado"] == "nova"
@@ -150,8 +161,8 @@ def test_remarcar_sobrescreve_o_estado_anterior(banco):
     acumularia estados conflitantes da mesma vaga e o feed nao saberia qual vale."""
     from src.armazena import salvar_vagas, marcar, listar_vagas
     salvar_vagas(banco, [vaga()], agora="2026-08-16T10:00:00")
-    marcar(banco, "bne", "1000", quem="meu", estado="salva", agora="2026-08-16T11:00:00")
-    marcar(banco, "bne", "1000", quem="meu", estado="descartada",
+    marcar(banco, canonico(banco), quem="meu", estado="salva", agora="2026-08-16T11:00:00")
+    marcar(banco, canonico(banco), quem="meu", estado="descartada",
            motivo="cidade", agora="2026-08-16T12:00:00")
     guardadas = listar_vagas(banco, quem="meu")
     assert len(guardadas) == 1
@@ -164,9 +175,9 @@ def test_voltar_para_salva_limpa_o_motivo_antigo(banco):
     descartadas - e o dado de UX ficaria errado sem ninguem notar."""
     from src.armazena import salvar_vagas, marcar, listar_vagas
     salvar_vagas(banco, [vaga()], agora="2026-08-16T10:00:00")
-    marcar(banco, "bne", "1000", quem="meu", estado="descartada",
+    marcar(banco, canonico(banco), quem="meu", estado="descartada",
            motivo="cidade", agora="2026-08-16T11:00:00")
-    marcar(banco, "bne", "1000", quem="meu", estado="salva", agora="2026-08-16T12:00:00")
+    marcar(banco, canonico(banco), quem="meu", estado="salva", agora="2026-08-16T12:00:00")
     assert listar_vagas(banco, quem="meu")[0]["motivo"] is None
 
 
@@ -177,7 +188,7 @@ def test_marcar_vaga_inexistente_e_recusado(banco):
     from src.armazena import marcar
     from src.erros import EntradaInvalida
     with pytest.raises(EntradaInvalida):
-        marcar(banco, "bne", "9999", quem="meu", estado="salva", agora="2026-08-16T11:00:00")
+        marcar(banco, "chave-que-nao-existe", quem="meu", estado="salva", agora="2026-08-16T11:00:00")
 
 
 def test_cada_marcacao_vira_evento(banco):
@@ -186,7 +197,7 @@ def test_cada_marcacao_vira_evento(banco):
     e a materia-prima que vai responder, no futuro, qual filtro construir a seguir."""
     from src.armazena import salvar_vagas, marcar, listar_eventos
     salvar_vagas(banco, [vaga()], agora="2026-08-16T10:00:00")
-    marcar(banco, "bne", "1000", quem="meu", estado="descartada",
+    marcar(banco, canonico(banco), quem="meu", estado="descartada",
            motivo="salario", agora="2026-08-16T11:00:00")
     eventos = listar_eventos(banco)
     assert len(eventos) == 1
@@ -292,6 +303,138 @@ def test_recoleta_nao_apaga_a_descricao_enriquecida(banco):
     assert guardada["descricao"] == "atende ortodontia e endodontia"
     # E a vaga nao volta para a fila de enriquecimento.
     assert guardada["enriquecido_em"] == "2026-08-16T11:00:00"
+
+
+def republicada(**mudancas):
+    """Devolve a mesma vaga com outro identificador de origem.
+
+    Por que existe: republicacao e o caso real que a deduplicacao resolve - o anunciante
+    repoe o anuncio e a fonte da um numero novo. Medido no acervo: 4 grupos em 269 vagas.
+    """
+    base = vaga(descricao="atende ortodontia e endodontia")
+    base.update(mudancas)
+    return base
+
+
+def test_salvar_calcula_a_chave_canonica(banco):
+    """Por que este teste existe: a chave e calculada na gravacao, e nao na leitura. Se
+    fosse na leitura, cada consulta recalcularia o acervo inteiro e nada poderia ser
+    indexado por ela."""
+    from src.armazena import salvar_vagas, listar_vagas
+    salvar_vagas(banco, [republicada()], agora="2026-08-16T10:00:00")
+    assert listar_vagas(banco)[0]["id_canonico"]
+
+
+def enriquece(banco, ids, texto="atende ortodontia e endodontia", subtitulo="ortodontia"):
+    """Enriquece as copias indicadas com a mesma descricao.
+
+    Por que existe: `salvar_vagas` NAO grava descricao - ela vem da pagina de detalhe, e
+    nao da listagem. Sem enriquecer, duas copias caem no recurso do identificador e nao
+    se agrupam. Isso nao e defeito: e a consequencia direta de o enriquecimento ser
+    pre-requisito da deduplicacao, como ficou decidido no D3.
+    """
+    from src.armazena import salvar_detalhe
+    for identificador in ids:
+        salvar_detalhe(banco, "bne", identificador,
+                       {"descricao": texto, "subtitulo": subtitulo,
+                        "salario_texto": None, "tipo_vinculo": None},
+                       agora="2026-08-16T11:00:00")
+
+
+def test_copias_da_mesma_vaga_viram_um_card_so(banco):
+    """Por que este teste existe: e a entrega da S4. Duas republicacoes da mesma vaga
+    tem que virar UM item na listagem, senao o feed repete e a contagem por cidade mente."""
+    from src.armazena import salvar_vagas, listar_vagas
+    salvar_vagas(banco, [republicada(id_na_fonte="1"), republicada(id_na_fonte="2")],
+                 agora="2026-08-16T10:00:00")
+    enriquece(banco, ["1", "2"])
+    assert len(listar_vagas(banco)) == 1
+
+
+def test_copia_ainda_nao_enriquecida_nao_se_funde_com_a_enriquecida(banco):
+    """Por que este teste existe: documenta uma consequencia incomoda e real. Enquanto uma
+    copia nao tiver descricao, ela cai no recurso do identificador e fica separada. As
+    duas so se juntam quando ambas passarem pelo enriquecimento.
+
+    E transitorio - a rodada seguinte enriquece a que faltou - mas precisa estar visivel,
+    para ninguem estranhar um card repetido no meio do caminho."""
+    from src.armazena import salvar_vagas, listar_vagas
+    salvar_vagas(banco, [republicada(id_na_fonte="1"), republicada(id_na_fonte="2")],
+                 agora="2026-08-16T10:00:00")
+    enriquece(banco, ["1"])
+    assert len(listar_vagas(banco)) == 2
+    # E ao enriquecer a segunda, elas se juntam.
+    enriquece(banco, ["2"])
+    assert len(listar_vagas(banco)) == 1
+
+
+def test_o_card_agrupado_guarda_o_link_de_cada_copia(banco):
+    """Por que este teste existe: agrupar nao pode significar perder. A decisao 3.7 diz
+    "um card, varios links" - se as copias sumissem, voce perderia o caminho para a
+    republicacao que talvez esteja mais atualizada."""
+    from src.armazena import salvar_vagas, listar_vagas
+    salvar_vagas(banco, [
+        republicada(id_na_fonte="1", url="https://bne/1"),
+        republicada(id_na_fonte="2", url="https://bne/2"),
+    ], agora="2026-08-16T10:00:00")
+    enriquece(banco, ["1", "2"])
+    origens = listar_vagas(banco)[0]["origens"]
+    assert len(origens) == 2
+    assert {o["url"] for o in origens} == {"https://bne/1", "https://bne/2"}
+
+
+def test_as_copias_continuam_no_banco(banco):
+    """Por que este teste existe: a deduplicacao acontece na LEITURA, nao apagando dado.
+    Apagar copia perderia a prova de origem, que o D3 exige, e seria irreversivel se a
+    chave se mostrasse errada depois."""
+    from src.armazena import salvar_vagas
+    salvar_vagas(banco, [republicada(id_na_fonte="1"), republicada(id_na_fonte="2")],
+                 agora="2026-08-16T10:00:00")
+    assert banco.execute("SELECT COUNT(*) FROM vaga").fetchone()[0] == 2
+
+
+def test_vagas_distintas_da_mesma_empresa_nao_se_fundem(banco):
+    """Por que este teste existe: e o erro que a chave antiga cometia no acervo real -
+    juntava ate 8 vagas distintas num card. Fusao falsa e o pior erro possivel, porque
+    some com uma vaga em silencio."""
+    from src.armazena import salvar_vagas, listar_vagas
+    salvar_vagas(banco, [republicada(id_na_fonte="1"), republicada(id_na_fonte="2")],
+                 agora="2026-08-16T10:00:00")
+    # Mesma empresa, mesma cidade, mesmo cargo generico - so o trabalho e diferente.
+    enriquece(banco, ["1"], texto="especialista em ortodontia")
+    enriquece(banco, ["2"], texto="clinico geral para adultos")
+    assert len(listar_vagas(banco)) == 2
+
+
+def test_marcar_o_grupo_esconde_todas_as_copias(banco):
+    """Por que este teste existe: se o estado ficasse preso a uma copia, descartar a vaga
+    faria a republicacao dela reaparecer no dia seguinte como se fosse nova - e voce
+    descartaria a mesma coisa varias vezes."""
+    from src.armazena import salvar_vagas, marcar, listar_vagas
+    salvar_vagas(banco, [republicada(id_na_fonte="1"), republicada(id_na_fonte="2")],
+                 agora="2026-08-16T10:00:00")
+    enriquece(banco, ["1", "2"])
+    canonico = listar_vagas(banco)[0]["id_canonico"]
+    marcar(banco, canonico, quem="meu", estado="descartada", motivo="cidade",
+           agora="2026-08-16T11:00:00")
+    itens = listar_vagas(banco, quem="meu")
+    # Um card so, e ele esta descartado - as duas copias sumiram juntas.
+    assert len(itens) == 1
+    assert itens[0]["estado"] == "descartada"
+
+
+def test_o_representante_do_grupo_carrega_o_subtitulo(banco):
+    """Por que este teste existe: o card mostra os dados de UMA das copias, e a escolha
+    nao pode jogar fora o subtitulo que a S3b trouxe - e o unico campo que devolve
+    informacao ao card, ja que o titulo do BNE e generico e igual em todas."""
+    from src.armazena import salvar_vagas, listar_vagas
+    salvar_vagas(banco, [republicada(id_na_fonte="1"), republicada(id_na_fonte="2")],
+                 agora="2026-08-16T10:00:00")
+    enriquece(banco, ["1", "2"], subtitulo="especialista em ortodontia")
+    item = listar_vagas(banco)[0]
+    assert item["subtitulo"] == "especialista em ortodontia"
+    # E a escolha do representante nao pode variar entre leituras.
+    assert listar_vagas(banco)[0]["id_na_fonte"] == item["id_na_fonte"]
 
 
 def test_listar_ordena_de_forma_estavel(banco):

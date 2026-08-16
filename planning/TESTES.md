@@ -316,6 +316,58 @@ e só descobre isso quando o programa passa a fazer algo caro.
 
 ---
 
+## S4 — deduplicação
+
+**Estado: 146 testes passando. 269 vagas viram 265 cards.**
+
+### `tests/test_dedupe.py` — 11 testes
+
+A chave canônica. Travam os dois lados do erro, que custam diferente:
+
+- **Fusão falsa** (o pior, porque é silencioso): empresas diferentes, cidades diferentes e
+  descrições diferentes têm que gerar chaves diferentes.
+- **Separação falsa**: pontuação, acento e espaçamento **não** podem mudar a chave. Caso
+  real — duas republicações da IVI Digital diferiam só por `Requisitos:` contra
+  `Requisitos.`, e sem normalização agressiva seriam vagas distintas.
+
+Um teste documenta uma consequência incômoda: **enriquecer muda a chave**. Vaga sem descrição
+usa o identificador de origem; depois do enriquecimento passa a usar o hash do texto. Melhor
+um teste que registra isso do que a descoberta no meio da S8.
+
+### O que a medição mostrou
+
+| Chave | Grupos em 269 vagas | Pior caso |
+|---|---|---|
+| Antiga, sem descrição | 181 | **8 vagas distintas num card** |
+| Nova, com descrição | **265** | 2 cópias — republicação real |
+
+Os 4 grupos formados são republicações verdadeiras: mesma empresa, mesma cidade, texto
+idêntico, identificador diferente.
+
+### Três decisões que os testes fixam
+
+**As cópias continuam no banco.** O agrupamento acontece na leitura. Apagar cópia perderia a
+prova de origem que o D3 exige, e seria irreversível se a chave se mostrasse errada.
+
+**O estado pertence ao grupo, não à cópia.** Se ficasse preso a uma cópia, descartar a vaga
+faria a republicação dela reaparecer no dia seguinte como se fosse nova.
+
+**O representante do card é a cópia enriquecida.** Escolher a outra jogaria fora o subtítulo
+da S3b — o único campo que informa, já que o título do BNE é genérico.
+
+### A consequência que ficou visível
+
+**Cópia ainda não enriquecida não se agrupa com a enriquecida.** Enquanto não tiver descrição,
+ela cai no recurso do identificador. É transitório — a rodada seguinte enriquece a que faltou —
+mas está travado por teste para ninguém estranhar um card repetido no meio do caminho.
+
+### Migração aplicada ao banco de produção
+
+`criar_esquema` preenche `id_canonico` das vagas antigas e reconstrói `estado_item` para
+apontar ao grupo, mapeando as marcações existentes. Rodou sobre as 269 vagas reais.
+
+---
+
 ## Subfases seguintes — o que cada uma precisa provar
 
 Registro antecipado para o teste não virar reflexão tardia. **Subfase sem teste não conta

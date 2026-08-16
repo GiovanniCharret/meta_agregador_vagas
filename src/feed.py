@@ -178,13 +178,14 @@ def _acoes(vaga, quem, motivos):
                obrigatorio na 4.1, entao o campo entra com `required`.
     Saida   -> o HTML do bloco de acoes.
     """
-    # Fase 1: os mesmos campos escondidos servem aos dois formularios.
+    # Fase 1: os mesmos campos escondidos servem aos dois formularios. A marcacao aponta
+    # para a chave do GRUPO, e nao para uma copia - senao descartar a vaga faria a
+    # republicacao dela reaparecer amanha como se fosse nova.
     escondidos = "".join(
         '<input type="hidden" name="{}" value="{}">'.format(
             nome, escape(str(valor or ""), quote=True))
         for nome, valor in (
-            ("fonte", vaga.get("fonte")),
-            ("id_na_fonte", vaga.get("id_na_fonte")),
+            ("id_canonico", vaga.get("id_canonico")),
             ("quem", quem),
         )
     )
@@ -248,12 +249,27 @@ def _card(vaga, desejadas, quem=None, motivos=()):
     if vaga.get("salario_texto"):
         selos.append(_selo(vaga["salario_texto"], "salario"))
 
-    # Fase 3: data e link vivem no rodape do card, separados do conteudo.
+    # Fase 3: data e links vivem no rodape do card, separados do conteudo.
     data = vaga.get("data_publicacao") or "data nao informada"
     origem = "{} &middot; {}".format(escape(vaga.get("fonte") or "?"), escape(data))
-    link = '<a href="{}" target="_blank" rel="noopener">ver na origem</a>'.format(
-        escape(vaga.get("url") or "", quote=True)
-    )
+
+    # A decisao 3.7 pede um card com VARIOS links: a mesma vaga republicada tem mais de
+    # um endereco, e a republicacao as vezes esta mais atualizada que a original.
+    copias = vaga.get("origens") or [
+        {"fonte": vaga.get("fonte"), "url": vaga.get("url")}
+    ]
+    if len(copias) > 1:
+        # O aviso explica por que ha mais de um link; sem ele, o segundo pareceria erro.
+        origem += " &middot; {} anuncios".format(len(copias))
+        link = " ".join(
+            '<a href="{}" target="_blank" rel="noopener">anuncio {}</a>'.format(
+                escape(c.get("url") or "", quote=True), numero)
+            for numero, c in enumerate(copias, 1)
+        )
+    else:
+        link = '<a href="{}" target="_blank" rel="noopener">ver na origem</a>'.format(
+            escape(copias[0].get("url") or "", quote=True)
+        )
 
     # As linhas do card sao montadas em lista para o controle de quebra ser explicito.
     linhas = [
