@@ -47,7 +47,13 @@ Desenvolver um modelo MVP de plataforma. Dispõe inicialmenete só do feed e ale
 `x` **S3 concluída** — `src/armazena.py` (SQLite, estados por pessoa, motivo obrigatório,
   log de eventos) e `src/servidor.py` (FastAPI local, marcação por formulário sem JavaScript).
   `monitor.py servir` sobe o feed em `127.0.0.1:8000`. **100 testes**, banco com 186 vagas.
-`[ ]` S3b — enriquecimento pela página de detalhe
+`x` **S3b concluída** — `src/enriquece.py` lê o JSON-LD `JobPosting` da página de detalhe.
+  **165 de 269 vagas enriquecidas, 157 com subtítulo distinto** — a descrição discrimina, o
+  que valida a chave canônica da S4. **124 testes.**
+  - **Salário do detalhe é quase todo falso:** 163 de 165 traziam a mesma faixa
+    R$ 1.000–15.000, que é preenchimento padrão do BNE. Descartado; sobraram 2 reais.
+  - **Testes escreviam no banco de produção.** Corrigido com `banco` explícito em toda
+    chamada e a variável `MONITOR_VAGAS_RAIZ`, que redireciona a raiz do projeto.
 `[ ]` S3b — enriquecimento pela página de detalhe (novo, 16/08/2026). Vira **pré-requisito da
   deduplicação**, porque a descrição só existe lá. Chave canônica revisada no `DESIGN.md` D3
   depois de medir 26 colisões reais nas 178 vagas coletadas.

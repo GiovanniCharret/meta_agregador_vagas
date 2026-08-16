@@ -55,6 +55,32 @@ def test_modalidade_remota_recebe_rotulo_e_destaque_proprios():
     assert "selo remoto" in html
 
 
+def test_subtitulo_aparece_sob_o_titulo():
+    """Por que este teste existe: e a razao de ser da S3b. O titulo do BNE e generico -
+    "dentista" para todas - e o subtitulo e o que devolve informacao ao card. Se ele
+    ficasse so no banco, a subfase inteira teria sido requisicao gasta a toa."""
+    from src.feed import montar_feed
+    html = montar_feed([vaga(subtitulo="Vaga para dentista especialista em ortodontia")])
+    assert "especialista em ortodontia" in html
+
+
+def test_subtitulo_ausente_nao_deixa_marcacao_vazia():
+    """Por que este teste existe: vaga ainda nao enriquecida nao tem subtitulo. Um
+    elemento vazio no HTML abriria um buraco no card sem motivo."""
+    from src.feed import montar_feed
+    html = montar_feed([vaga(subtitulo=None)])
+    assert 'class="subtitulo"' not in html
+
+
+def test_subtitulo_tambem_e_escapado():
+    """Por que este teste existe: o subtitulo vem da descricao escrita pelo anunciante -
+    e texto de terceiro como qualquer outro."""
+    from src.feed import montar_feed
+    html = montar_feed([vaga(subtitulo="atende <script>alert(1)</script>")])
+    assert "<script>alert" not in html
+    assert "&lt;script&gt;" in html
+
+
 def test_texto_da_fonte_e_escapado():
     """Por que este teste existe: nome de empresa vem de terceiro e pode conter `&` ou
     `<`. Sem escape, o HTML quebra na melhor hipotese e injeta marcacao na pior."""

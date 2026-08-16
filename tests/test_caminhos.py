@@ -33,6 +33,27 @@ def test_raiz_independe_do_diretorio_de_trabalho(monkeypatch, tmp_path):
     assert src.caminhos.RAIZ == esperado
 
 
+def test_raiz_pode_ser_redirecionada_por_variavel_de_ambiente(monkeypatch, tmp_path):
+    """Por que este teste existe: o teste ponta a ponta roda o executavel como processo
+    separado, e o processo usa os caminhos padrao - banco, feed e JSON de PRODUCAO.
+    Sem um jeito de redirecionar, a suite passa a escrever no banco de verdade e, pior,
+    a disparar centenas de requisicoes reais.
+
+    Aconteceu em 16/08/2026, ao ligar o enriquecimento: a suite travou por minutos
+    buscando paginas de detalhe de verdade, a partir do banco de producao."""
+    import importlib
+    import src.caminhos
+    # A variavel aponta para outro lugar; RAIZ tem que obedecer.
+    monkeypatch.setenv("MONITOR_VAGAS_RAIZ", str(tmp_path))
+    importlib.reload(src.caminhos)
+    assert src.caminhos.RAIZ == tmp_path
+    # E os diretorios derivados acompanham, senao o redirecionamento seria parcial.
+    assert src.caminhos.DIR_DADOS == tmp_path / "dados"
+    # Desfaz, para nao contaminar os testes seguintes.
+    monkeypatch.delenv("MONITOR_VAGAS_RAIZ")
+    importlib.reload(src.caminhos)
+
+
 def test_diretorios_derivam_da_raiz():
     """Por que este teste existe: os tres diretorios de dado sao irmaos de src/, nao
     filhos. Se alguem os mover para dentro de src/, a separacao entre codigo e dado

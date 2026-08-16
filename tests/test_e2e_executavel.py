@@ -7,6 +7,9 @@ chamado direto pela linha de comando. So chamando o processo de verdade, de outr
 diretorio, esse tipo de defeito aparece.
 """
 
+# os copia o ambiente atual para acrescentar o redirecionamento da raiz.
+import os
+
 # subprocess roda o executavel como o usuario rodaria, num processo separado.
 import subprocess
 
@@ -38,12 +41,20 @@ def roda(caminho_config, diretorio_de_trabalho):
     Fase 2  -> executa capturando as duas saidas como texto.
     Saida   -> o objeto de resultado do subprocess, com codigo, stdout e stderr.
     """
+    # O ambiente redireciona a raiz do projeto para o diretorio temporario. Sem isso o
+    # processo filho escreveria no banco e no feed de PRODUCAO, e o enriquecimento sairia
+    # buscando paginas de detalhe de verdade a partir do acervo real - foi o que travou a
+    # suite em 16/08/2026.
+    ambiente = dict(os.environ)
+    ambiente["MONITOR_VAGAS_RAIZ"] = str(diretorio_de_trabalho)
+
     # Fase 1 e 2: cwd diferente da raiz e o que prova que o programa nao depende dele.
     return subprocess.run(
         [sys.executable, str(LANCADOR), str(caminho_config)],
         cwd=str(diretorio_de_trabalho),
         capture_output=True,
         text=True,
+        env=ambiente,
     )
 
 

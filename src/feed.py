@@ -65,6 +65,8 @@ h1 { font-family:var(--serif); font-weight:500; font-size:clamp(30px,4vw,42px);
 .vaga h2 { font-family:var(--serif); font-weight:500; font-size:19px;
            margin:0; flex:1 1 auto; min-width:180px; letter-spacing:-.01em; }
 .empresa { font-size:14px; color:var(--g700); margin:6px 0 0; }
+.subtitulo { font-size:13.5px; color:var(--slate); margin:8px 0 0;
+             padding-left:10px; border-left:2px solid var(--oat); }
 .meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
 .selo { font-family:var(--mono); font-size:10.5px; font-weight:700;
         letter-spacing:.05em; border-radius:999px; padding:3px 10px;
@@ -260,6 +262,16 @@ def _card(vaga, desejadas, quem=None, motivos=()):
             escape(vaga.get("titulo_bruto") or "sem titulo")),
         '        <p class="empresa">{}</p>'.format(
             escape(vaga.get("empresa_bruta") or "empresa nao informada")),
+    ]
+
+    # O subtitulo so existe depois do enriquecimento (S3b). Vaga ainda nao enriquecida
+    # nao ganha elemento vazio, que abriria um buraco no card sem motivo.
+    if vaga.get("subtitulo"):
+        linhas.append(
+            '        <p class="subtitulo">{}</p>'.format(escape(vaga["subtitulo"]))
+        )
+
+    linhas += [
         '        <div class="meta">{}</div>'.format("".join(selos)),
         '        <div class="rodape-card"><span>{}</span>{}</div>'.format(origem, link),
     ]

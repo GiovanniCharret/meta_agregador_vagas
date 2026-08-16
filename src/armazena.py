@@ -48,6 +48,15 @@ COLUNAS_VAGA = (
     "cidade", "uf", "modalidade", "salario_texto", "data_publicacao",
 )
 
+# Colunas que so a pagina de detalhe preenche (subfase S3b). Ficam separadas porque a
+# recoleta NAO pode sobrescreve-las: a listagem nao tem esses dados, e gravar o nulo
+# dela por cima desfaria o enriquecimento a cada madrugada.
+COLUNAS_DETALHE = ("subtitulo", "descricao", "tipo_vinculo", "enriquecido_em")
+
+# Campos que a listagem manda vazios mas o detalhe preenche. Na recoleta eles recebem
+# COALESCE, para o valor vindo do detalhe sobreviver ao nulo da listagem.
+COLUNAS_PRESERVADAS = ("salario_texto",)
+
 
 def criar_esquema(conexao):
     """Cria as tabelas, se ainda nao existirem.
@@ -78,9 +87,23 @@ def criar_esquema(conexao):
             data_publicacao TEXT,
             primeira_coleta TEXT NOT NULL,
             ultima_coleta   TEXT NOT NULL,
+            subtitulo       TEXT,
+            descricao       TEXT,
+            tipo_vinculo    TEXT,
+            enriquecido_em  TEXT,
             PRIMARY KEY (fonte, id_na_fonte)
         )
     """)
+
+    # Migracao das colunas de enriquecimento. `CREATE TABLE IF NOT EXISTS` nao mexe em
+    # tabela que ja existe, entao o banco de producao - com centenas de vagas gravadas
+    # antes desta subfase - ficaria sem as colunas novas e quebraria em silencio.
+    existentes = {linha[1] for linha in conexao.execute("PRAGMA table_info(vaga)")}
+    for coluna in COLUNAS_DETALHE:
+        if coluna not in existentes:
+            # ADD COLUMN e barato e nao reescreve a tabela; os valores nascem nulos, que
+            # e exatamente o que significa "ainda nao enriquecida".
+            conexao.execute("ALTER TABLE vaga ADD COLUMN {} TEXT".format(coluna))
 
     # Fase 2: `quem` entra na chave para que o estado de cada pessoa seja independente -
     # um descarte dela nao pode apagar a vaga dele.
@@ -133,8 +156,15 @@ def salvar_vagas(conexao, vagas, agora):
     # ON CONFLICT faz o insert virar atualizacao quando a chave ja existe. `excluded` e
     # a linha que teria sido inserida; usa-la aqui atualiza os campos com o dado novo.
     # `primeira_coleta` fica de fora da lista de atualizacao de proposito.
+    #
+    # As colunas preservadas usam COALESCE: se a listagem trouxer nulo - e ela traz, no
+    # caso do salario, em 100% das vagas do BNE - o valor que ja estava fica. Sem isso, a
+    # recoleta de amanha desfaria o enriquecimento de hoje.
     atualizacoes = ", ".join(
-        "{0} = excluded.{0}".format(coluna) for coluna in COLUNAS_VAGA[2:]
+        "{0} = COALESCE(excluded.{0}, vaga.{0})".format(coluna)
+        if coluna in COLUNAS_PRESERVADAS
+        else "{0} = excluded.{0}".format(coluna)
+        for coluna in COLUNAS_VAGA[2:]
     )
 
     comando = """
@@ -187,6 +217,65 @@ def listar_vagas(conexao, quem=None):
         registro["estado"] = registro["estado"] or "nova"
         resultado.append(registro)
     return resultado
+
+
+def vagas_sem_detalhe(conexao, limite=None):
+    """Devolve as vagas que ainda nao passaram pelo enriquecimento.
+
+    Por que esta funcao existe: enriquecer custa uma requisicao por vaga. Buscar de novo
+    o que ja foi buscado desperdicaria a rodada e pesaria sobre a fonte sem motivo - foi
+    exatamente por isso que esta subfase veio depois da persistencia, e nao antes.
+
+    Entrada -> a conexao e, opcionalmente, um teto de quantas devolver.
+    Fase 1  -> seleciona as que nao tem carimbo de enriquecimento.
+    Fase 2  -> aplica o teto, util para rodadas parciais em acervo grande.
+    Saida   -> a lista de vagas pendentes, em ordem estavel.
+    """
+    # Fase 1: `enriquecido_em` nulo e o que significa "ainda nao buscada".
+    comando = (
+        "SELECT * FROM vaga WHERE enriquecido_em IS NULL"
+        " ORDER BY fonte, id_na_fonte"
+    )
+    # Fase 2: o teto entra como LIMIT, para nao trazer o acervo inteiro a memoria.
+    if limite:
+        comando += " LIMIT {}".format(int(limite))
+
+    conexao.row_factory = sqlite3.Row
+    return [dict(linha) for linha in conexao.execute(comando)]
+
+
+def salvar_detalhe(conexao, fonte, id_na_fonte, dados, agora):
+    """Grava o que a pagina de detalhe trouxe e tira a vaga da fila.
+
+    Por que esta funcao existe separada de `salvar_vagas`: sao duas origens diferentes
+    com regras opostas. A listagem sobrescreve; o detalhe complementa. Junta-las faria a
+    recoleta apagar o enriquecimento.
+
+    Entrada -> a conexao, a origem da vaga, os campos extraidos e o horario.
+    Fase 1  -> grava os campos que so o detalhe tem.
+    Fase 2  -> grava o salario apenas quando o detalhe informou, para nao apagar um valor
+               que ja estivesse la.
+    Fase 3  -> carimba o enriquecimento, o que tira a vaga da fila.
+    Saida   -> nada; a funcao existe pelo efeito no banco.
+    """
+    # Fase 1, 2 e 3 num comando so: COALESCE no salario protege o que ja existia.
+    conexao.execute("""
+        UPDATE vaga SET
+            subtitulo      = ?,
+            descricao      = ?,
+            tipo_vinculo   = ?,
+            salario_texto  = COALESCE(?, salario_texto),
+            enriquecido_em = ?
+        WHERE fonte = ? AND id_na_fonte = ?
+    """, (
+        dados.get("subtitulo"),
+        dados.get("descricao"),
+        dados.get("tipo_vinculo"),
+        dados.get("salario_texto"),
+        agora,
+        fonte, id_na_fonte,
+    ))
+    conexao.commit()
 
 
 def marcar(conexao, fonte, id_na_fonte, quem, estado, agora, motivo=None):

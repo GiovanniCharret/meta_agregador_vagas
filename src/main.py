@@ -29,7 +29,12 @@ from src.caminhos import ARQUIVO_CONFIG, DIR_DADOS, DIR_SAIDA
 from src.feed import montar_feed
 
 # As funcoes de persistencia: sem elas a coleta se perderia a cada execucao.
-from src.armazena import criar_esquema, salvar_vagas
+from src.armazena import (
+    criar_esquema, listar_vagas, salvar_detalhe, salvar_vagas, vagas_sem_detalhe,
+)
+
+# extrai_detalhe le o JSON-LD da pagina de detalhe da vaga.
+from src.enriquece import extrai_detalhe
 
 # coletar_fonte percorre as paginas de uma fonte e devolve vagas ja traduzidas.
 from src.coleta import coletar_fonte
@@ -122,8 +127,60 @@ def _coleta_tudo(configuracao, buscador):
     return [encontradas[chave] for chave in sorted(encontradas)]
 
 
+def _enriquece_pendentes(conexao, buscador, limite=None):
+    """Busca a pagina de detalhe das vagas que ainda nao passaram por ela.
+
+    Por que esta funcao existe: a listagem nao traz descricao nem salario real - o BNE
+    manda 0.0 em 100% das vagas. O detalhe traz os dois, e e ali que aparece a
+    especialidade que discrimina duas vagas da mesma clinica.
+
+    Por que ela roda depois da gravacao, e nao durante a coleta: so com as vagas ja no
+    banco da para saber quais sao ineditas. Sem isso, a rodada refaria centenas de
+    requisicoes de detalhe toda madrugada.
+
+    Entrada -> a conexao, a funcao que busca uma URL e um teto opcional.
+    Fase 1  -> pega a fila de vagas sem detalhe.
+    Fase 2  -> busca cada uma, transformando problema de pagina em aviso.
+    Fase 3  -> grava o que veio e carimba, o que tira a vaga da fila.
+    Saida   -> quantas foram enriquecidas nesta rodada.
+    """
+    # Fase 1: fila vazia significa que nao ha nada inedito - o caso comum no dia a dia.
+    pendentes = vagas_sem_detalhe(conexao, limite=limite)
+    if not pendentes:
+        return 0
+
+    print("Enriquecendo {} vaga(s) pela pagina de detalhe...".format(len(pendentes)))
+    enriquecidas = 0
+
+    for vaga in pendentes:
+        # Fase 2: cada problema possivel vira aviso; uma pagina ruim nao pode
+        # interromper o enriquecimento das outras.
+        try:
+            html = buscador(vaga["url"])
+        except FonteIndisponivel as erro:
+            print("AVISO: detalhe indisponivel - {}".format(erro))
+            continue
+
+        dados = extrai_detalhe(html)
+        if dados is None:
+            # Sem dado estruturado nao ha o que extrair. Nao carimba, entao a vaga volta
+            # a fila e sera tentada de novo - o site pode voltar ao padrao.
+            print("AVISO: pagina de detalhe sem JSON-LD em {}".format(vaga["url"]))
+            continue
+
+        # Fase 3: o carimbo e o que tira a vaga da fila.
+        salvar_detalhe(
+            conexao, vaga["fonte"], vaga["id_na_fonte"], dados,
+            agora=datetime.now().isoformat(timespec="seconds"),
+        )
+        enriquecidas += 1
+
+    # Saida: o numero entra no resumo da rodada.
+    return enriquecidas
+
+
 def main(caminho=None, usar_padrao=True, buscador=None, destino=None,
-         destino_feed=None, gerado_em=None, banco=None):
+         destino_feed=None, gerado_em=None, banco=None, limite_enriquecimento=None):
     """Le a configuracao e devolve o codigo de saida do processo.
 
     Por que esta funcao existe: concentra o tratamento de falha num unico lugar, para
@@ -201,9 +258,19 @@ def main(caminho=None, usar_padrao=True, buscador=None, destino=None,
         # salvar_vagas atualiza o que ja existe e preserva a primeira coleta - e o que
         # impede a rodada de hoje de apagar as marcacoes de ontem.
         salvar_vagas(conexao, vagas, agora=datetime.now().isoformat(timespec="seconds"))
+        print("Banco atualizado em {}".format(banco))
+
+        # Fase 9c: o enriquecimento. Roda aqui dentro, com a conexao ja aberta, e so
+        # sobre o que e inedito - por isso a subfase veio depois da persistencia.
+        enriquecidas = _enriquece_pendentes(conexao, buscador, limite_enriquecimento)
+        if enriquecidas:
+            print("{} vaga(s) enriquecida(s) pela pagina de detalhe.".format(enriquecidas))
+
+        # O feed le do banco, e nao da lista coletada, para mostrar o que o
+        # enriquecimento acrescentou.
+        vagas = listar_vagas(conexao)
     finally:
         conexao.close()
-    print("Banco atualizado em {}".format(banco))
 
     # Fase 10: o feed que o usuario abre no navegador.
     if destino_feed is None:

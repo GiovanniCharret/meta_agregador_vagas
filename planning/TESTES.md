@@ -269,6 +269,53 @@ Feita com `TestClient` apontado para `dados/vagas.sqlite`, e depois revertida:
 
 ---
 
+## S3b — enriquecimento pela página de detalhe
+
+**Estado: 124 testes passando. 165 das 269 vagas enriquecidas.**
+
+### `tests/test_enriquece.py` — 11 testes
+
+Leitura do JSON-LD `JobPosting` da página de detalhe, sobre fixtures geradas de páginas
+reais.
+
+Travam: descrição sem marcação HTML; espaçamento normalizado (**porque a descrição vai virar
+hash na S4, e um espaço a mais mudaria a chave**); subtítulo vindo de `responsibilities`
+quando existe e caindo para a descrição quando não — medido, vem nulo em parte das vagas;
+corte do boilerplate de template; limite de tamanho para o card não virar parágrafo; e página
+sem JSON-LD devolvendo nada em vez de estourar.
+
+### Três descobertas da execução real
+
+**1. O subtítulo funcionou, e valida a chave da S4.** Das 165 vagas enriquecidas,
+**157 têm subtítulo distinto**. A especialidade aparece: "endodontia", "prótese dentária",
+"reabilitação". Antes, `Confidencial + dentista + São Paulo` fundia 10 vagas; agora a
+descrição separa quase todas.
+
+**2. O salário do detalhe é quase todo falso.** De 165 vagas, **163 traziam exatamente a
+mesma faixa, R$ 1.000 a R$ 15.000**. Não é salário — é o que o formulário do BNE grava quando
+o anunciante não informa. Mostrar isso seria pior do que não mostrar nada: pareceria
+informação e entraria na comparação entre vagas como se distinguisse algo, sendo igual em 99%.
+A faixa passou a ser descartada, e o banco foi limpo. **Sobraram 2 salários reais.**
+
+**3. Os testes escreviam no banco de produção.** Ao ligar o enriquecimento, a suíte travou
+por minutos disparando requisições reais a partir do acervo de verdade. Duas causas: chamadas
+de `main()` sem `banco` explícito, e o teste ponta a ponta rodando o executável como
+subprocesso com os caminhos de produção. Corrigido com `banco` em toda chamada e a variável
+`MONITOR_VAGAS_RAIZ`, que redireciona a raiz inteira do projeto.
+
+**Lição:** teste que usa caminho padrão não é teste isolado, é teste que escreve em produção —
+e só descobre isso quando o programa passa a fazer algo caro.
+
+### Verificação manual do S3b
+
+```powershell
+.venv\Scripts\python.exe monitor.py
+# a primeira rodada enriquece o que falta; as seguintes so o que for inedito
+# esperado no fim: "N vaga(s) enriquecida(s) pela pagina de detalhe."
+```
+
+---
+
 ## Subfases seguintes — o que cada uma precisa provar
 
 Registro antecipado para o teste não virar reflexão tardia. **Subfase sem teste não conta

@@ -12,7 +12,7 @@ def test_config_valida_devolve_codigo_zero(tmp_path):
     from src.main import main
     caminho = escreve_config(tmp_path, CONFIG_VALIDA)
     # main recebe o caminho explicito para o teste nao depender do arquivo real.
-    assert main(caminho) == 0
+    assert main(caminho, banco=tmp_path / "b.sqlite") == 0
 
 
 def test_config_invalida_devolve_codigo_um(tmp_path):
@@ -21,7 +21,7 @@ def test_config_invalida_devolve_codigo_um(tmp_path):
     from src.main import main
     # Configuracao sem perfil nenhum: erro de dado, nao bug de programa.
     caminho = escreve_config(tmp_path, {"perfis": []})
-    assert main(caminho) == 1
+    assert main(caminho, banco=tmp_path / "b.sqlite") == 1
 
 
 def test_erro_de_dado_escreve_mensagem_limpa_sem_traceback(tmp_path, capsys):
@@ -31,7 +31,7 @@ def test_erro_de_dado_escreve_mensagem_limpa_sem_traceback(tmp_path, capsys):
     from src.main import main
     caminho = escreve_config(tmp_path, {"perfis": []})
     # Executa e captura o que foi escrito nas duas saidas.
-    main(caminho)
+    main(caminho, banco=tmp_path / "b.sqlite")
     capturado = capsys.readouterr()
     # A mensagem de erro vai para a saida de erro, nao para a saida padrao.
     assert "perfil" in capturado.err.lower()
@@ -62,7 +62,7 @@ def test_grava_o_json_normalizado_com_as_vagas_coletadas(tmp_path):
     caminho = escreve_config(tmp_path, config_com_bne())
     destino = tmp_path / "vagas.json"
     # Buscador falso: toda URL devolve a mesma pagina de fixture.
-    assert main(caminho, buscador=lambda url: pagina_com_vagas(), destino=destino) == 0
+    assert main(caminho, buscador=lambda url: pagina_com_vagas(), destino=destino, banco=tmp_path / "b.sqlite") == 0
     # O arquivo tem que existir e conter as tres vagas da fixture.
     vagas = json.loads(destino.read_text(encoding="utf-8"))
     assert len(vagas) == 3
@@ -77,8 +77,8 @@ def test_json_gravado_e_deterministico(tmp_path):
     caminho = escreve_config(tmp_path, config_com_bne())
     primeiro = tmp_path / "a.json"
     segundo = tmp_path / "b.json"
-    main(caminho, buscador=lambda url: pagina_com_vagas(), destino=primeiro)
-    main(caminho, buscador=lambda url: pagina_com_vagas(), destino=segundo)
+    main(caminho, buscador=lambda url: pagina_com_vagas(), destino=primeiro, banco=tmp_path / "b.sqlite")
+    main(caminho, buscador=lambda url: pagina_com_vagas(), destino=segundo, banco=tmp_path / "b.sqlite")
     # Byte a byte, e nao apenas equivalente como estrutura.
     assert primeiro.read_bytes() == segundo.read_bytes()
 
@@ -94,7 +94,7 @@ def test_fonte_sem_coletor_vira_aviso_e_nao_derruba_a_rodada(tmp_path, capsys):
     caminho = escreve_config(tmp_path, configuracao)
     destino = tmp_path / "vagas.json"
     # A rodada termina bem, apesar da fonte sem coletor.
-    assert main(caminho, buscador=lambda url: pagina_com_vagas(), destino=destino) == 0
+    assert main(caminho, buscador=lambda url: pagina_com_vagas(), destino=destino, banco=tmp_path / "b.sqlite") == 0
     saida = capsys.readouterr().out
     # O aviso tem que citar a fonte pulada.
     assert "AVISO" in saida and "catho" in saida
@@ -109,7 +109,7 @@ def test_grava_o_feed_html_com_as_vagas(tmp_path):
     caminho = escreve_config(tmp_path, config_com_bne())
     feed = tmp_path / "feed.html"
     main(caminho, buscador=lambda url: pagina_com_vagas(),
-         destino=tmp_path / "v.json", destino_feed=feed)
+         destino=tmp_path / "v.json", destino_feed=feed, banco=tmp_path / "b.sqlite")
     html = feed.read_text(encoding="utf-8")
     assert html.startswith("<!doctype html>")
     # As tres vagas da fixture aparecem, com suas cidades.
@@ -127,7 +127,7 @@ def test_feed_marca_as_cidades_desejadas_do_config(tmp_path):
     caminho = escreve_config(tmp_path, configuracao)
     feed = tmp_path / "feed.html"
     main(caminho, buscador=lambda url: pagina_com_vagas(),
-         destino=tmp_path / "v.json", destino_feed=feed)
+         destino=tmp_path / "v.json", destino_feed=feed, banco=tmp_path / "b.sqlite")
     html = feed.read_text(encoding="utf-8")
     assert "cidade desejada" in html
     # E a vaga da cidade desejada sobe ao topo, antes das outras.
@@ -143,7 +143,7 @@ def test_feed_e_deterministico_quando_o_horario_e_o_mesmo(tmp_path):
     a, b = tmp_path / "a.html", tmp_path / "b.html"
     for saida in (a, b):
         main(caminho, buscador=lambda url: pagina_com_vagas(),
-             destino=tmp_path / "v.json", destino_feed=saida,
+             destino=tmp_path / "v.json", destino_feed=saida, banco=tmp_path / "b.sqlite",
              gerado_em="16/08/2026 21:30")
     assert a.read_bytes() == b.read_bytes()
 
@@ -217,6 +217,95 @@ def test_estado_marcado_sobrevive_a_nova_coleta(tmp_path):
         conexao.close()
 
 
+def pagina_de_detalhe():
+    """HTML da fixture de pagina de detalhe, com JSON-LD JobPosting real."""
+    from pathlib import Path
+    return (Path(__file__).resolve().parent / "fixtures"
+            / "bne_detalhe_com_responsabilidades.html").read_text(encoding="utf-8")
+
+
+def buscador_com_detalhe():
+    """Buscador falso que devolve listagem ou detalhe conforme a URL pedida.
+
+    Por que existe: o enriquecimento busca URLs diferentes das da coleta. Um buscador que
+    devolvesse sempre a mesma pagina nao exercitaria a diferenca, que e o ponto da S3b.
+    """
+    def busca(url):
+        # As URLs de vaga individual do BNE tem "/vaga-de-emprego" no caminho.
+        if "/vaga-de-emprego" in url:
+            return pagina_de_detalhe()
+        return pagina_com_vagas()
+    return busca
+
+
+def test_enriquecimento_preenche_o_subtitulo(tmp_path):
+    """Por que este teste existe: e a entrega da S3b. O titulo do BNE e generico -
+    "dentista" para todas - e o subtitulo e o que devolve informacao ao card. Se o
+    detalhe nao chegasse ao banco, a subfase inteira nao teria efeito nenhum."""
+    import sqlite3
+    from src.main import main
+    from src.armazena import listar_vagas
+    caminho = escreve_config(tmp_path, config_com_bne())
+    banco = tmp_path / "vagas.sqlite"
+    main(caminho, buscador=buscador_com_detalhe(), destino=tmp_path / "v.json",
+         destino_feed=tmp_path / "f.html", banco=banco)
+    conexao = sqlite3.connect(banco)
+    try:
+        vagas = listar_vagas(conexao)
+        assert all(v["enriquecido_em"] for v in vagas)
+        assert "ortodontia" in vagas[0]["subtitulo"].lower()
+        # A fixture traz a faixa de preenchimento padrao do BNE, entao o salario tem que
+        # continuar vazio - mostrar aquela faixa seria pior do que nao mostrar nada.
+        assert vagas[0]["salario_texto"] is None
+    finally:
+        conexao.close()
+
+
+def test_segunda_rodada_nao_busca_detalhe_de_novo(tmp_path):
+    """Por que este teste existe: e a razao de a S3b vir depois da persistencia.
+    Enriquecer custa uma requisicao por vaga; refazer isso toda madrugada pesaria sobre
+    a fonte sem trazer nada novo."""
+    from src.main import main
+    caminho = escreve_config(tmp_path, config_com_bne())
+    banco = tmp_path / "vagas.sqlite"
+
+    visitadas = []
+    base = buscador_com_detalhe()
+
+    def buscador(url):
+        visitadas.append(url)
+        return base(url)
+
+    argumentos = dict(destino=tmp_path / "v.json", destino_feed=tmp_path / "f.html",
+                      banco=banco)
+    main(caminho, buscador=buscador, **argumentos)
+    detalhes_primeira = sum(1 for u in visitadas if "/vaga-de-emprego" in u)
+
+    visitadas.clear()
+    main(caminho, buscador=buscador, **argumentos)
+    detalhes_segunda = sum(1 for u in visitadas if "/vaga-de-emprego" in u)
+
+    # A primeira rodada busca as tres; a segunda nao busca nenhuma.
+    assert detalhes_primeira == 3
+    assert detalhes_segunda == 0
+
+
+def test_detalhe_sem_dado_estruturado_vira_aviso_e_nao_derruba(tmp_path, capsys):
+    """Por que este teste existe: pagina de detalhe fora do padrao nao pode interromper o
+    enriquecimento das outras. Era o criterio escrito no plano da subfase."""
+    from src.main import main
+    caminho = escreve_config(tmp_path, config_com_bne())
+
+    def buscador(url):
+        if "/vaga-de-emprego" in url:
+            return "<html><body>sem dado estruturado</body></html>"
+        return pagina_com_vagas()
+
+    assert main(caminho, buscador=buscador, destino=tmp_path / "v.json",
+                destino_feed=tmp_path / "f.html", banco=tmp_path / "b.sqlite") == 0
+    assert "AVISO" in capsys.readouterr().out
+
+
 def test_fonte_indisponivel_vira_aviso_e_a_rodada_continua(tmp_path, capsys):
     """Por que este teste existe: um termo do config pode simplesmente nao existir
     naquela fonte, e o site responde 404. Isso e ausencia de resultado, nao defeito -
@@ -233,7 +322,7 @@ def test_fonte_indisponivel_vira_aviso_e_a_rodada_continua(tmp_path, capsys):
         raise FonteIndisponivel("bne respondeu 404 em {}".format(url))
 
     # A rodada termina bem, com zero vaga, em vez de estourar.
-    assert main(caminho, buscador=buscador_que_falha, destino=destino) == 0
+    assert main(caminho, buscador=buscador_que_falha, destino=destino, banco=tmp_path / "b.sqlite") == 0
     saida = capsys.readouterr().out
     assert "AVISO" in saida and "404" in saida
     # O arquivo e gravado mesmo vazio, para o passo seguinte do pipeline nao quebrar.
