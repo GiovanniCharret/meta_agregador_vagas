@@ -64,8 +64,9 @@ Desenvolver um modelo MVP de plataforma. Dispõe inicialmenete só do feed e ale
   - Hoje remove **2 de 265**. A lista configurada era quase decorativa.
   - **Sinônimos (`3.5`) não entraram**: os termos de especialidade não existem no vocabulário
     do BNE — virariam 404 sem trazer vaga.
-`[ ]` **Decisão pendente sua:** 21 vagas são `autônomo` e 13 são `freelancer` — 13% do acervo.
-  Reprovar ou não é decisão dela, não minha.
+`x` **Decidido em 16/08/2026: `autônomo` e `freelancer` NÃO são motivo de reprovação.**
+  Ela aceita trabalhar como autônoma — é comum no meio da odontologia. São 34 vagas, 13% do
+  acervo, que permanecem no feed. **Não acrescentar esses termos a `termos_reprovacao`.**
 `[ ]` S3b — enriquecimento pela página de detalhe (novo, 16/08/2026). Vira **pré-requisito da
   deduplicação**, porque a descrição só existe lá. Chave canônica revisada no `DESIGN.md` D3
   depois de medir 26 colisões reais nas 178 vagas coletadas.
