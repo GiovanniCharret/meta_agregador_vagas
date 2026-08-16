@@ -13,6 +13,9 @@ penduram coleta, normalizacao, deduplicacao, filtros e feed neste mesmo lugar.
 # json grava o resultado normalizado da coleta.
 import json
 
+# sqlite3 abre o banco onde a coleta e os estados sobrevivem entre execucoes.
+import sqlite3
+
 # sys da acesso a saida de erro e ao codigo de saida do processo.
 import sys
 
@@ -24,6 +27,9 @@ from src.caminhos import ARQUIVO_CONFIG, DIR_DADOS, DIR_SAIDA
 
 # montar_feed transforma a lista de vagas na pagina que o usuario abre.
 from src.feed import montar_feed
+
+# As funcoes de persistencia: sem elas a coleta se perderia a cada execucao.
+from src.armazena import criar_esquema, salvar_vagas
 
 # coletar_fonte percorre as paginas de uma fonte e devolve vagas ja traduzidas.
 from src.coleta import coletar_fonte
@@ -112,7 +118,7 @@ def _coleta_tudo(configuracao, buscador):
 
 
 def main(caminho=None, usar_padrao=True, buscador=None, destino=None,
-         destino_feed=None, gerado_em=None):
+         destino_feed=None, gerado_em=None, banco=None):
     """Le a configuracao e devolve o codigo de saida do processo.
 
     Por que esta funcao existe: concentra o tratamento de falha num unico lugar, para
@@ -177,6 +183,22 @@ def main(caminho=None, usar_padrao=True, buscador=None, destino=None,
     )
 
     print("{} vaga(s) gravada(s) em {}".format(len(vagas), destino))
+
+    # Fase 9b: o banco e o que faz a coleta sobreviver entre execucoes. O JSON acima
+    # continua sendo escrito porque e legivel a olho nu e util para conferir a coleta;
+    # o banco e o que guarda estado.
+    if banco is None:
+        banco = DIR_DADOS / "vagas.sqlite"
+    conexao = sqlite3.connect(banco)
+    try:
+        # O esquema e garantido a cada rodada, e por isso precisa ser idempotente.
+        criar_esquema(conexao)
+        # salvar_vagas atualiza o que ja existe e preserva a primeira coleta - e o que
+        # impede a rodada de hoje de apagar as marcacoes de ontem.
+        salvar_vagas(conexao, vagas, agora=datetime.now().isoformat(timespec="seconds"))
+    finally:
+        conexao.close()
+    print("Banco atualizado em {}".format(banco))
 
     # Fase 10: o feed que o usuario abre no navegador.
     if destino_feed is None:

@@ -79,6 +79,21 @@ h1 { font-family:var(--serif); font-weight:500; font-size:clamp(30px,4vw,42px);
 .rodape-card a { color:var(--clay-d); text-decoration-color:var(--oat);
                  text-underline-offset:3px; }
 footer { margin-top:40px; font-size:12.5px; color:var(--g500); }
+.vaga.salva { border-color:var(--olive); background:#F1F5EA; }
+.acoes { margin-top:12px; padding-top:10px; border-top:1px dashed var(--g300);
+         display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.acoes form { display:flex; gap:6px; align-items:center; margin:0; }
+.acoes button, .acoes select {
+  font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.04em;
+  padding:6px 12px; border-radius:999px; border:1.5px solid var(--g300);
+  background:var(--paper); color:var(--g700); cursor:pointer; }
+.acoes button.salvar:hover { border-color:var(--olive); color:var(--olive); }
+.acoes button.descartar:hover { border-color:var(--clay-d); color:var(--clay-d); }
+.acoes select { border-radius:8px; font-weight:400; }
+.quem { display:flex; gap:8px; margin:0 0 24px; font-family:var(--mono); font-size:12px; }
+.quem a { padding:6px 14px; border-radius:999px; border:1.5px solid var(--g300);
+          background:var(--paper); color:var(--g700); text-decoration:none; }
+.quem a.ativo { background:var(--slate); border-color:var(--slate); color:var(--ivory); }
 """
 
 
@@ -120,7 +135,82 @@ def _selo(texto, classe=""):
     return '<span class="selo{}">{}</span>'.format(sufixo, escape(texto))
 
 
-def _card(vaga, desejadas):
+def _seletor_de_pessoa(quem):
+    """Monta os links que trocam de quem e a sessao.
+
+    Por que esta funcao existe: sao duas pessoas com perfis e estados independentes
+    olhando o mesmo feed, e precisa haver como alternar. Nao e autenticacao - e um
+    rotulo, porque multiusuario com login esta fora do escopo.
+
+    Entrada -> o lado ativo, ou None na pagina estatica.
+    Fase 1  -> na pagina sem servidor nao ha o que alternar, entao devolve linha vazia.
+    Saida   -> o HTML dos dois links, com o ativo destacado.
+    """
+    # Fase 1: sem servidor, trocar de pessoa nao faz sentido.
+    if not quem:
+        return ""
+    # Saida: ordem fixa, para a pagina nao variar entre execucoes.
+    links = "".join(
+        '<a class="{}" href="/?quem={}">{}</a>'.format(
+            "ativo" if lado == quem else "", lado, rotulo)
+        for lado, rotulo in (("meu", "as minhas"), ("dela", "as dela"))
+    )
+    return '      <div class="quem">{}</div>'.format(links)
+
+
+def _acoes(vaga, quem, motivos):
+    """Monta os botoes de marcacao de um card.
+
+    Por que esta funcao existe: a marcacao acontece por formulario HTML puro, sem
+    JavaScript. Sao dois formularios - um para salvar, outro para descartar com motivo -
+    e mante-los fora da montagem do card deixa os dois legiveis.
+
+    Por que sem JavaScript: o requisito declarado foi HTML o mais simples possivel, e
+    formulario com POST resolve inteiro. Menos codigo, nada para carregar, funciona
+    mesmo se algo quebrar.
+
+    Entrada -> a vaga, de quem e a sessao e a lista fechada de motivos.
+    Fase 1  -> monta os campos escondidos que identificam a vaga.
+    Fase 2  -> monta o botao de salvar.
+    Fase 3  -> monta o seletor de motivo mais o botao de descartar. O motivo e
+               obrigatorio na 4.1, entao o campo entra com `required`.
+    Saida   -> o HTML do bloco de acoes.
+    """
+    # Fase 1: os mesmos campos escondidos servem aos dois formularios.
+    escondidos = "".join(
+        '<input type="hidden" name="{}" value="{}">'.format(
+            nome, escape(str(valor or ""), quote=True))
+        for nome, valor in (
+            ("fonte", vaga.get("fonte")),
+            ("id_na_fonte", vaga.get("id_na_fonte")),
+            ("quem", quem),
+        )
+    )
+
+    # Fase 2: salvar nao pede nada alem do clique.
+    salvar = (
+        '<form action="/marcar" method="post">{}'
+        '<button class="salvar" name="estado" value="salva">salvar</button>'
+        "</form>"
+    ).format(escondidos)
+
+    # Fase 3: `required` no seletor faz o proprio navegador cobrar o motivo antes de
+    # enviar. A validacao de verdade continua no servidor - isto e so conveniencia.
+    opcoes = '<option value="">motivo do descarte...</option>' + "".join(
+        '<option value="{0}">{0}</option>'.format(escape(m)) for m in motivos
+    )
+    descartar = (
+        '<form action="/marcar" method="post">{}'
+        '<select name="motivo" required>{}</select>'
+        '<button class="descartar" name="estado" value="descartada">descartar</button>'
+        "</form>"
+    ).format(escondidos, opcoes)
+
+    # Saida: os dois formularios lado a lado.
+    return '        <div class="acoes">{}{}</div>'.format(salvar, descartar)
+
+
+def _card(vaga, desejadas, quem=None, motivos=()):
     """Monta o HTML de uma vaga.
 
     Por que esta funcao existe: isolar o card deixa a montagem da pagina legivel e da um
@@ -132,9 +222,15 @@ def _card(vaga, desejadas):
     Fase 3  -> monta o rodape com data e link de origem.
     Saida   -> o HTML do card, sem quebra de linha final.
     """
-    # Fase 1: cidade desejada ganha destaque visual e selo proprio.
+    # Fase 1: cidade desejada ganha destaque visual e selo proprio. Vaga ja salva ganha
+    # destaque proprio tambem, para nao se perder no meio das novas.
     e_desejada = vaga.get("cidade") in desejadas
-    classe_vaga = "vaga desejada" if e_desejada else "vaga"
+    if vaga.get("estado") == "salva":
+        classe_vaga = "vaga salva"
+    elif e_desejada:
+        classe_vaga = "vaga desejada"
+    else:
+        classe_vaga = "vaga"
 
     # Fase 2: os selos sao montados em ordem fixa, para a saida ser deterministica.
     selos = []
@@ -157,8 +253,8 @@ def _card(vaga, desejadas):
         escape(vaga.get("url") or "", quote=True)
     )
 
-    # Saida: as linhas sao juntadas com quebra fixa, sem depender de formatacao externa.
-    return "\n".join([
+    # As linhas do card sao montadas em lista para o controle de quebra ser explicito.
+    linhas = [
         '      <article class="{}">'.format(classe_vaga),
         '        <div class="topo"><h2>{}</h2></div>'.format(
             escape(vaga.get("titulo_bruto") or "sem titulo")),
@@ -166,11 +262,20 @@ def _card(vaga, desejadas):
             escape(vaga.get("empresa_bruta") or "empresa nao informada")),
         '        <div class="meta">{}</div>'.format("".join(selos)),
         '        <div class="rodape-card"><span>{}</span>{}</div>'.format(origem, link),
-        "      </article>",
-    ])
+    ]
+
+    # Os botoes so existem quando ha servidor para recebe-los. Na pagina estatica
+    # gravada em saida/, formulario seria botao que nao faz nada.
+    if quem:
+        linhas.append(_acoes(vaga, quem, motivos))
+
+    # Saida: o card fechado.
+    linhas.append("      </article>")
+    return "\n".join(linhas)
 
 
-def montar_feed(vagas, cidades_desejadas=(), gerado_em=None):
+def montar_feed(vagas, cidades_desejadas=(), gerado_em=None,
+                quem=None, motivos=(), descartadas=0):
     """Monta a pagina inteira do feed.
 
     Por que esta funcao existe: e a fronteira entre dado e tela. Recebe dicionarios e
@@ -197,10 +302,15 @@ def montar_feed(vagas, cidades_desejadas=(), gerado_em=None):
     else:
         resumo = "Nenhuma vaga no feed."
 
+    # Esconder vaga sem dizer quantas foram escondidas seria limitacao silenciosa: nao
+    # daria para saber se o feed encolheu porque filtrou bem ou porque a coleta falhou.
+    if descartadas:
+        resumo += " {} descartada(s), fora da lista.".format(descartadas)
+
     # Fase 3: pagina em branco seria indistinguivel de programa quebrado.
     if ordenadas:
         corpo = '    <div class="cards">\n{}\n    </div>'.format(
-            "\n".join(_card(vaga, desejadas) for vaga in ordenadas)
+            "\n".join(_card(vaga, desejadas, quem, motivos) for vaga in ordenadas)
         )
     else:
         corpo = (
@@ -230,6 +340,7 @@ def montar_feed(vagas, cidades_desejadas=(), gerado_em=None):
         '      <div class="eyebrow">monitor_vagas</div>',
         "      <h1>Feed de vagas</h1>",
         '      <p class="resumo">{}</p>'.format(resumo),
+        _seletor_de_pessoa(quem),
         "    </header>",
         corpo,
         "    <footer>{}</footer>".format(rodape),

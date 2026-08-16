@@ -219,6 +219,56 @@ idênticos*. Ao comparar duas rodadas, a única diferença esperada é o rodapé
 
 ---
 
+## S3 — persistência e estados
+
+**Estado: 100 testes passando. Banco com 186 vagas.**
+
+### `tests/test_armazena.py` — 15 testes
+
+Persistência em SQLite, sobre banco **em memória** — o teste não pode sujar o banco real.
+
+Travam, entre outras coisas: esquema idempotente (é recriado a cada execução, e falhar na
+segunda vez faria o programa só funcionar uma vez na vida); recoleta que **não duplica** e
+**preserva `primeira_coleta`**; estado inicial `nova`; motivo obrigatório no descarte; motivo
+fora da lista fechada recusado com os válidos na mensagem; **estado independente por pessoa**;
+motivo limpo ao voltar para `salva`; marcação de vaga inexistente recusada, para não criar
+estado órfão; e cada marcação virando evento.
+
+### `tests/test_servidor.py` — 8 testes
+
+O servidor local, com `TestClient` sobre banco temporário.
+
+O teste mais importante é o de que **o descarte de uma pessoa não esconde a vaga da outra**.
+Se o estado fosse compartilhado, um descarte dela apagaria a vaga dele, e a ferramenta viraria
+fonte de briga em vez de ajuda.
+
+Também travam: descarte sem motivo recusado com **400 e sem traceback** pela tela — a regra da
+`4.1` só vale se valer também pelo formulário, senão bastaria usar a tela para contorná-la; e
+o contador de descartadas visível, porque esconder vaga sem dizer quantas seria limitação
+silenciosa.
+
+### Verificação sobre o banco de verdade
+
+Feita com `TestClient` apontado para `dados/vagas.sqlite`, e depois revertida:
+
+| Passo | Resultado |
+|---|---|
+| `GET /?quem=meu` | 200, 186 cards, 284 KB |
+| descarte **sem** motivo | 400, sem traceback |
+| descarte **com** motivo | 303 para `/?quem=meu` |
+| cards depois, para mim | 185 |
+| cards depois, para ela | **186** — independência confirmada |
+
+### Verificação manual do S3
+
+```powershell
+.venv\Scripts\python.exe monitor.py          # coleta e grava no banco
+.venv\Scripts\python.exe monitor.py servir   # sobe o servidor
+# abra http://127.0.0.1:8000 e marque uma vaga
+```
+
+---
+
 ## Subfases seguintes — o que cada uma precisa provar
 
 Registro antecipado para o teste não virar reflexão tardia. **Subfase sem teste não conta

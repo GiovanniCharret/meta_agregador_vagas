@@ -44,7 +44,10 @@ Desenvolver um modelo MVP de plataforma. Dispõe inicialmenete só do feed e ale
 `x` **S2 concluída** — `src/feed.py`, página autocontida com CSS embutido, ordenação por
   cidade desejada e data, escape de HTML. **178 cards em 89 KB**, 74 testes passando.
   Determinismo do D8 verificado sobre dado real: mesmo sha256, mesmos 91.310 bytes.
-`[ ]` S3 — persistência e estados nova/salva/descartada
+`x` **S3 concluída** — `src/armazena.py` (SQLite, estados por pessoa, motivo obrigatório,
+  log de eventos) e `src/servidor.py` (FastAPI local, marcação por formulário sem JavaScript).
+  `monitor.py servir` sobe o feed em `127.0.0.1:8000`. **100 testes**, banco com 186 vagas.
+`[ ]` S3b — enriquecimento pela página de detalhe
 `[ ]` S3b — enriquecimento pela página de detalhe (novo, 16/08/2026). Vira **pré-requisito da
   deduplicação**, porque a descrição só existe lá. Chave canônica revisada no `DESIGN.md` D3
   depois de medir 26 colisões reais nas 178 vagas coletadas.

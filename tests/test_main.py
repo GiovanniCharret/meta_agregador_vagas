@@ -148,6 +148,75 @@ def test_feed_e_deterministico_quando_o_horario_e_o_mesmo(tmp_path):
     assert a.read_bytes() == b.read_bytes()
 
 
+def test_coleta_persiste_as_vagas_no_banco(tmp_path):
+    """Por que este teste existe: e a entrega da S3 - o que foi coletado tem que
+    sobreviver ao fim da execucao, senao nao ha o que marcar."""
+    import sqlite3
+    from src.main import main
+    from src.armazena import listar_vagas
+    caminho = escreve_config(tmp_path, config_com_bne())
+    banco = tmp_path / "vagas.sqlite"
+    main(caminho, buscador=lambda url: pagina_com_vagas(),
+         destino=tmp_path / "v.json", destino_feed=tmp_path / "f.html", banco=banco)
+    conexao = sqlite3.connect(banco)
+    try:
+        assert len(listar_vagas(conexao)) == 3
+    finally:
+        conexao.close()
+
+
+def test_segunda_coleta_nao_duplica_no_banco(tmp_path):
+    """Por que este teste existe: o horizonte e continuo, entao a coleta roda todo dia e
+    reencontra as mesmas vagas. Duplicar faria o banco crescer sem limite e toda
+    contagem mentir mais a cada rodada."""
+    import sqlite3
+    from src.main import main
+    from src.armazena import listar_vagas
+    caminho = escreve_config(tmp_path, config_com_bne())
+    banco = tmp_path / "vagas.sqlite"
+    for _ in range(2):
+        main(caminho, buscador=lambda url: pagina_com_vagas(),
+             destino=tmp_path / "v.json", destino_feed=tmp_path / "f.html", banco=banco)
+    conexao = sqlite3.connect(banco)
+    try:
+        assert len(listar_vagas(conexao)) == 3
+    finally:
+        conexao.close()
+
+
+def test_estado_marcado_sobrevive_a_nova_coleta(tmp_path):
+    """Por que este teste existe: e o pior defeito possivel desta subfase. Se a coleta
+    do dia seguinte apagasse as marcacoes, todo descarte teria que ser refeito toda vez
+    e a ferramenta seria pior do que nao ter ferramenta."""
+    import sqlite3
+    from src.main import main
+    from src.armazena import marcar, listar_vagas
+    caminho = escreve_config(tmp_path, config_com_bne())
+    banco = tmp_path / "vagas.sqlite"
+    argumentos = dict(buscador=lambda url: pagina_com_vagas(),
+                      destino=tmp_path / "v.json", destino_feed=tmp_path / "f.html",
+                      banco=banco)
+
+    main(caminho, **argumentos)
+    # Descarta uma vaga entre as duas coletas.
+    conexao = sqlite3.connect(banco)
+    primeira = listar_vagas(conexao)[0]
+    marcar(conexao, primeira["fonte"], primeira["id_na_fonte"], quem="meu",
+           estado="descartada", motivo="cidade", agora="2026-08-16T11:00:00")
+    conexao.close()
+
+    main(caminho, **argumentos)
+
+    conexao = sqlite3.connect(banco)
+    try:
+        depois = [v for v in listar_vagas(conexao, quem="meu")
+                  if v["id_na_fonte"] == primeira["id_na_fonte"]][0]
+        assert depois["estado"] == "descartada"
+        assert depois["motivo"] == "cidade"
+    finally:
+        conexao.close()
+
+
 def test_fonte_indisponivel_vira_aviso_e_a_rodada_continua(tmp_path, capsys):
     """Por que este teste existe: um termo do config pode simplesmente nao existir
     naquela fonte, e o site responde 404. Isso e ausencia de resultado, nao defeito -
