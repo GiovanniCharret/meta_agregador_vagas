@@ -16,8 +16,14 @@ import json
 # sys da acesso a saida de erro e ao codigo de saida do processo.
 import sys
 
+# datetime carimba o horario de geracao mostrado no rodape do feed.
+from datetime import datetime
+
 # Os caminhos padrao vivem na ancora de caminhos, nao aqui.
-from src.caminhos import ARQUIVO_CONFIG, DIR_DADOS
+from src.caminhos import ARQUIVO_CONFIG, DIR_DADOS, DIR_SAIDA
+
+# montar_feed transforma a lista de vagas na pagina que o usuario abre.
+from src.feed import montar_feed
 
 # coletar_fonte percorre as paginas de uma fonte e devolve vagas ja traduzidas.
 from src.coleta import coletar_fonte
@@ -105,7 +111,8 @@ def _coleta_tudo(configuracao, buscador):
     return [encontradas[chave] for chave in sorted(encontradas)]
 
 
-def main(caminho=None, usar_padrao=True, buscador=None, destino=None):
+def main(caminho=None, usar_padrao=True, buscador=None, destino=None,
+         destino_feed=None, gerado_em=None):
     """Le a configuracao e devolve o codigo de saida do processo.
 
     Por que esta funcao existe: concentra o tratamento de falha num unico lugar, para
@@ -169,8 +176,30 @@ def main(caminho=None, usar_padrao=True, buscador=None, destino=None):
         encoding="utf-8",
     )
 
-    # Confirmacao final com o que foi produzido e onde.
     print("{} vaga(s) gravada(s) em {}".format(len(vagas), destino))
+
+    # Fase 10: o feed que o usuario abre no navegador.
+    if destino_feed is None:
+        destino_feed = DIR_SAIDA / "feed.html"
+
+    # O horario entra como parte da ENTRADA da montagem, e nao e lido la dentro. Se
+    # fosse lido dentro, duas execucoes da mesma entrada dariam paginas diferentes e o
+    # teste de determinismo do D8 passaria por acaso, quando as duas caissem no mesmo
+    # segundo, para falhar de forma intermitente depois.
+    if gerado_em is None:
+        gerado_em = datetime.now().strftime("%d/%m/%Y %H:%M")
+
+    # O diretorio pode nao existir na primeira execucao.
+    destino_feed.parent.mkdir(parents=True, exist_ok=True)
+
+    # newline="" impede o Windows de trocar \n por \r\n na gravacao, o que faria o
+    # arquivo mudar de tamanho entre plataformas sem nenhuma mudanca de conteudo.
+    with open(destino_feed, "w", encoding="utf-8", newline="") as arquivo:
+        arquivo.write(
+            montar_feed(vagas, configuracao.cidades_desejadas, gerado_em)
+        )
+
+    print("Feed gerado em {}".format(destino_feed))
 
     # Saida: zero significa rodada bem sucedida.
     return 0

@@ -177,6 +177,48 @@ chave canônica de deduplicação para esta fonte, porque o título deixa de dis
 
 ---
 
+## S2 — o feed
+
+**Estado: 74 testes passando. 178 cards numa página de 89 KB.**
+
+### `tests/test_feed.py` — 12 testes
+
+Montagem da página, com a função pura `montar_feed(vagas, cidades_desejadas, gerado_em)`.
+
+Cobrem: campos do card na tela, **escape de HTML** (nome de empresa vem de terceiro e pode
+trazer `&` ou `<`), ordem cronológica, cidade desejada vencendo a data, vaga sem data indo
+para o fim sem derrubar a ordenação, rótulo humano da modalidade (`Presencial`, não
+`presencial`), remoto com destaque próprio, página vazia explicando em vez de ficar em
+branco, e o contrato mínimo do arquivo (doctype, charset, acento chegando inteiro).
+
+### O determinismo do D8, cumprido
+
+Três testes o cercam, em níveis diferentes:
+
+1. `montar_feed` com a mesma entrada → **bytes idênticos**.
+2. A página **não carimba horário sozinha**. Esse teste existe para proteger o anterior: se
+   o horário fosse lido do relógio lá dentro, o teste de determinismo passaria por acaso
+   quando as duas chamadas caíssem no mesmo segundo, e falharia de forma intermitente depois.
+3. No nível do `main`, com o horário fixo como parte da entrada, dois arquivos gerados são
+   idênticos byte a byte.
+
+**Verificado também sobre dado real**, não só fixture: as 178 vagas coletadas, montadas duas
+vezes com o mesmo horário, produzem o mesmo sha256 e os mesmos 91.310 bytes.
+
+**A nuance honesta:** em produção o rodapé mostra o horário, então duas execuções seguidas
+diferem nessa linha. A garantia precisa é *mesma entrada, incluindo o horário, gera bytes
+idênticos*. Ao comparar duas rodadas, a única diferença esperada é o rodapé.
+
+### Verificação manual do S2
+
+```powershell
+.venv\Scripts\python.exe monitor.py
+# depois abra saida\feed.html com duplo clique
+# esperado: 178 cards, os remotos com selo proprio
+```
+
+---
+
 ## Subfases seguintes — o que cada uma precisa provar
 
 Registro antecipado para o teste não virar reflexão tardia. **Subfase sem teste não conta

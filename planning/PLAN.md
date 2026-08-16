@@ -41,7 +41,10 @@ Desenvolver um modelo MVP de plataforma. Dispõe inicialmenete só do feed e ale
 `x` **S1 concluída** — sondagem de 5 candidatas, coletor do **BNE**, orquestração com paginação
   e deduplicação, slug de termo, camada de rede isolada. **178 vagas reais coletadas**,
   59 testes passando. Detalhes em `planning/TESTES.md`.
-`[ ]` S2 — feed HTML a partir do JSON, sem estado ainda
+`x` **S2 concluída** — `src/feed.py`, página autocontida com CSS embutido, ordenação por
+  cidade desejada e data, escape de HTML. **178 cards em 89 KB**, 74 testes passando.
+  Determinismo do D8 verificado sobre dado real: mesmo sha256, mesmos 91.310 bytes.
+`[ ]` S3 — persistência e estados nova/salva/descartada
 `[ ]` S3b — enriquecimento pela página de detalhe (novo, 16/08/2026). Vira **pré-requisito da
   deduplicação**, porque a descrição só existe lá. Chave canônica revisada no `DESIGN.md` D3
   depois de medir 26 colisões reais nas 178 vagas coletadas.

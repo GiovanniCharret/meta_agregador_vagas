@@ -102,6 +102,52 @@ def test_fonte_sem_coletor_vira_aviso_e_nao_derruba_a_rodada(tmp_path, capsys):
     assert len(json.loads(destino.read_text(encoding="utf-8"))) == 3
 
 
+def test_grava_o_feed_html_com_as_vagas(tmp_path):
+    """Por que este teste existe: e a entrega da subfase S2 - a primeira vez que as
+    vagas viram uma pagina que voce abre no navegador."""
+    from src.main import main
+    caminho = escreve_config(tmp_path, config_com_bne())
+    feed = tmp_path / "feed.html"
+    main(caminho, buscador=lambda url: pagina_com_vagas(),
+         destino=tmp_path / "v.json", destino_feed=feed)
+    html = feed.read_text(encoding="utf-8")
+    assert html.startswith("<!doctype html>")
+    # As tres vagas da fixture aparecem, com suas cidades.
+    for cidade in ("Anastácio", "Rio das Ostras", "São José do Rio Preto"):
+        assert cidade in html
+
+
+def test_feed_marca_as_cidades_desejadas_do_config(tmp_path):
+    """Por que este teste existe: `cidades_desejadas` so tem efeito se chegar ate a
+    tela. Se o feed ignorasse a lista, ela seria uma opcao que existe no arquivo e nao
+    no produto - o pior tipo de funcionalidade."""
+    from src.main import main
+    configuracao = config_com_bne()
+    configuracao["cidades_desejadas"] = ["Rio das Ostras"]
+    caminho = escreve_config(tmp_path, configuracao)
+    feed = tmp_path / "feed.html"
+    main(caminho, buscador=lambda url: pagina_com_vagas(),
+         destino=tmp_path / "v.json", destino_feed=feed)
+    html = feed.read_text(encoding="utf-8")
+    assert "cidade desejada" in html
+    # E a vaga da cidade desejada sobe ao topo, antes das outras.
+    assert html.index("Rio das Ostras") < html.index("Anastácio")
+
+
+def test_feed_e_deterministico_quando_o_horario_e_o_mesmo(tmp_path):
+    """Por que este teste existe: e a exigencia do D8 no nivel do programa inteiro, e
+    nao so da funcao de montagem. O horario entra como parte da entrada de proposito -
+    com ele fixo, dois arquivos tem que ser identicos byte a byte."""
+    from src.main import main
+    caminho = escreve_config(tmp_path, config_com_bne())
+    a, b = tmp_path / "a.html", tmp_path / "b.html"
+    for saida in (a, b):
+        main(caminho, buscador=lambda url: pagina_com_vagas(),
+             destino=tmp_path / "v.json", destino_feed=saida,
+             gerado_em="16/08/2026 21:30")
+    assert a.read_bytes() == b.read_bytes()
+
+
 def test_fonte_indisponivel_vira_aviso_e_a_rodada_continua(tmp_path, capsys):
     """Por que este teste existe: um termo do config pode simplesmente nao existir
     naquela fonte, e o site responde 404. Isso e ausencia de resultado, nao defeito -
