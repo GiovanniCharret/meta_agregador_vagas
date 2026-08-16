@@ -11,3 +11,7 @@ saida/
 # configuracao pessoal: perfis, cidades bloqueadas, pretensao.
 # O repositorio tem remote no GitHub - o modelo versionado e o config.exemplo.json.
 config/config.json
+
+# arquivo do site enviado pelo humano - 5 MB, com foto; os arquivos de texto
+# ficam extraidos em suporte_contexto/site/
+suporte_contexto/*.zip

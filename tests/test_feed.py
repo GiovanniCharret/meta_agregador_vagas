@@ -273,6 +273,84 @@ def test_contagem_de_vagas_aparece_no_topo():
     assert "3" in html
 
 
+def test_pagina_do_site_linka_a_folha_de_estilo_do_presenterosa():
+    """Por que este teste existe: a pagina vai viver dentro do presenterosa.com.br e
+    precisa parecer parte do site, e nao um corpo estranho. Linkar a folha do site e o
+    que garante que a paleta, as fontes e o cabecalho acompanhem quando o site mudar."""
+    from src.feed import montar_feed
+    html = montar_feed([vaga()], folha_do_site="style.css")
+    assert '<link rel="stylesheet" href="style.css">' in html
+
+
+def test_pagina_local_nao_linka_folha_que_nao_existe():
+    """Por que este teste existe: rodando local, o style.css do site nao esta ao lado do
+    arquivo. Um link quebrado nao impede a pagina de abrir, mas polui o console e engana
+    quem for depurar."""
+    from src.feed import montar_feed
+    assert "style.css" not in montar_feed([vaga()])
+
+
+def test_pagina_do_site_tem_caminho_de_volta_para_a_home():
+    """Por que este teste existe: ela chega aqui por um botao do index. Sem caminho de
+    volta, a unica saida e o botao do navegador - e a pagina deixa de parecer parte do
+    site."""
+    from src.feed import montar_feed
+    html = montar_feed([vaga()], folha_do_site="style.css")
+    assert 'href="index.html"' in html
+
+
+def test_titulo_da_pagina_e_o_nome_combinado():
+    """Por que este teste existe: o nome aparece na aba do navegador e no cabecalho, e foi
+    escolhido por voce - Meta_Agregador de Vagas, no lugar de Lista de Bairros."""
+    from src.feed import montar_feed
+    html = montar_feed([vaga()], folha_do_site="style.css")
+    assert "<title>Meta_Agregador de Vagas" in html
+
+
+def texto_do_resumo(html):
+    """Devolve o resumo como ELA le, sem a marcacao.
+
+    Por que existe: o numero vem em negrito, entao "1 vaga" nao e um pedaco continuo do
+    HTML - ha um `</b>` no meio. Conferir a marcacao em vez do texto visivel tornaria o
+    teste fragil a qualquer mudanca de estilo, sem ganhar nada.
+    """
+    import re
+    bruto = re.search(r'<p class="resumo">(.*?)</p>', html, re.S).group(1)
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", bruto)).strip()
+
+
+def test_resumo_do_site_conta_vagas_e_estados_em_portugues_normal():
+    """Por que este teste existe: "262 vaga(s) no feed" e linguagem de quem programa - o
+    parentese do plural e o "feed" denunciam. Para ela a frase tem que dizer quantas vagas
+    e em quantos estados, que e o que responde "vale a pena olhar isso hoje?"."""
+    from src.feed import montar_feed
+    html = montar_feed(
+        [vaga(id_na_fonte="1", uf="SC"), vaga(id_na_fonte="2", uf="PR"),
+         vaga(id_na_fonte="3", uf="SC")],
+        folha_do_site="style.css")
+    assert texto_do_resumo(html) == "3 vagas em 2 estados."
+    assert "vaga(s)" not in html
+
+
+def test_resumo_do_site_no_singular_nao_fica_torto():
+    """Por que este teste existe: uma vaga so nao pode virar "1 vagas em 1 estados". E o
+    tipo de detalhe que faz a pagina parecer inacabada logo no primeiro contato."""
+    from src.feed import montar_feed
+    html = montar_feed([vaga()], folha_do_site="style.css")
+    assert texto_do_resumo(html) == "1 vaga em 1 estado."
+
+
+def test_resumo_para_ela_nao_mostra_linguagem_de_desenvolvedor():
+    """Por que este teste existe: "reprovadas por termo: 1 por comissionado" e diagnostico
+    para quem construiu, nao informacao para quem usa. Na pagina dela o resumo tem que
+    dizer o que interessa - quantas vagas e de quando."""
+    from src.feed import montar_feed
+    html = montar_feed([vaga()], folha_do_site="style.css",
+                       gerado_em="16/08/2026 21:30")
+    assert "reprovadas por termo" not in html.lower()
+    assert "16/08/2026" in html
+
+
 def test_saida_e_html_valido_o_bastante_para_abrir():
     """Por que este teste existe: e o contrato minimo do arquivo. Sem doctype e sem
     charset, o navegador adivinha a codificacao e os acentos quebram no Windows."""

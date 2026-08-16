@@ -30,67 +30,87 @@ ROTULO_MODALIDADE = {
     "desconhecido": "Modalidade nao informada",
 }
 
-# Folha de estilo embutida. Inline de proposito: a pagina tem que abrir com duplo clique,
-# sem servidor e sem arquivo ao lado.
+# Folha de estilo da pagina.
+#
+# A paleta e as fontes sao as do presenterosa.com.br, onde a pagina vai viver. As
+# variaveis tem os mesmos nomes do style.css do site de proposito: quando o site linkar a
+# folha dele, os valores dele vencem e a pagina acompanha a mudanca sozinha. Rodando
+# local, sem a folha do site, os valores daqui servem de reserva e o visual continua o
+# mesmo.
+#
+# O cartao repete o desenho do `.card` do site - fundo branco, borda rosa clara, canto de
+# 20px e a mesma elevacao no hover - para a pagina parecer parte do site e nao um corpo
+# estranho colado nele.
 ESTILO = """
 :root {
-  --ivory:#FAF9F5; --paper:#FFF; --slate:#141413;
-  --clay:#D97757; --clay-d:#B85C3E; --oat:#E3DACC;
-  --olive:#788C5D; --ice:#5F7A8A;
-  --g100:#F0EEE6; --g300:#D1CFC5; --g500:#87867F; --g700:#3D3D3A;
-  --serif: ui-serif, Georgia, "Times New Roman", serif;
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --rosa-principal:#ff85a1; --rosa-claro:#fbb1bd; --rosa-escuro:#f25c7d;
+  --fundo:#fff5f7; --texto:#4a4a4a;
+  --branco:#fff; --suave:#8b7f83; --linha:#f0dde2;
+  --titulo:'Dancing Script', cursive;
+  --corpo:'Montserrat', sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
-* { box-sizing: border-box; }
-body { margin:0; background:var(--ivory); color:var(--slate);
-       font-family:var(--sans); line-height:1.55; }
-.wrap { max-width:900px; margin:0 auto; padding:0 24px 80px; }
-header { padding:48px 0 8px; }
-.eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.12em;
-           text-transform:uppercase; color:var(--g500); margin-bottom:16px;
-           display:flex; align-items:center; gap:12px; }
-.eyebrow::before { content:""; width:24px; height:1.5px; background:var(--clay); }
-h1 { font-family:var(--serif); font-weight:500; font-size:clamp(30px,4vw,42px);
-     line-height:1.1; letter-spacing:-.018em; margin:0 0 8px; }
-.resumo { font-size:15px; color:var(--g700); margin:0 0 32px; }
-.resumo b { color:var(--clay-d); font-weight:600; }
-.vazio { border:1.5px dashed var(--g300); border-radius:12px; padding:32px;
-         text-align:center; color:var(--g700); font-size:15px; }
-.cards { display:flex; flex-direction:column; gap:12px; }
-.vaga { border:1.5px solid var(--g300); border-radius:12px; background:var(--paper);
-        padding:16px 18px; }
-.vaga.desejada { border-color:var(--clay); background:#FDF6F2; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--fundo); color:var(--texto);
+       font-family:var(--corpo); line-height:1.6; }
+.wrap { max-width:900px; margin:0 auto; padding:0 1rem 3rem; }
+
+/* Cabecalho no mesmo desenho da navbar do site. */
+.topo-site { background:var(--branco); padding:1rem; box-shadow:0 2px 10px rgba(0,0,0,.05);
+             display:flex; flex-direction:column; align-items:center; gap:.5rem; }
+.topo-site .logo { font-family:var(--titulo); font-size:1.8rem; color:var(--rosa-escuro); }
+.topo-site a { text-decoration:none; color:var(--texto); font-weight:500; font-size:.9rem; }
+.topo-site a:hover { color:var(--rosa-escuro); }
+
+.cabecalho { text-align:center; padding:2rem 0 1rem; }
+h1 { font-family:var(--titulo); font-size:2.5rem; color:var(--rosa-escuro);
+     margin:0 0 .5rem; font-weight:600; }
+.resumo { font-size:1rem; margin:0 auto; max-width:520px; }
+.resumo b { color:var(--rosa-escuro); font-weight:500; }
+.vazio { background:var(--branco); border:1px solid var(--rosa-claro); border-radius:20px;
+         padding:2rem; text-align:center; }
+
+.cards { display:flex; flex-direction:column; gap:1rem; }
+.vaga { background:var(--branco); border:1px solid var(--rosa-claro); border-radius:20px;
+        padding:1.25rem 1.5rem; transition:transform .3s; }
+.vaga:hover { transform:translateY(-5px); }
+.vaga.desejada { border-color:var(--rosa-escuro); box-shadow:0 4px 14px rgba(242,92,125,.12); }
+.vaga.salva { border-color:var(--rosa-principal); background:#fff9fa; }
 .topo { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
-.vaga h2 { font-family:var(--serif); font-weight:500; font-size:19px;
-           margin:0; flex:1 1 auto; min-width:180px; letter-spacing:-.01em; }
-.empresa { font-size:14px; color:var(--g700); margin:6px 0 0; }
-.subtitulo { font-size:13.5px; color:var(--slate); margin:8px 0 0;
-             padding-left:10px; border-left:2px solid var(--oat); }
-.casamento { margin:8px 0 0; font-size:11.5px; color:var(--g500);
-             display:flex; flex-wrap:wrap; gap:6px; align-items:baseline; }
-.casamento span { font-family:var(--mono); font-size:10px; letter-spacing:.08em;
-                  text-transform:uppercase; }
-.casamento em { font-style:normal; background:var(--g100); border:1px solid var(--g200);
-                border-radius:999px; padding:1px 8px; color:var(--g700); }
-.meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
-.selo { font-family:var(--mono); font-size:10.5px; font-weight:700;
-        letter-spacing:.05em; border-radius:999px; padding:3px 10px;
-        border:1.5px solid var(--g300); background:var(--g100); color:var(--g700); }
-.selo.local { background:var(--oat); border-color:var(--g300); color:#7A6A4F; }
-.selo.remoto { background:#EDF2F5; border-color:#C7D6DE; color:var(--ice); }
-.selo.salario { background:#EEF2E6; border-color:#C9D4B6; color:var(--olive); }
-.selo.desejada { background:var(--clay); border-color:var(--clay-d); color:#fff; }
-.rodape-card { margin-top:12px; padding-top:10px; border-top:1px dashed var(--g300);
+.vaga h2 { font-size:1.1rem; font-weight:500; margin:0; color:var(--rosa-escuro);
+           flex:1 1 auto; min-width:180px; }
+.empresa { font-size:.9rem; margin:.25rem 0 0; }
+.subtitulo { font-size:.88rem; margin:.6rem 0 0; padding-left:.75rem;
+             border-left:3px solid var(--rosa-claro); color:var(--texto); }
+.casamento { margin:.6rem 0 0; display:flex; flex-wrap:wrap; gap:6px; align-items:baseline; }
+.casamento span { font-size:.7rem; letter-spacing:.08em; text-transform:uppercase;
+                  color:var(--suave); }
+.casamento em { font-style:normal; font-size:.75rem; background:var(--fundo);
+                border:1px solid var(--rosa-claro); border-radius:25px;
+                padding:2px 10px; color:var(--rosa-escuro); }
+.meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:.7rem; }
+.selo { font-size:.72rem; font-weight:500; letter-spacing:.03em; border-radius:25px;
+        padding:3px 12px; border:1px solid var(--linha); background:var(--fundo);
+        color:var(--texto); }
+.selo.local { background:var(--rosa-claro); border-color:var(--rosa-claro); color:#7a3346; }
+.selo.remoto { background:#eaf4f4; border-color:#cfe6e6; color:#2b6b6b; }
+.selo.salario { background:#f0f7ec; border-color:#d3e7c9; color:#4a7038; }
+.selo.desejada { background:var(--rosa-principal); border-color:var(--rosa-escuro); color:#fff; }
+.rodape-card { margin-top:.8rem; padding-top:.6rem; border-top:1px solid var(--linha);
                display:flex; justify-content:space-between; gap:12px;
-               font-size:12.5px; color:var(--g500); flex-wrap:wrap; }
-.rodape-card a { color:var(--clay-d); text-decoration-color:var(--oat);
-                 text-underline-offset:3px; }
+               font-size:.78rem; color:var(--suave); flex-wrap:wrap; }
+.rodape-card a { color:var(--rosa-escuro); text-underline-offset:3px; }
 /* Os links vivem num agrupador proprio: soltos, o space-between do rodape jogaria
    cada um numa ponta da tela em janela larga. */
 .rodape-card .links { display:flex; gap:14px; flex-wrap:wrap; flex:none; }
-footer { margin-top:40px; font-size:12.5px; color:var(--g500); }
-.vaga.salva { border-color:var(--olive); background:#F1F5EA; }
+footer { background:var(--branco); text-align:center; padding:2rem; margin-top:2rem; }
+footer p { font-weight:500; }
+.heart { display:inline-block; animation:pulse 1.5s infinite; }
+@keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.2);} 100%{transform:scale(1);} }
+@media (min-width:768px) {
+  .topo-site { flex-direction:row; justify-content:space-around; padding:1rem 5%; }
+  .wrap { padding:0 2rem 3rem; }
+}
 .acoes { margin-top:12px; padding-top:10px; border-top:1px dashed var(--g300);
          display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
 .acoes form { display:flex; gap:6px; align-items:center; margin:0; }
@@ -328,7 +348,8 @@ def _card(vaga, desejadas, quem=None, motivos=()):
 
 
 def montar_feed(vagas, cidades_desejadas=(), gerado_em=None,
-                quem=None, motivos=(), descartadas=0, filtradas=None):
+                quem=None, motivos=(), descartadas=0, filtradas=None,
+                folha_do_site=None):
     """Monta a pagina inteira do feed.
 
     Por que esta funcao existe: e a fronteira entre dado e tela. Recebe dicionarios e
@@ -350,10 +371,22 @@ def montar_feed(vagas, cidades_desejadas=(), gerado_em=None,
     ordenadas = sorted(vagas, key=lambda v: _chave_de_ordem(v, desejadas))
 
     # Fase 2: o numero e a primeira coisa que diz se a coleta funcionou.
-    if ordenadas:
-        resumo = "<b>{}</b> vaga(s) no feed.".format(len(ordenadas))
-    else:
+    #
+    # A frase muda conforme quem le. Na versao do site ela conta vagas e estados em
+    # portugues normal, porque e o que responde "vale a pena olhar isso hoje?". Na versao
+    # local o texto e mais seco, porque quem le e quem construiu.
+    if not ordenadas:
         resumo = "Nenhuma vaga no feed."
+    elif folha_do_site:
+        estados = {v.get("uf") for v in ordenadas if v.get("uf")}
+        resumo = "<b>{}</b> {} em {} {}.".format(
+            len(ordenadas),
+            "vaga" if len(ordenadas) == 1 else "vagas",
+            len(estados),
+            "estado" if len(estados) == 1 else "estados",
+        )
+    else:
+        resumo = "<b>{}</b> vaga(s) no feed.".format(len(ordenadas))
 
     # Esconder vaga sem dizer quantas foram escondidas seria limitacao silenciosa: nao
     # daria para saber se o feed encolheu porque filtrou bem ou porque a coleta falhou.
@@ -390,33 +423,74 @@ def montar_feed(vagas, cidades_desejadas=(), gerado_em=None,
         )
 
     # Fase 4: o horario so aparece quando informado de fora.
+    #
+    # Na versao do site ele sobe para o resumo, e nao fica no rodape. Num feed de vagas a
+    # pergunta "isso esta atualizado?" e das primeiras que a leitora faz, e a resposta nao
+    # pode estar no fim da pagina depois de 262 cards.
     rodape = "Gerado por monitor_vagas."
     if gerado_em:
-        rodape += " Atualizado em {}.".format(escape(gerado_em))
+        if folha_do_site:
+            resumo += " Atualizado em {}.".format(escape(gerado_em))
+        else:
+            rodape += " Atualizado em {}.".format(escape(gerado_em))
+
+    # A folha do site so e linkada quando a pagina vai viver dentro dele. Rodando local
+    # ela nao esta ao lado do arquivo, e um link quebrado polui o console de quem depura.
+    cabecalho_extra = []
+    if folha_do_site:
+        cabecalho_extra.append(
+            '<link rel="stylesheet" href="{}">'.format(escape(folha_do_site, quote=True))
+        )
+        # As mesmas fontes do site, para a pagina nao destoar.
+        cabecalho_extra.append(
+            '<link href="https://fonts.googleapis.com/css2?'
+            "family=Dancing+Script:wght@600&family=Montserrat:wght@300;500&display=swap"
+            '" rel="stylesheet">'
+        )
+
+    # O cabecalho de navegacao so aparece na versao do site: e o caminho de volta para a
+    # home, sem o qual a unica saida seria o botao do navegador.
+    if folha_do_site:
+        topo = (
+            '  <div class="topo-site">'
+            '<div class="logo">Presente Rosa</div>'
+            '<a href="index.html">&larr; voltar para a home</a>'
+            "</div>"
+        )
+        assinatura = 'Feito para voce <span class="heart">&#128151;</span>'
+    else:
+        topo = ""
+        assinatura = rodape
 
     # Saida: a estrutura e montada como lista de linhas para o controle de quebra ser
     # explicito - e o que garante bytes identicos entre duas execucoes.
-    return "\n".join([
+    linhas_da_pagina = [
         "<!doctype html>",
         '<html lang="pt-BR">',
         "<head>",
         '<meta charset="utf-8">',
         '<meta name="viewport" content="width=device-width, initial-scale=1">',
-        "<title>Feed de vagas</title>",
+        "<title>Meta_Agregador de Vagas</title>",
+    ]
+    linhas_da_pagina += cabecalho_extra
+    linhas_da_pagina += [
         "<style>{}</style>".format(ESTILO),
         "</head>",
         "<body>",
+        topo,
         '  <div class="wrap">',
-        "    <header>",
-        '      <div class="eyebrow">monitor_vagas</div>',
-        "      <h1>Feed de vagas</h1>",
+        '    <header class="cabecalho">',
+        "      <h1>Meta_Agregador de Vagas</h1>",
         '      <p class="resumo">{}</p>'.format(resumo),
         _seletor_de_pessoa(quem),
         "    </header>",
         corpo,
-        "    <footer>{}</footer>".format(rodape),
         "  </div>",
+        "  <footer><p>{}</p></footer>".format(assinatura),
         "</body>",
         "</html>",
         "",
-    ])
+    ]
+    # Linhas vazias so existem quando um bloco opcional nao entrou; tira-las mantem a
+    # saida limpa sem precisar de condicional no meio da lista.
+    return "\n".join(l for l in linhas_da_pagina if l != "")

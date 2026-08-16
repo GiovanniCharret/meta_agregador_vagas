@@ -11,6 +11,7 @@ Uso:
     python monitor.py                      coleta e gera o feed estatico
     python monitor.py caminho/outro.json   coleta usando outra configuracao
     python monitor.py servir               sobe o servidor local para marcar as vagas
+    python monitor.py publicar             monta o pacote para subir por FTP
 """
 
 # sys da acesso aos argumentos da linha de comando e ao codigo de saida.
@@ -20,7 +21,7 @@ import sys
 from pathlib import Path
 
 # Os caminhos padrao vivem na ancora, nao aqui.
-from src.caminhos import ARQUIVO_CONFIG, DIR_DADOS
+from src.caminhos import ARQUIVO_CONFIG, DIR_DADOS, DIR_SAIDA, RAIZ
 
 # A logica de coleta vive em src/; este arquivo so resolve o argumento e delega.
 from src.main import main
@@ -77,13 +78,123 @@ def servir():
     return 0
 
 
+def publicar():
+    """Monta o pacote de arquivos que sobe para o presenterosa.com.br.
+
+    Por que existe um comando separado: o deploy desta fase e estatico e manual - voce
+    atualiza quando quiser e sobe por FTP. Um comando que junta tudo numa pasta so evita
+    voce ter que lembrar quais arquivos mudaram a cada vez.
+
+    Por que ele NAO coleta: coletar e publicar sao decisoes diferentes. Voce pode querer
+    republicar sem recoletar, ou coletar varias vezes antes de publicar. Junta-los tiraria
+    essa escolha de voce.
+
+    Entrada -> nada; usa o banco e os arquivos do site ja no projeto.
+    Fase 1  -> le a configuracao e o acervo do banco.
+    Fase 2  -> aplica os mesmos filtros e anotacoes do feed local.
+    Fase 3  -> monta a pagina no visual do site, linkando a folha dele.
+    Fase 4  -> edita o index e o app.js do site para apontarem para a pagina nova.
+    Fase 5  -> grava tudo numa pasta so e diz o que subir.
+    Saida   -> zero quando o pacote for montado.
+    """
+    # Importados aqui dentro para uma rodada de coleta nao pagar o custo de carregar o
+    # que ela nao usa.
+    import sqlite3
+    from datetime import datetime
+
+    from src.armazena import listar_vagas
+    from src.config import carregar_config
+    from src.erros import EntradaInvalida
+    from src.feed import montar_feed
+    from src.filtros import anotar_casamentos, aplicar
+    from src.publica import ARQUIVO_DA_PAGINA, app_js_atualizado, index_atualizado
+
+    # A pasta com os arquivos originais do site, e o destino do pacote.
+    origem_do_site = RAIZ / "suporte_contexto" / "site"
+    destino = DIR_SAIDA / "publicar"
+
+    # Fase 1: erro de dado segue a mesma regra do resto do programa.
+    try:
+        configuracao = carregar_config(ARQUIVO_CONFIG)
+    except EntradaInvalida as erro:
+        print("ERRO: {}".format(erro), file=sys.stderr)
+        return 1
+
+    banco = DIR_DADOS / "vagas.sqlite"
+    if not banco.exists():
+        print("ERRO: banco nao encontrado em {}. Rode a coleta antes de publicar."
+              .format(banco), file=sys.stderr)
+        return 1
+
+    conexao = sqlite3.connect(banco)
+    try:
+        itens = listar_vagas(conexao)
+    finally:
+        conexao.close()
+
+    # Fase 2: os mesmos filtros do feed local, para a pagina publicada nao divergir do
+    # que voce ve na sua maquina.
+    itens, _ = aplicar(
+        itens, configuracao.ufs_liberadas, configuracao.cidades_bloqueadas,
+        configuracao.termos_reprovacao,
+    )
+    itens = anotar_casamentos(itens, {
+        p.nome: list(p.termos) + list(p.sinonimos) for p in configuracao.perfis
+    })
+
+    # Fase 3: `filtradas` fica de fora de proposito - "reprovadas por termo" e diagnostico
+    # para quem construiu, e nao informacao para quem usa.
+    pagina = montar_feed(
+        itens,
+        cidades_desejadas=configuracao.cidades_desejadas,
+        gerado_em=datetime.now().strftime("%d/%m/%Y"),
+        folha_do_site="style.css",
+    )
+
+    # Fase 4: as edicoes falham alto se o site tiver mudado.
+    try:
+        indice = index_atualizado(
+            (origem_do_site / "index.html").read_text(encoding="utf-8"))
+        script = app_js_atualizado(
+            (origem_do_site / "app.js").read_text(encoding="utf-8"))
+    except FileNotFoundError as erro:
+        print("ERRO: arquivo do site nao encontrado: {}".format(erro), file=sys.stderr)
+        return 1
+    except EntradaInvalida as erro:
+        print("ERRO: {}".format(erro), file=sys.stderr)
+        return 1
+
+    # Fase 5: newline="" evita o Windows trocar \n por \r\n e inflar o diff a cada
+    # geracao, o que atrapalharia comparar dois pacotes.
+    destino.mkdir(parents=True, exist_ok=True)
+    for nome, conteudo in ((ARQUIVO_DA_PAGINA, pagina),
+                           ("index.html", indice),
+                           ("app.js", script)):
+        with open(destino / nome, "w", encoding="utf-8", newline="") as arquivo:
+            arquivo.write(conteudo)
+
+    # Saida: instrucao explicita, porque o upload e manual.
+    print("Pacote pronto em {}".format(destino))
+    print("{} vaga(s) na pagina.".format(len(itens)))
+    print()
+    print("Suba estes tres arquivos para a raiz do site (public_html), por FTP:")
+    for nome in (ARQUIVO_DA_PAGINA, "index.html", "app.js"):
+        print("   {}".format(nome))
+    print()
+    print("O style.css nao mudou e nao precisa subir.")
+    return 0
+
+
 # Bloco de execucao direta: so roda quando o arquivo e chamado como script.
 if __name__ == "__main__":
-    # O primeiro argumento escolhe entre servir e coletar; sem argumento, coleta.
+    # O primeiro argumento escolhe o comando; sem argumento, coleta.
     primeiro = sys.argv[1] if len(sys.argv) > 1 else None
 
     if primeiro == "servir":
         sys.exit(servir())
+
+    if primeiro == "publicar":
+        sys.exit(publicar())
 
     # Sem argumento, main usa o caminho padrao; com argumento, usa a configuracao
     # indicada - o que permite testar contra uma configuracao temporaria.

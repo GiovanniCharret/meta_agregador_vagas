@@ -154,6 +154,44 @@ sozinha quando a página não traz nada inédito.
 Resultado: **269 vagas de odontologia, cobrindo 23 UFs**. Só 1 é remota, o que reforça que o
 eixo geográfico importa mais para este perfil do que para os outros.
 
+## Deploy estático no presenterosa.com.br — 16/08/2026
+
+Pivô para o mundo real: publicar o que existe e medir a reação dela antes de seguir com as
+fases restantes.
+
+### Como publicar
+
+```powershell
+.venv\Scripts\python.exe monitor.py            # coleta e atualiza o banco
+.venv\Scripts\python.exe monitor.py publicar   # monta o pacote
+# suba por FTP os 3 arquivos de saida\publicar\ para o public_html
+```
+
+Sobem **`vagas.html`, `index.html` e `app.js`**. O `style.css` não muda e não precisa subir.
+
+### Decisões desta fase
+
+| Decisão | Escolha |
+|---|---|
+| Modelo | **Estático e provisório** — a página congela quando é gerada |
+| Atualização | **Manual**, na frequência que você conseguir |
+| Marcação (salvar/descartar) | **Fora** — exige servidor; volta quando for para a VPS |
+| Hospedagem futura | VPS da Hostinger, em fase posterior |
+| Visibilidade | Pública, sem problema — as vagas são anúncios públicos |
+| Estilo | Segue o `style.css` do site, com as mesmas variáveis e fontes |
+
+### O que muda no site
+
+O card **"Lista de Bairros" vira "Meta_Agregador de Vagas"** e passa a abrir `vagas.html`.
+O `resultado2.html` continua no servidor, apenas deixa de ser linkado — não apaguei nada
+que seja seu.
+
+### Salvaguarda
+
+As edições no `index.html` e no `app.js` **falham alto** se o texto esperado não estiver lá.
+Sem isso, mexer no site faria a substituição virar no-op e você subiria um pacote que parece
+pronto e não muda nada — erro que só apareceria olhando o site no ar.
+
 ## Pendências que travam a implementação
 
 1. **Lista de UFs** onde ela não trabalharia. Bloqueia a subfase S-P (coletor de CRO) e alimenta a
