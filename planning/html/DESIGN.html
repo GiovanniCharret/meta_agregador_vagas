@@ -1,0 +1,873 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design — hub de vagas filtradas</title>
+<style>
+  :root {
+    --ivory:#FAF9F5; --paper:#FFFFFF; --slate:#141413;
+    --clay:#D97757; --clay-d:#B85C3E; --clay-bg:#FDF6F2;
+    --oat:#E3DACC;
+    --olive:#788C5D; --olive-d:#5E7047; --olive-bg:#F1F5EA;
+    --ice:#5F7A8A; --ice-d:#4A626F; --ice-bg:#EDF2F5;
+    --out:#7A736A; --out-d:#5E574F; --out-bg:#F2F0EC;
+    --g100:#F0EEE6; --g200:#E6E3DA; --g300:#D1CFC5; --g500:#87867F; --g700:#3D3D3A;
+    --serif: ui-serif, Georgia, "Times New Roman", Times, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--ivory); color: var(--slate);
+    font-family: var(--sans); line-height: 1.55; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px 170px; }
+
+  header.page-head { padding: 56px 0 8px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--g500); margin-bottom: 18px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .eyebrow::before { content:""; width:24px; height:1.5px; background: var(--clay); flex:none; }
+  h1 {
+    font-family: var(--serif); font-weight: 500;
+    font-size: clamp(32px, 4.6vw, 46px); line-height: 1.08;
+    letter-spacing: -.018em; margin: 0 0 10px;
+  }
+  .lede { font-size: 16px; color: var(--g700); max-width: 680px; margin: 0 0 22px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 12px; }
+  .lg {
+    display: flex; align-items: flex-start; gap: 10px;
+    border: 1.5px solid var(--g300); border-radius: 10px;
+    background: var(--paper); padding: 11px 14px; flex: 1 1 210px; min-width: 0;
+  }
+  .lg-key {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    border-radius: 999px; padding: 3px 10px; flex: none; color: #fff;
+    margin-top: 1px; white-space: nowrap;
+  }
+  .lg-key.ok { background: var(--olive); }
+  .lg-key.rv { background: var(--clay); }
+  .lg-key.fo { background: var(--out); }
+  .lg-txt { font-size: 12.5px; color: var(--g700); line-height: 1.4; }
+  .legend-nota {
+    font-size: 13px; color: var(--g700); margin: 0 0 30px;
+    padding-left: 14px; border-left: 3px solid var(--oat); max-width: 68ch;
+  }
+
+  .divider {
+    display: flex; align-items: center; gap: 16px; margin: 46px 0 26px;
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--g500); white-space: nowrap;
+  }
+  .divider::before, .divider::after { content:""; flex:1; height:1px; background: var(--g300); }
+
+  .artifact {
+    background: var(--paper); border: 1.5px solid var(--g300);
+    border-radius: 14px; padding: 30px clamp(16px,3.5vw,34px) 30px; margin-bottom: 22px;
+  }
+  .artifact.alerta { border-color: var(--clay); border-width: 2px; }
+  .artifact h2 {
+    font-family: var(--serif); font-weight: 500;
+    font-size: clamp(23px,3vw,29px); letter-spacing: -.015em;
+    line-height: 1.15; margin: 6px 0 6px;
+  }
+  .art-eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--g500);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .art-eyebrow::before { content:""; width:24px; height:1.5px; background: var(--clay); flex:none; }
+  .art-sub { font-size: 14.5px; color: var(--g700); max-width: 68ch; margin: 0 0 22px; }
+  code { font-family: var(--mono); font-size: 12.5px; background: var(--g100); border-radius: 5px; padding: 1px 5px; }
+
+  .cards { display: flex; flex-direction: column; gap: 12px; }
+  .iv {
+    border: 1.5px solid var(--g300); border-radius: 12px;
+    background: var(--ivory); padding: 16px 18px 14px;
+    scroll-margin-top: 20px; transition: border-color 140ms, background 140ms;
+  }
+  .iv.st-aprovado, .iv.st-entra { border-color: var(--olive); background: var(--olive-bg); }
+  .iv.st-rever,   .iv.st-nota   { border-color: var(--clay);  background: var(--clay-bg); }
+  .iv.st-fora                    { border-color: var(--out);   background: var(--out-bg); }
+  .iv-top { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .iv-cod {
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
+    color: var(--clay-d); flex: none;
+  }
+  .iv h4 {
+    font-family: var(--serif); font-weight: 500; font-size: 18px;
+    letter-spacing: -.01em; margin: 0; flex: 1 1 auto; min-width: 180px;
+  }
+  .selo {
+    font-family: var(--mono); font-size: 9.5px; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    border-radius: 999px; padding: 2px 9px; flex: none; white-space: nowrap;
+  }
+  .selo.rec-entra { background: var(--olive); color: #fff; }
+  .selo.rec-fora  { background: var(--out); color: #fff; }
+  .selo.conflito  { background: var(--clay); color: #fff; }
+  .iv-body { font-size: 13.5px; color: var(--g700); margin: 9px 0 0; }
+  .iv-body strong { color: var(--slate); font-weight: 600; }
+  .iv-body ul { margin: 8px 0 0; padding-left: 20px; }
+  .iv-body li { margin-bottom: 4px; }
+  .iv-foot { margin-top: 12px; padding-top: 11px; border-top: 1px dashed var(--g300); }
+
+  .triage { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+  .tri { position: relative; display: inline-flex; }
+  .tri input {
+    position: absolute; opacity: 0; width: 1px; height: 1px;
+    margin: -1px; overflow: hidden; clip: rect(0 0 0 0);
+  }
+  .tri span {
+    display: inline-block; font-family: var(--mono);
+    font-size: 11px; font-weight: 700; letter-spacing: .05em;
+    padding: 6px 14px; border-radius: 999px;
+    border: 1.5px solid var(--g300); background: var(--paper);
+    color: var(--g700); cursor: pointer; user-select: none;
+    transition: background 120ms, border-color 120ms, color 120ms;
+  }
+  .tri span:hover { border-color: var(--g500); }
+  .tri input:focus-visible + span { outline: 2px solid var(--slate); outline-offset: 2px; }
+  .tri.ok input:checked + span { background: var(--olive); border-color: var(--olive-d); color:#fff; }
+  .tri.rv input:checked + span { background: var(--clay);  border-color: var(--clay-d);  color:#fff; }
+  .tri.en input:checked + span { background: var(--olive); border-color: var(--olive-d); color:#fff; }
+  .tri.fo input:checked + span { background: var(--out);   border-color: var(--out-d);   color:#fff; }
+
+  .estado {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: .07em; text-transform: uppercase;
+    color: var(--g500); margin-left: auto; padding-left: 10px; text-align: right;
+  }
+  .estado.s-aprovado, .estado.s-entra { color: var(--olive-d); }
+  .estado.s-rever, .estado.s-nota     { color: var(--clay-d); }
+  .estado.s-fora                       { color: var(--out-d); }
+
+  textarea.cmt {
+    display: block; width: 100%; margin-top: 10px;
+    font-family: var(--sans); font-size: 13.5px; line-height: 1.5;
+    color: var(--slate); background: var(--paper);
+    border: 1.5px solid var(--g300); border-radius: 9px;
+    padding: 9px 12px; resize: none; overflow: hidden; min-height: 42px;
+    transition: border-color 120ms, box-shadow 120ms;
+  }
+  textarea.cmt::placeholder { color: var(--g500); }
+  textarea.cmt:focus { outline:none; border-color: var(--clay); box-shadow: 0 0 0 3px rgba(217,119,87,.16); }
+  textarea.cmt.preenchida { border-color: var(--clay); }
+
+  /* tabela de subfases */
+  .tab-wrap { overflow-x: auto; margin-bottom: 4px; }
+  table.sub { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 600px; }
+  table.sub th {
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--g500);
+    text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--g200);
+  }
+  table.sub td { padding: 9px 10px; border-bottom: 1px solid var(--g100); vertical-align: top; color: var(--g700); }
+  table.sub tr:last-child td { border-bottom: none; }
+  table.sub td:first-child { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--clay-d); white-space: nowrap; }
+  table.sub td:nth-child(2) { color: var(--slate); }
+  table.sub tr.bloqueada { background: var(--out-bg); }
+  table.sub tr.bloqueada td:first-child { color: var(--out-d); }
+
+  /* pendencias */
+  .qs { display: flex; flex-direction: column; gap: 12px; }
+  .q {
+    display: flex; gap: 14px; align-items: flex-start;
+    border: 1.5px solid var(--g300); border-radius: 12px;
+    background: var(--ivory); padding: 16px 18px;
+    transition: border-color 140ms, background 140ms;
+  }
+  .q.st-nota { border-color: var(--clay); background: var(--clay-bg); }
+  .q-num {
+    font-family: var(--serif); font-size: 22px; font-weight: 500;
+    color: var(--clay); line-height: 1; flex: none; width: 30px; text-align: center; padding-top: 2px;
+  }
+  .q-txt { font-size: 14px; color: var(--g700); flex: 1 1 auto; min-width: 0; }
+  .q-txt b { color: var(--slate); font-weight: 600; display: block; margin-bottom: 3px; font-size: 14.5px; }
+
+  /* barra fixa */
+  .replybar {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--slate); color: var(--ivory); z-index: 50;
+    box-shadow: 0 -8px 24px rgba(20,20,19,.15);
+  }
+  .replybar-inner {
+    max-width: 980px; margin: 0 auto; padding: 11px 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .rb-counts { display: flex; gap: 5px; flex: none; }
+  .rb-pill {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+    letter-spacing: .03em; padding: 4px 9px; border-radius: 999px;
+    white-space: nowrap; border: 1.5px solid transparent; color: #fff;
+  }
+  .rb-pill.ok { background: var(--olive); border-color: var(--olive-d); }
+  .rb-pill.rv { background: var(--clay);  border-color: var(--clay-d); }
+  .rb-pill.sk { background: var(--ice);   border-color: var(--ice-d); }
+  .rb-pill.zero { background: transparent; color: var(--g500); border-color: var(--g700); }
+  .rb-reply {
+    flex: 1; font-family: var(--mono); font-size: 12px; color: var(--g300);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+  }
+  .rb-reply.live { color: var(--ivory); }
+  button.rb-copy {
+    flex: none; font-family: var(--mono); font-size: 12px; letter-spacing: .03em;
+    background: var(--clay); color: #fff; border: 1.5px solid var(--clay-d);
+    border-radius: 8px; padding: 8px 16px; cursor: pointer;
+    transition: background 120ms, opacity 120ms;
+  }
+  button.rb-copy:hover:not(:disabled) { background: var(--clay-d); }
+  button.rb-copy:disabled { opacity: .35; cursor: default; }
+  button.rb-copy.copied { background: var(--olive); border-color: var(--olive); }
+  button.rb-clear {
+    flex: none; font-family: var(--mono); font-size: 11px;
+    background: transparent; color: var(--g500);
+    border: 1.5px solid var(--g700); border-radius: 8px;
+    padding: 8px 12px; cursor: pointer; transition: color 120ms, border-color 120ms;
+  }
+  button.rb-clear:hover { color: var(--ivory); border-color: var(--g500); }
+  @media (max-width: 860px) {
+    .replybar-inner { flex-wrap: wrap; gap: 8px; padding: 10px 16px; }
+    .rb-reply { order: 3; flex-basis: 100%; }
+  }
+
+  footer { margin-top: 46px; font-size: 13px; color: var(--g500); }
+  footer code { font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page-head">
+    <div class="eyebrow">monitor_vagas &middot; design do MVP &middot; 16/08/2026</div>
+    <h1>Design do hub de vagas</h1>
+    <p class="lede">Companion visual de <code>planning/DESIGN.md</code>. Oito seções para aprovar,
+    cinco peças de stack para decidir, a ordem das subfases e três pendências. A barra no rodapé
+    monta a resposta para copiar e me mandar.</p>
+
+    <div class="legend">
+      <div class="lg">
+        <span class="lg-key ok">Aprovado</span>
+        <span class="lg-txt">A seção fecha como está. Vira base da implementação.</span>
+      </div>
+      <div class="lg">
+        <span class="lg-key rv">Rever</span>
+        <span class="lg-txt">Precisa mudar antes de virar código. Escreva o que muda.</span>
+      </div>
+      <div class="lg">
+        <span class="lg-key fo">Entra / Fora</span>
+        <span class="lg-txt">Só no bloco de stack: a peça entra no MVP ou fica de fora.</span>
+      </div>
+    </div>
+
+    <p class="legend-nota">A caixa de texto é <strong>independente do botão</strong> — serve para
+    ressalva. Escrever sem clicar em nada vale como nota, sem decisão, e sai num bloco próprio
+    para não se perder. Clique de novo no botão marcado para desmarcá-lo.</p>
+  </header>
+
+  <div class="divider">A decisão que trava tudo</div>
+
+  <div class="artifact alerta">
+    <div class="art-eyebrow">D7 &middot; contraria o PLAN.md</div>
+    <h2>Stack: cinco peças para decidir</h2>
+    <p class="art-sub">O <code>PLAN.md</code> declara FastAPI, PostgreSQL, Alembic, Next.js e nginx.
+    O escopo que sobrou depois das duas triagens não sustenta isso. <strong>Não alterei o
+    <code>PLAN.md</code></strong> — ele é seu documento de controle. Cada peça abaixo tem a minha
+    recomendação marcada; decida uma a uma.</p>
+
+    <div class="cards">
+
+      <div class="iv" id="ivfastapi">
+        <div class="iv-top">
+          <h4>Servidor local mínimo (FastAPI)</h4>
+          <span class="selo rec-entra">recomendo entrar</span>
+          <span class="estado" data-estado="fastapi"></span>
+        </div>
+        <p class="iv-body">Se justifica <strong>por um motivo só</strong>: marcar uma vaga como
+        <code>salva</code> ou <code>descartada</code> precisa gravar, e HTML estático não grava. É
+        o que torna a <code>3.8</code> e a <code>4.1</code> possíveis. Sem ele, o feed vira leitura
+        e toda a instrumentação de UX morre.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="FastAPI entra ou fica fora">
+            <label class="tri en"><input type="radio" name="tfastapi" value="entra" data-n="fastapi"><span>Entra</span></label>
+            <label class="tri fo"><input type="radio" name="tfastapi" value="fora" data-n="fastapi"><span>Fora</span></label>
+          </div>
+          <textarea class="cmt stack" data-n="fastapi" data-rotulo="FastAPI (servidor local mínimo)" rows="1" aria-label="Comentário sobre FastAPI" placeholder="Ressalva…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivsqlite">
+        <div class="iv-top">
+          <h4>SQLite no lugar de PostgreSQL</h4>
+          <span class="selo rec-entra">recomendo entrar</span>
+          <span class="estado" data-estado="sqlite"></span>
+        </div>
+        <p class="iv-body">Dois usuários, uma máquina. Postgres é mais um serviço para subir e
+        manter, sem ganho nessa escala. <strong>A troca é assimétrica:</strong> sair de SQLite para
+        Postgres depois é migração pequena; o contrário não acontece.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="SQLite entra ou fica fora">
+            <label class="tri en"><input type="radio" name="tsqlite" value="entra" data-n="sqlite"><span>Entra</span></label>
+            <label class="tri fo"><input type="radio" name="tsqlite" value="fora" data-n="sqlite"><span>Fora</span></label>
+          </div>
+          <textarea class="cmt stack" data-n="sqlite" data-rotulo="SQLite no lugar de PostgreSQL" rows="1" aria-label="Comentário sobre SQLite" placeholder="Ressalva…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivalembic">
+        <div class="iv-top">
+          <h4>Alembic desde o início</h4>
+          <span class="selo rec-fora">recomendo ficar fora</span>
+          <span class="estado" data-estado="alembic"></span>
+        </div>
+        <p class="iv-body">Funciona com SQLite, mas migração só paga quando o esquema começa a mudar
+        de verdade e há dado que não pode ser perdido. Nas primeiras subfases dá para recriar o
+        banco. <strong>Entra quando doer, não antes.</strong></p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Alembic entra ou fica fora">
+            <label class="tri en"><input type="radio" name="talembic" value="entra" data-n="alembic"><span>Entra</span></label>
+            <label class="tri fo"><input type="radio" name="talembic" value="fora" data-n="alembic"><span>Fora</span></label>
+          </div>
+          <textarea class="cmt stack" data-n="alembic" data-rotulo="Alembic desde o início" rows="1" aria-label="Comentário sobre Alembic" placeholder="Ressalva…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivnextjs">
+        <div class="iv-top">
+          <h4>Next.js no front</h4>
+          <span class="selo rec-fora">recomendo ficar fora</span>
+          <span class="selo conflito">maior conflito</span>
+          <span class="estado" data-estado="nextjs"></span>
+        </div>
+        <p class="iv-body">Você pediu <strong>"HTML o mais simples possível"</strong>. Uma SPA em
+        Next.js é o oposto disso: build, node_modules, roteamento e hidratação para renderizar uma
+        lista de cards. Template no servidor entrega o mesmo resultado sem nada disso.
+        <strong>Aqui a assimetria é ao contrário:</strong> sair de Next.js depois seria retrabalho
+        grande — é a peça que mais custa errar.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Next.js entra ou fica fora">
+            <label class="tri en"><input type="radio" name="tnextjs" value="entra" data-n="nextjs"><span>Entra</span></label>
+            <label class="tri fo"><input type="radio" name="tnextjs" value="fora" data-n="nextjs"><span>Fora</span></label>
+          </div>
+          <textarea class="cmt stack" data-n="nextjs" data-rotulo="Next.js no front" rows="1" aria-label="Comentário sobre Next.js" placeholder="Ressalva…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivnginx">
+        <div class="iv-top">
+          <h4>nginx</h4>
+          <span class="selo rec-fora">recomendo ficar fora</span>
+          <span class="estado" data-estado="nginx"></span>
+        </div>
+        <p class="iv-body">Faz sentido quando há internet, TLS e tráfego. Rodando local para duas
+        pessoas, é um processo a mais para configurar sem nada em troca.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="nginx entra ou fica fora">
+            <label class="tri en"><input type="radio" name="tnginx" value="entra" data-n="nginx"><span>Entra</span></label>
+            <label class="tri fo"><input type="radio" name="tnginx" value="fora" data-n="nginx"><span>Fora</span></label>
+          </div>
+          <textarea class="cmt stack" data-n="nginx" data-rotulo="nginx" rows="1" aria-label="Comentário sobre nginx" placeholder="Ressalva…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">As oito seções do design</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">D1 a D8</div>
+    <h2>Aprovar ou rever, seção por seção</h2>
+    <p class="art-sub">Resumo de cada seção. O texto completo está no markdown — aqui está o que
+    você precisa para decidir.</p>
+
+    <div class="cards">
+
+      <div class="iv" id="ivD1">
+        <div class="iv-top"><span class="iv-cod">D1</span><h4>O que o MVP é, e o que ele não é</h4><span class="estado" data-estado="D1"></span></div>
+        <p class="iv-body">Escopo fechado em <strong>10 itens</strong>. A pergunta que o produto
+        responde nesta fase é "quais vagas, dentro dos meus filtros, existem agora?" — feed simples
+        com selo quando a cidade também tem oportunidade para a outra pessoa. Cinco princípios
+        regem: fácil de puxar primeiro, sem teto de volume, horizonte contínuo, determinismo, e
+        limitação explícita nunca silenciosa.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da seção D1">
+            <label class="tri ok"><input type="radio" name="tD1" value="aprovado" data-n="D1"><span>Aprovado</span></label>
+            <label class="tri rv"><input type="radio" name="tD1" value="rever" data-n="D1"><span>Rever</span></label>
+          </div>
+          <textarea class="cmt secao" data-n="D1" data-rotulo="D1 (escopo e princípios)" rows="1" aria-label="Comentário sobre D1" placeholder="O que muda?"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivD2">
+        <div class="iv-top"><span class="iv-cod">D2</span><h4>Modelo de dados</h4><span class="estado" data-estado="D2"></span></div>
+        <p class="iv-body">Duas entidades: <code>vaga</code> e <code>concurso</code>, separadas
+        conforme você aprovou. Mais <code>estado_item</code> e <code>evento</code>.
+        <strong>Duas decisões que valem sua conferência:</strong></p>
+        <ul>
+          <li><code>salario</code> fica como <strong>texto cru</strong>, sem separar mínimo, máximo,
+          moeda e período — nenhum item aprovado filtra por salário, e modelar agora seria
+          especulativo.</li>
+          <li><code>quem</code> é rótulo simples (<code>meu</code> / <code>dela</code>), não sistema
+          de contas — autenticação está fora do escopo.</li>
+        </ul>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da seção D2">
+            <label class="tri ok"><input type="radio" name="tD2" value="aprovado" data-n="D2"><span>Aprovado</span></label>
+            <label class="tri rv"><input type="radio" name="tD2" value="rever" data-n="D2"><span>Rever</span></label>
+          </div>
+          <textarea class="cmt secao" data-n="D2" data-rotulo="D2 (modelo de dados)" rows="1" aria-label="Comentário sobre D2" placeholder="O que muda?"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivD3">
+        <div class="iv-top"><span class="iv-cod">D3</span><h4>Pipeline de coleta</h4><span class="estado" data-estado="D3"></span></div>
+        <p class="iv-body">Config → coleta → normalização → dedupe → filtros → persistência → feed.
+        A config é o "JSON fechado" esclarecido: perfis com lado e sinônimos, UFs e cidades
+        bloqueadas, cidades desejadas, termos de reprovação, fontes ativas. Chave canônica do dedupe
+        = <code>empresa + título + cidade + UF + modalidade</code>. Os termos de reprovação incluem o
+        ruído de franquia do perfil odonto.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da seção D3">
+            <label class="tri ok"><input type="radio" name="tD3" value="aprovado" data-n="D3"><span>Aprovado</span></label>
+            <label class="tri rv"><input type="radio" name="tD3" value="rever" data-n="D3"><span>Rever</span></label>
+          </div>
+          <textarea class="cmt secao" data-n="D3" data-rotulo="D3 (pipeline)" rows="1" aria-label="Comentário sobre D3" placeholder="O que muda?"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivD4">
+        <div class="iv-top"><span class="iv-cod">D4</span><h4>Documentação e companion HTML</h4><span class="estado" data-estado="D4"></span></div>
+        <p class="iv-body">Consolida as convenções: docstring explicando por que a função existe e
+        depois a lógica em fases numeradas, toda linha comentada; código em português sem acento e
+        documentação com acento; todo documento novo de planejamento ganha companion HTML;
+        <code>RAIZ</code> relativo; formato BR em CSV/TXT.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da seção D4">
+            <label class="tri ok"><input type="radio" name="tD4" value="aprovado" data-n="D4"><span>Aprovado</span></label>
+            <label class="tri rv"><input type="radio" name="tD4" value="rever" data-n="D4"><span>Rever</span></label>
+          </div>
+          <textarea class="cmt secao" data-n="D4" data-rotulo="D4 (documentação e companion)" rows="1" aria-label="Comentário sobre D4" placeholder="O que muda?"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivD5">
+        <div class="iv-top"><span class="iv-cod">D5</span><h4>Feed de saída</h4><span class="estado" data-estado="D5"></span></div>
+        <p class="iv-body">Um card por item canônico, com links de todas as fontes onde apareceu e o
+        "por que apareceu". <strong>Selo de companheiro calculado na renderização</strong>, não
+        armazenado — e <strong>remoto fora da conta</strong>, senão o Brasil inteiro receberia selo.
+        Ordenação determinística: cidades desejadas primeiro, empate resolvido pelo
+        <code>id_canonico</code>. Concurso no mesmo feed, card distinto, com prazo em destaque e
+        etiqueta de <code>cadastro_reserva</code>.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da seção D5">
+            <label class="tri ok"><input type="radio" name="tD5" value="aprovado" data-n="D5"><span>Aprovado</span></label>
+            <label class="tri rv"><input type="radio" name="tD5" value="rever" data-n="D5"><span>Rever</span></label>
+          </div>
+          <textarea class="cmt secao" data-n="D5" data-rotulo="D5 (feed de saída)" rows="1" aria-label="Comentário sobre D5" placeholder="O que muda?"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivD6">
+        <div class="iv-top"><span class="iv-cod">D6</span><h4>Instrumentação de UX</h4><span class="estado" data-estado="D6"></span></div>
+        <p class="iv-body">Descarte com motivo obrigatório — o card não fecha sem motivo, e o sistema
+        cobra. "Por que apareceu" torna o filtro depurável sem abrir o código. Tudo vai para
+        <code>evento</code>. O agregado (<code>4.3</code>) está congelado: <strong>o dado acumula sem
+        visualização por enquanto</strong>, e isso foi aceito.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da seção D6">
+            <label class="tri ok"><input type="radio" name="tD6" value="aprovado" data-n="D6"><span>Aprovado</span></label>
+            <label class="tri rv"><input type="radio" name="tD6" value="rever" data-n="D6"><span>Rever</span></label>
+          </div>
+          <textarea class="cmt secao" data-n="D6" data-rotulo="D6 (instrumentação de UX)" rows="1" aria-label="Comentário sobre D6" placeholder="O que muda?"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivD7">
+        <div class="iv-top"><span class="iv-cod">D7</span><h4>Arquitetura de módulos</h4><span class="estado" data-estado="D7"></span></div>
+        <p class="iv-body">Layout achatado: <code>config</code>, <code>fontes/</code>,
+        <code>normaliza</code>, <code>dedupe</code>, <code>filtros</code>, <code>armazena</code>,
+        <code>feed</code>, <code>main</code>. Da Clean Architecture pego a <strong>regra de
+        dependência</strong> (o miolo não conhece fonte nem banco) e a <strong>interface única por
+        fonte</strong>; deixo de fora camadas formais e injeção de dependência, que seriam estrutura
+        sem retorno num executável de dois usuários. <em>A stack está no bloco do topo.</em></p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da seção D7">
+            <label class="tri ok"><input type="radio" name="tD7" value="aprovado" data-n="D7"><span>Aprovado</span></label>
+            <label class="tri rv"><input type="radio" name="tD7" value="rever" data-n="D7"><span>Rever</span></label>
+          </div>
+          <textarea class="cmt secao" data-n="D7" data-rotulo="D7 (arquitetura de módulos)" rows="1" aria-label="Comentário sobre D7" placeholder="O que muda?"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivD8">
+        <div class="iv-top"><span class="iv-cod">D8</span><h4>Testes</h4><span class="estado" data-estado="D8"></span></div>
+        <p class="iv-body">Revisão adversarial <strong>anulada</strong> por decisão sua — o projeto
+        não tem complexidade que justifique. Fica: <code>TESTES.md</code> como mapa por fase, testes
+        e2e nos caminhos importantes, e <strong>subfase sem teste não conta como concluída</strong>.
+        O determinismo é testável e deve ser testado: rodar duas vezes a mesma entrada tem que gerar
+        HTML idêntico byte a byte.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da seção D8">
+            <label class="tri ok"><input type="radio" name="tD8" value="aprovado" data-n="D8"><span>Aprovado</span></label>
+            <label class="tri rv"><input type="radio" name="tD8" value="rever" data-n="D8"><span>Rever</span></label>
+          </div>
+          <textarea class="cmt secao" data-n="D8" data-rotulo="D8 (testes)" rows="1" aria-label="Comentário sobre D8" placeholder="O que muda?"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">A ordem de construção</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">Subfases</div>
+    <h2>Onze entregas pequenas, mais uma bloqueada</h2>
+    <p class="art-sub">Cada subfase entrega algo que você abre e confere sozinho. A S1 constrói o
+    pipeline inteiro com <strong>uma fonte só</strong>, para provar a ponta a ponta antes de
+    multiplicar conectores.</p>
+
+    <div class="tab-wrap">
+      <table class="sub">
+        <tr><th>#</th><th>Entrega</th><th>Cobre</th></tr>
+        <tr><td>S0</td><td>Esqueleto: <code>RAIZ</code>, leitura e validação da config, <code>EntradaInvalida</code></td><td>D3, D7</td></tr>
+        <tr><td>S1</td><td><strong>Uma fonte só</strong>, a mais fácil, ponta a ponta até JSON normalizado</td><td>D3</td></tr>
+        <tr><td>S2</td><td>Feed HTML a partir do JSON, sem estado ainda</td><td>D5</td></tr>
+        <tr><td>S3</td><td>Persistência + estados + motivo obrigatório</td><td>3.8, 4.1</td></tr>
+        <tr><td>S4</td><td>Deduplicação: um card, vários links</td><td>3.7</td></tr>
+        <tr><td>S5</td><td>Filtros: cidades, palavras de reprovação, sinônimos</td><td>3.2, 3.5, 3.6</td></tr>
+        <tr><td>S6</td><td>Múltiplos perfis + "por que apareceu"</td><td>3.1, 4.2</td></tr>
+        <tr><td>S7</td><td>Selo de companheiro</td><td>3.4</td></tr>
+        <tr><td>S8</td><td>Demais fontes da primeira rodada</td><td>D3</td></tr>
+        <tr><td>S9</td><td>Concursos como entidade separada (condicional à V1)</td><td>D2</td></tr>
+        <tr><td>S10</td><td>Alertas por e-mail e Telegram</td><td>5.2</td></tr>
+        <tr class="bloqueada"><td>S-P</td><td><strong>Coletor de CRO — bloqueada por insumo:</strong> a lista de UFs decide se são 27 coletores ou 12</td><td>—</td></tr>
+      </table>
+    </div>
+
+    <div class="cards" style="margin-top:18px">
+      <div class="iv" id="ivSUB">
+        <div class="iv-top"><h4>Esta ordem faz sentido?</h4><span class="estado" data-estado="SUB"></span></div>
+        <p class="iv-body">Se quiser trocar alguma de lugar, ou juntar duas, escreva na caixa.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ordem das subfases">
+            <label class="tri ok"><input type="radio" name="tSUB" value="aprovado" data-n="SUB"><span>Aprovado</span></label>
+            <label class="tri rv"><input type="radio" name="tSUB" value="rever" data-n="SUB"><span>Rever</span></label>
+          </div>
+          <textarea class="cmt secao" data-n="SUB" data-rotulo="Ordem das subfases" rows="1" aria-label="Comentário sobre a ordem das subfases" placeholder="Trocaria alguma de lugar?"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">O que ainda falta resolver</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">Pendências do documento</div>
+    <h2>Três pontas soltas</h2>
+    <p class="art-sub">A stack já está no bloco do topo. Sobram estas.</p>
+    <div class="qs">
+      <div class="q" id="ivP1">
+        <div class="q-num">1</div>
+        <div class="q-txt"><b>Lista de UFs onde ela não trabalharia</b>
+        É o único item do caminho crítico que só vocês podem produzir. Bloqueia a S-P e alimenta a
+        <code>3.2</code> ao mesmo tempo. Quando tiver, é só colar aqui.
+        <textarea class="cmt resp" data-n="P1" data-rotulo="Lista de UFs" rows="1" aria-label="Lista de UFs" placeholder="Cole a lista, ou diga quando terá…"></textarea></div>
+      </div>
+      <div class="q" id="ivP2">
+        <div class="q-num">2</div>
+        <div class="q-txt"><b>V1 — puxar vaga do PCI Concursos é difícil?</b>
+        Se for, a S9 cai para a fase seguinte e os concursos saem do MVP.
+        <textarea class="cmt resp" data-n="P2" data-rotulo="V1 (dificuldade do PCI)" rows="1" aria-label="Resposta sobre o PCI" placeholder="Sua resposta…"></textarea></div>
+      </div>
+      <div class="q" id="ivP3">
+        <div class="q-num">3</div>
+        <div class="q-txt"><b>Qual é a "fonte mais fácil" da S1?</b>
+        Deixei em aberto de propósito — isso se descobre testando, não lendo. Se você já tem um
+        palpite, ele economiza uma rodada.
+        <textarea class="cmt resp" data-n="P3" data-rotulo="Fonte mais fácil da S1" rows="1" aria-label="Palpite sobre a fonte mais fácil" placeholder="Tem palpite?"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Companion de <code>planning/DESIGN.md</code> · deriva de <code>IDEIAS.md</code> (15/08) e
+    <code>FONTES_ODONTO.md</code> (16/08) · inspirado nos modelos de
+    <code>planning/html-effectiveness/</code>.
+    A triagem fica salva neste navegador; nada sai daqui até você copiar a resposta.
+  </footer>
+</div>
+
+<div class="replybar">
+  <div class="replybar-inner">
+    <div class="rb-counts">
+      <span class="rb-pill ok zero" id="rbOk">0 aprovadas</span>
+      <span class="rb-pill rv zero" id="rbRv">0 rever</span>
+      <span class="rb-pill sk zero" id="rbSk">0 de stack</span>
+    </div>
+    <span class="rb-reply" id="rbReply">Nada marcado — sua resposta é montada aqui.</span>
+    <button class="rb-clear" id="rbClear" type="button">limpar</button>
+    <button class="rb-copy" id="rbCopy" type="button" disabled>copiar resposta</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var KEY = 'monitor_vagas_design_v1';
+
+  var radios = Array.prototype.slice.call(document.querySelectorAll('.tri input[type="radio"]'));
+  var caixas = Array.prototype.slice.call(document.querySelectorAll('textarea.cmt'));
+
+  // Tres tipos: stack (Entra/Fora), secao (Aprovado/Rever) e pendencia (so caixa).
+  // Em todos, a caixa e independente do botao: texto sem botao vale como nota.
+  var porItem = {};
+  function slot(n) {
+    if (!porItem[n]) porItem[n] = { radios: [], ta: null, tipo: 'secao', rotulo: n };
+    return porItem[n];
+  }
+  radios.forEach(function (r) { slot(r.getAttribute('data-n')).radios.push(r); });
+  caixas.forEach(function (t) {
+    var s = slot(t.getAttribute('data-n'));
+    s.ta = t;
+    if (t.classList.contains('resp')) s.tipo = 'pendencia';
+    else if (t.classList.contains('stack')) s.tipo = 'stack';
+    var rot = t.getAttribute('data-rotulo');
+    if (rot) s.rotulo = rot;
+  });
+
+  var stack = [], secoes = [], pendencias = [];
+  caixas.forEach(function (t) {
+    var n = t.getAttribute('data-n');
+    var tipo = porItem[n].tipo;
+    if (tipo === 'stack') stack.push(n);
+    else if (tipo === 'secao') secoes.push(n);
+    else pendencias.push(n);
+  });
+  var totalSecoes = secoes.length;
+
+  var ultimo = {};
+
+  var rbOk = document.getElementById('rbOk');
+  var rbRv = document.getElementById('rbRv');
+  var rbSk = document.getElementById('rbSk');
+  var rbReply = document.getElementById('rbReply');
+  var rbCopy = document.getElementById('rbCopy');
+  var rbClear = document.getElementById('rbClear');
+  var respostaAtual = '';
+
+  function textoDe(n) { var ta = porItem[n].ta; return ta ? ta.value.trim() : ''; }
+
+  function marcadoEm(n) {
+    var v = null;
+    porItem[n].radios.forEach(function (r) { if (r.checked) v = r.value; });
+    return v;
+  }
+
+  // O botao sempre manda; caixa sozinha vale como nota, sem decisao.
+  function estadoDe(n) {
+    var marcado = marcadoEm(n);
+    if (marcado) return marcado;
+    return textoDe(n) ? 'nota' : null;
+  }
+
+  var LEGIVEL = {
+    aprovado: 'Aprovado', rever: 'Rever',
+    entra: 'Entra', fora: 'Fora', nota: 'Comentado'
+  };
+
+  function crescer(ta) {
+    ta.style.height = 'auto';
+    ta.style.height = (ta.scrollHeight + 2) + 'px';
+  }
+
+  function pintar(n, estado) {
+    var alvo = document.getElementById('iv' + n);
+    if (alvo) {
+      alvo.classList.remove('st-aprovado', 'st-rever', 'st-entra', 'st-fora', 'st-nota');
+      if (estado) alvo.classList.add('st-' + estado);
+    }
+    var etiqueta = document.querySelector('[data-estado="' + n + '"]');
+    if (etiqueta) {
+      etiqueta.className = 'estado' + (estado ? ' s-' + estado : '');
+      etiqueta.textContent = estado ? LEGIVEL[estado] : '';
+    }
+    var ta = porItem[n].ta;
+    if (ta) ta.classList.toggle('preenchida', textoDe(n).length > 0);
+  }
+
+  function contaPill(el, num, rotulo) {
+    el.textContent = num + ' ' + rotulo;
+    el.classList.toggle('zero', num === 0);
+  }
+
+  function salvar() {
+    var estado = {};
+    Object.keys(porItem).forEach(function (n) {
+      var marcado = marcadoEm(n);
+      var ta = porItem[n].ta;
+      var bruto = ta ? ta.value : '';
+      if (marcado || bruto.trim()) estado[n] = { s: marcado, c: bruto };
+    });
+    try { localStorage.setItem(KEY, JSON.stringify(estado)); } catch (e) {}
+  }
+
+  function restaurar() {
+    var bruto = null;
+    try { bruto = localStorage.getItem(KEY); } catch (e) { return; }
+    if (!bruto) return;
+    var estado;
+    try { estado = JSON.parse(bruto); } catch (e) { return; }
+    if (!estado || typeof estado !== 'object') return;
+    Object.keys(porItem).forEach(function (n) {
+      var g = estado[n];
+      if (!g) return;
+      porItem[n].radios.forEach(function (r) {
+        if (g.s === r.value) { r.checked = true; ultimo[r.getAttribute('name')] = r.value; }
+      });
+      if (porItem[n].ta && typeof g.c === 'string') porItem[n].ta.value = g.c;
+    });
+  }
+
+  function achatar(txt) { return txt.replace(/\s+/g, ' ').trim(); }
+
+  function update() {
+    // Stack: cada peca decidida vira uma linha com ENTRA ou FORA.
+    var linhasStack = [], decididasStack = 0, notasStack = [];
+    stack.forEach(function (n) {
+      var e = estadoDe(n);
+      pintar(n, e);
+      if (!e) return;
+      var c = achatar(textoDe(n));
+      if (e === 'nota') { notasStack.push('- ' + porItem[n].rotulo + ': ' + c); return; }
+      decididasStack++;
+      linhasStack.push('- ' + porItem[n].rotulo + ': ' + e.toUpperCase() + (c ? ' — ' + c : ''));
+    });
+
+    var aprovadas = [], rever = [], notasSecao = [];
+    secoes.forEach(function (n) {
+      var e = estadoDe(n);
+      pintar(n, e);
+      var c = achatar(textoDe(n));
+      if (e === 'aprovado') aprovadas.push(porItem[n].rotulo.split(' (')[0]);
+      else if (e === 'rever') rever.push('- ' + porItem[n].rotulo + (c ? ' — ' + c : ''));
+      else if (e === 'nota') notasSecao.push('- ' + porItem[n].rotulo + ': ' + c);
+    });
+
+    var respondidas = [];
+    pendencias.forEach(function (n) {
+      var e = estadoDe(n);
+      pintar(n, e);
+      var c = achatar(textoDe(n));
+      if (c) respondidas.push('- ' + porItem[n].rotulo + ': ' + c);
+    });
+
+    contaPill(rbOk, aprovadas.length, 'aprovadas');
+    contaPill(rbRv, rever.length, 'rever');
+    contaPill(rbSk, decididasStack, 'de stack');
+
+    var decididasSecao = aprovadas.length + rever.length;
+    var temAlgo = decididasStack || notasStack.length || decididasSecao ||
+                  notasSecao.length || respondidas.length;
+
+    if (!temAlgo) {
+      respostaAtual = '';
+      rbReply.textContent = 'Nada marcado — sua resposta é montada aqui.';
+      rbReply.classList.remove('live');
+      rbCopy.disabled = true;
+      salvar();
+      return;
+    }
+
+    var linhas = ['Triagem do design (planning/DESIGN.md):'];
+
+    if (linhasStack.length) { linhas.push('', 'STACK:'); linhas.push.apply(linhas, linhasStack); }
+    if (notasStack.length) {
+      linhas.push('', 'STACK COMENTADA, SEM DECISÃO:');
+      linhas.push.apply(linhas, notasStack);
+    }
+    if (aprovadas.length) linhas.push('', 'SEÇÕES APROVADAS: ' + aprovadas.join(', '));
+    if (rever.length) { linhas.push('', 'REVER:'); linhas.push.apply(linhas, rever); }
+    if (notasSecao.length) {
+      linhas.push('', 'COMENTADO, SEM DECISÃO:');
+      linhas.push.apply(linhas, notasSecao);
+    }
+    if (respondidas.length) { linhas.push('', 'PENDÊNCIAS:'); linhas.push.apply(linhas, respondidas); }
+
+    var faltamStack = stack.length - decididasStack;
+    var faltamSecao = totalSecoes - decididasSecao;
+    var pendentes = [];
+    if (faltamStack > 0) pendentes.push(faltamStack + ' peça(s) de stack');
+    if (faltamSecao > 0) pendentes.push(faltamSecao + ' seção(ões)');
+    if (pendentes.length) linhas.push('', '(sem decisão: ' + pendentes.join(', ') + ')');
+
+    respostaAtual = linhas.join('\n');
+
+    var previa = [];
+    if (decididasStack) previa.push(decididasStack + '/' + stack.length + ' de stack');
+    if (aprovadas.length) previa.push(aprovadas.length + ' aprovadas');
+    if (rever.length) previa.push(rever.length + ' a rever');
+    if (respondidas.length) previa.push(respondidas.length + ' pendência(s)');
+    rbReply.textContent = previa.join('  ·  ');
+    rbReply.classList.add('live');
+    rbCopy.disabled = false;
+    salvar();
+  }
+
+  radios.forEach(function (r) {
+    r.addEventListener('click', function () {
+      var grupo = r.getAttribute('name');
+      if (ultimo[grupo] === r.value) { r.checked = false; ultimo[grupo] = null; }
+      else { ultimo[grupo] = r.value; }
+      update();
+    });
+  });
+
+  caixas.forEach(function (ta) {
+    ta.addEventListener('input', function () { crescer(ta); update(); });
+  });
+
+  rbClear.addEventListener('click', function () {
+    radios.forEach(function (r) { r.checked = false; });
+    caixas.forEach(function (ta) { ta.value = ''; crescer(ta); });
+    ultimo = {};
+    update();
+  });
+
+  function copiar(texto, btn, rotulo, rotuloOk) {
+    function pronto() {
+      btn.classList.add('copied');
+      btn.textContent = rotuloOk;
+      setTimeout(function () { btn.classList.remove('copied'); btn.textContent = rotulo; }, 1600);
+    }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = texto;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      pronto();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto).then(pronto, fallback);
+    } else { fallback(); }
+  }
+
+  rbCopy.addEventListener('click', function () {
+    if (respostaAtual) copiar(respostaAtual, rbCopy, 'copiar resposta', 'copiado');
+  });
+
+  restaurar();
+  caixas.forEach(crescer);
+  update();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1495 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ideias — hub de vagas filtradas no Brasil</title>
+<style>
+  :root {
+    --ivory:  #FAF9F5;
+    --paper:  #FFFFFF;
+    --slate:  #141413;
+    --clay:   #D97757;
+    --clay-d: #B85C3E;
+    --clay-bg:#FDF6F2;
+    --oat:    #E3DACC;
+    --olive:  #788C5D;
+    --olive-d:#5E7047;
+    --olive-bg:#F1F5EA;
+    --ice:    #5F7A8A;
+    --ice-d:  #4A626F;
+    --ice-bg: #EDF2F5;
+    --g100:   #F0EEE6;
+    --g200:   #E6E3DA;
+    --g300:   #D1CFC5;
+    --g500:   #87867F;
+    --g700:   #3D3D3A;
+    --serif: ui-serif, Georgia, "Times New Roman", Times, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--ivory);
+    color: var(--slate);
+    font-family: var(--sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px 170px; }
+
+  /* ── cabecalho ──────────────────────── */
+  header.page-head { padding: 56px 0 8px; position: relative; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--g500);
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .eyebrow::before {
+    content: ""; width: 24px; height: 1.5px;
+    background: var(--clay); flex: none;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(32px, 4.6vw, 46px);
+    line-height: 1.08;
+    letter-spacing: -0.018em;
+    margin: 0 0 10px;
+  }
+  .lede { font-size: 16px; color: var(--g700); max-width: 660px; margin: 0 0 22px; }
+
+  /* ── legenda dos estados ────────────── */
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+  .lg {
+    display: flex; align-items: flex-start; gap: 10px;
+    border: 1.5px solid var(--g300); border-radius: 10px;
+    background: var(--paper); padding: 11px 14px;
+    flex: 1 1 230px; min-width: 0;
+  }
+  .lg-key {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    border-radius: 999px; padding: 3px 10px; flex: none; color: #fff;
+    margin-top: 1px; white-space: nowrap;
+  }
+  .lg-key.ap { background: var(--olive); }
+  .lg-key.ic { background: var(--ice); }
+  .lg-key.ch { background: var(--clay); }
+  .lg-txt { font-size: 12.5px; color: var(--g700); line-height: 1.4; }
+  .legend-nota {
+    font-size: 13px; color: var(--g700); margin: 0 0 30px;
+    padding-left: 14px; border-left: 3px solid var(--oat); max-width: 66ch;
+  }
+
+  /* ── cartao da tese central ─────────── */
+  .thesis {
+    background: var(--paper);
+    border: 1.5px solid var(--g300);
+    border-radius: 14px;
+    padding: 22px 24px 22px;
+    transition: border-color 140ms, background 140ms;
+  }
+  .thesis.st-concordo { border-color: var(--olive); background: var(--olive-bg); }
+  .thesis.st-discordo { border-color: var(--clay);  background: var(--clay-bg); }
+  .thesis.st-nota     { border-color: var(--clay);  background: var(--clay-bg); }
+  .thesis-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--clay);
+    margin-bottom: 12px;
+  }
+  .thesis blockquote {
+    margin: 0;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 17.5px;
+    line-height: 1.5;
+    color: var(--slate);
+    max-width: 62ch;
+  }
+  .thesis blockquote b { font-style: normal; font-weight: 600; color: var(--clay-d); }
+  .thesis p.after {
+    font-size: 14px; color: var(--g700);
+    margin: 16px 0 0; max-width: 66ch;
+    padding-top: 14px; border-top: 1px dashed var(--g300);
+  }
+
+  /* ── divisor ────────────────────────── */
+  .divider {
+    display: flex; align-items: center; gap: 16px;
+    margin: 46px 0 26px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--g500);
+    white-space: nowrap;
+  }
+  .divider::before, .divider::after {
+    content: ""; flex: 1; height: 1px; background: var(--g300);
+  }
+
+  /* ── moldura de secao ───────────────── */
+  .artifact {
+    background: var(--paper);
+    border: 1.5px solid var(--g300);
+    border-radius: 14px;
+    padding: 30px clamp(16px, 3.5vw, 34px) 30px;
+    margin-bottom: 22px;
+  }
+  .artifact h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(23px, 3vw, 29px);
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+    margin: 6px 0 6px;
+  }
+  .art-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--g500);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .art-eyebrow::before {
+    content: ""; width: 24px; height: 1.5px;
+    background: var(--clay); flex: none;
+  }
+  .art-sub { font-size: 14.5px; color: var(--g700); max-width: 68ch; margin: 0 0 26px; }
+  code {
+    font-family: var(--mono); font-size: 12.5px;
+    background: var(--g100); border-radius: 5px; padding: 1px 5px;
+  }
+
+  /* ── nota de rodape de secao ────────── */
+  .secao-nota {
+    margin-top: 26px; padding: 16px 18px;
+    border: 1.5px solid var(--g300); border-radius: 12px;
+    background: var(--ivory);
+    transition: border-color 140ms, background 140ms;
+  }
+  .secao-nota.st-concordo { border-color: var(--olive); background: var(--olive-bg); }
+  .secao-nota.st-discordo { border-color: var(--clay);  background: var(--clay-bg); }
+  .secao-nota.st-nota     { border-color: var(--clay);  background: var(--clay-bg); }
+  .secao-nota .rot {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--g500); margin-bottom: 10px;
+  }
+
+  /* ── achados da pesquisa ────────────── */
+  .findings { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 860px) { .findings { grid-template-columns: 1fr; } }
+  .fnd {
+    border: 1.5px solid var(--g300);
+    border-left: 3px solid var(--clay);
+    border-radius: 10px;
+    background: var(--ivory);
+    padding: 16px 18px;
+    display: flex; flex-direction: column;
+    transition: border-color 140ms, background 140ms;
+  }
+  .fnd.st-concordo { border-color: var(--olive); border-left-color: var(--olive); background: var(--olive-bg); }
+  .fnd.st-discordo { border-color: var(--clay);  background: var(--clay-bg); }
+  .fnd.st-nota     { border-color: var(--clay);  background: var(--clay-bg); }
+  .fnd h4 {
+    font-family: var(--serif); font-weight: 500; font-size: 16.5px;
+    margin: 0 0 8px; letter-spacing: -0.01em; line-height: 1.25;
+  }
+  .fnd p { font-size: 13.5px; color: var(--g700); margin: 0 0 auto; }
+  .fnd .iv-foot { margin-top: 14px; }
+
+  /* ── barra de esforco ───────────────── */
+  .spectrum { margin: 8px 0 32px; }
+  .spec-labels {
+    display: flex; justify-content: space-between;
+    font-family: var(--mono); font-size: 10.5px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--g500); margin-bottom: 10px;
+  }
+  .spec-labels .lo { color: var(--olive); }
+  .spec-labels .hi { color: var(--clay-d); }
+  .spec-track { position: relative; height: 56px; }
+  .spec-line {
+    position: absolute; left: 0; right: 0; top: 27px; height: 2px;
+    background: linear-gradient(90deg, var(--olive), var(--oat) 45%, var(--clay));
+    border-radius: 1px;
+  }
+  .spec-dot {
+    position: absolute; top: 27px;
+    transform: translate(-50%, -50%);
+    width: 38px; height: 30px; border-radius: 15px;
+    background: var(--paper); border: 2px solid var(--g500);
+    color: var(--g700); font-family: var(--mono);
+    font-size: 11px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; padding: 0;
+    transition: border-color 120ms, background 120ms, color 120ms, transform 120ms;
+  }
+  .spec-dot:hover { border-color: var(--slate); transform: translate(-50%, -50%) scale(1.12); }
+  .spec-dot.on-aprovado { background: var(--olive); border-color: var(--olive-d); color: #fff; }
+  .spec-dot.on-icebox   { background: var(--ice);   border-color: var(--ice-d);   color: #fff; }
+  .spec-dot.on-mudancas { background: var(--clay);  border-color: var(--clay-d);  color: #fff; }
+  .spec-ticks {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--g500); margin-top: 2px;
+  }
+  @media (max-width: 620px) {
+    .spec-dot { width: 32px; height: 24px; font-size: 9.5px; }
+    .spec-labels { font-size: 9px; }
+    .spec-ticks { font-size: 9.5px; }
+  }
+
+  /* ── cartoes de ideia ───────────────── */
+  .cards { display: flex; flex-direction: column; gap: 14px; }
+  .iv {
+    border: 1.5px solid var(--g300);
+    border-radius: 12px;
+    background: var(--ivory);
+    padding: 18px 20px 16px;
+    scroll-margin-top: 20px;
+    transition: border-color 140ms, background 140ms;
+  }
+  .iv.st-aprovado { border-color: var(--olive); background: var(--olive-bg); }
+  .iv.st-icebox   { border-color: var(--ice);   background: var(--ice-bg); }
+  .iv.st-mudancas { border-color: var(--clay);  background: var(--clay-bg); }
+  .iv-top { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .iv-num {
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
+    color: var(--clay-d); flex: none;
+  }
+  .iv h3 {
+    font-family: var(--serif); font-weight: 500; font-size: 19px;
+    letter-spacing: -0.01em; margin: 0; flex: 1 1 auto; min-width: 200px;
+  }
+  .chips { display: flex; gap: 8px; align-items: center; flex: none; }
+  .effort {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.06em; border-radius: 999px;
+    padding: 3px 10px; border: 1.5px solid transparent;
+  }
+  .effort.p { background: #EEF2E6; color: var(--olive); border-color: #C9D4B6; }
+  .effort.m { background: var(--oat); color: #7A6A4F; border-color: var(--g300); }
+  .effort.g { background: #F8E7DE; color: var(--clay-d); border-color: #EBC5B4; }
+  .effort.adiada { background: var(--ice-bg); color: var(--ice-d); border-color: #C7D6DE; }
+  .iv-body { font-size: 14px; color: var(--g700); margin: 10px 0 0; }
+  .iv-body strong { color: var(--slate); font-weight: 600; }
+  .iv-body .rotulo {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ice-d); margin-right: 6px;
+  }
+  .iv-why { display: flex; gap: 8px; align-items: baseline; margin-top: 10px; font-size: 13.5px; color: var(--g700); }
+  .iv-why .tag {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--olive); flex: none;
+  }
+  .iv-why.debate .tag { color: var(--clay-d); }
+  .iv-foot { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--g300); }
+
+  /* ── controle de triagem ────────────── */
+  .triage { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+  .tri { position: relative; display: inline-flex; }
+  .tri input {
+    position: absolute; opacity: 0;
+    width: 1px; height: 1px; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0);
+  }
+  .tri span {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+    padding: 6px 14px; border-radius: 999px;
+    border: 1.5px solid var(--g300); background: var(--paper);
+    color: var(--g700); cursor: pointer; user-select: none;
+    transition: background 120ms, border-color 120ms, color 120ms;
+  }
+  .tri span:hover { border-color: var(--g500); }
+  .tri input:focus-visible + span { outline: 2px solid var(--slate); outline-offset: 2px; }
+  .tri.ap input:checked + span { background: var(--olive); border-color: var(--olive-d); color: #fff; }
+  .tri.ic input:checked + span { background: var(--ice);   border-color: var(--ice-d);   color: #fff; }
+  .tri.cc input:checked + span { background: var(--olive); border-color: var(--olive-d); color: #fff; }
+  .tri.dd input:checked + span { background: var(--clay);  border-color: var(--clay-d);  color: #fff; }
+
+  .estado {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--g500); margin-left: auto; padding-left: 10px; text-align: right;
+  }
+  .estado.s-aprovado, .estado.s-concordo { color: var(--olive-d); }
+  .estado.s-icebox   { color: var(--ice-d); }
+  .estado.s-mudancas, .estado.s-discordo, .estado.s-nota { color: var(--clay-d); }
+
+  textarea.cmt {
+    display: block; width: 100%; margin-top: 10px;
+    font-family: var(--sans); font-size: 13.5px; line-height: 1.5;
+    color: var(--slate); background: var(--paper);
+    border: 1.5px solid var(--g300); border-radius: 9px;
+    padding: 9px 12px; resize: none; overflow: hidden; min-height: 42px;
+    transition: border-color 120ms, box-shadow 120ms;
+  }
+  textarea.cmt::placeholder { color: var(--g500); }
+  textarea.cmt:focus {
+    outline: none; border-color: var(--clay);
+    box-shadow: 0 0 0 3px rgba(217, 119, 87, .16);
+  }
+  textarea.cmt.preenchida { border-color: var(--clay); }
+
+  /* ── mockup do placar de cidades ────── */
+  .mock {
+    margin: 14px 0 2px;
+    border: 1.5px solid var(--g300);
+    border-radius: 10px;
+    background: var(--paper);
+    overflow-x: auto;
+  }
+  .mock-cap {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--g500); padding: 10px 14px 0;
+  }
+  table.placar { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 520px; }
+  table.placar th {
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--g500); text-align: right;
+    padding: 10px 10px 8px; border-bottom: 1px solid var(--g200);
+  }
+  table.placar th:first-child { text-align: left; padding-left: 14px; }
+  table.placar th:last-child { text-align: left; padding-right: 14px; }
+  table.placar td { padding: 9px 10px; border-bottom: 1px solid var(--g100); text-align: right; }
+  table.placar td:first-child { text-align: left; padding-left: 14px; font-weight: 600; }
+  table.placar td:last-child { text-align: left; padding-right: 14px; }
+  table.placar tr:last-child td { border-bottom: none; }
+  table.placar tr.fecha td:first-child { color: var(--clay-d); }
+  table.placar tr.fecha { background: var(--clay-bg); }
+  .num-zero { color: var(--g300); }
+  .badge {
+    font-family: var(--mono); font-size: 9.5px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    border-radius: 999px; padding: 2px 9px; white-space: nowrap;
+  }
+  .badge.on { background: var(--clay); color: #fff; }
+  .badge.off { background: var(--g100); color: var(--g500); border: 1px solid var(--g200); }
+
+  /* ── tabela de perfis ───────────────── */
+  .perfis-wrap { overflow-x: auto; }
+  table.perfis { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 12px 0 2px; min-width: 560px; }
+  table.perfis th {
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--g500);
+    text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--g200);
+  }
+  table.perfis td { padding: 9px 10px; border-bottom: 1px solid var(--g100); vertical-align: top; color: var(--g700); }
+  table.perfis tr:last-child td { border-bottom: none; }
+  table.perfis td:first-child {
+    font-family: var(--mono); font-size: 12px; color: var(--clay-d);
+    font-weight: 700; white-space: nowrap;
+  }
+
+  /* ── perguntas em aberto ────────────── */
+  .qs { display: flex; flex-direction: column; gap: 12px; }
+  .q {
+    display: flex; gap: 14px; align-items: flex-start;
+    border: 1.5px solid var(--g300); border-radius: 12px;
+    background: var(--ivory); padding: 16px 18px;
+  }
+  .q-num {
+    font-family: var(--serif); font-size: 22px; font-weight: 500;
+    color: var(--clay); line-height: 1; flex: none;
+    width: 30px; text-align: center; padding-top: 2px;
+  }
+  .q-txt { font-size: 14px; color: var(--g700); flex: 1 1 auto; min-width: 0; }
+  .q-txt b { color: var(--slate); font-weight: 600; display: block; margin-bottom: 3px; font-size: 14.5px; }
+
+  /* ── fora de escopo ─────────────────── */
+  .oos { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .oos span {
+    font-family: var(--mono); font-size: 11.5px; color: var(--g500);
+    background: var(--g100); border: 1px solid var(--g200);
+    border-radius: 999px; padding: 4px 12px;
+  }
+
+  /* ── barra fixa de resposta ─────────── */
+  .replybar {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--slate); color: var(--ivory);
+    z-index: 50; box-shadow: 0 -8px 24px rgba(20,20,19,.15);
+  }
+  .replybar-inner {
+    max-width: 980px; margin: 0 auto; padding: 11px 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .rb-counts { display: flex; gap: 5px; flex: none; }
+  .rb-pill {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.03em; padding: 4px 9px; border-radius: 999px;
+    white-space: nowrap; border: 1.5px solid transparent; color: #fff;
+  }
+  .rb-pill.ap { background: var(--olive); border-color: var(--olive-d); }
+  .rb-pill.ch { background: var(--clay);  border-color: var(--clay-d); }
+  .rb-pill.ic { background: var(--ice);   border-color: var(--ice-d); }
+  .rb-pill.tx { background: var(--g700);  border-color: var(--g500); }
+  .rb-pill.zero { background: transparent; color: var(--g500); border-color: var(--g700); }
+  .rb-reply {
+    flex: 1; font-family: var(--mono); font-size: 12px; color: var(--g300);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+  }
+  .rb-reply.live { color: var(--ivory); }
+  button.rb-copy {
+    flex: none; font-family: var(--mono); font-size: 12px; letter-spacing: 0.03em;
+    background: var(--clay); color: #fff; border: 1.5px solid var(--clay-d);
+    border-radius: 8px; padding: 8px 16px; cursor: pointer;
+    transition: background 120ms, opacity 120ms;
+  }
+  button.rb-copy:hover:not(:disabled) { background: var(--clay-d); }
+  button.rb-copy:disabled { opacity: .35; cursor: default; }
+  button.rb-copy.copied { background: var(--olive); border-color: var(--olive); }
+  button.rb-clear {
+    flex: none; font-family: var(--mono); font-size: 11px;
+    background: transparent; color: var(--g500);
+    border: 1.5px solid var(--g700); border-radius: 8px;
+    padding: 8px 12px; cursor: pointer;
+    transition: color 120ms, border-color 120ms;
+  }
+  button.rb-clear:hover { color: var(--ivory); border-color: var(--g500); }
+  @media (max-width: 860px) {
+    .replybar-inner { flex-wrap: wrap; gap: 8px; padding: 10px 16px; }
+    .rb-reply { order: 3; flex-basis: 100%; }
+  }
+
+  /* ── rodape ─────────────────────────── */
+  footer { margin-top: 46px; font-size: 13px; color: var(--g500); }
+  footer code { font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page-head">
+    <div class="eyebrow">monitor_vagas &middot; pré-design &middot; para debate</div>
+    <h1>Ideias para o hub de vagas filtradas</h1>
+    <p class="lede">Companion visual de <code>planning/IDEIAS.md</code>. Os números são os mesmos do
+    markdown, para debatermos por número. Tudo nesta página é comentável — inclusive as
+    afirmações que eu fiz sem te perguntar. A barra no rodapé monta a resposta, com os seus
+    comentários, para você copiar e me mandar.</p>
+
+    <div class="legend">
+      <div class="lg">
+        <span class="lg-key ap">Aprovado</span>
+        <span class="lg-txt">Vai para o <code>DESIGN.md</code> como está. Não precisa de conversa.</span>
+      </div>
+      <div class="lg">
+        <span class="lg-key ch">Comentário</span>
+        <span class="lg-txt">Escrever na caixa já significa <strong>aprovado com mudanças</strong>. O texto vem junto na resposta.</span>
+      </div>
+      <div class="lg">
+        <span class="lg-key ic">Icebox</span>
+        <span class="lg-txt">Registrado para voltarmos no futuro. Sai desta rodada, não some. Pode comentar também.</span>
+      </div>
+    </div>
+
+    <p class="legend-nota">Nos blocos que são <strong>afirmação minha</strong> e não proposta de
+    construir — a tese central, os três achados da pesquisa e o fim de cada seção — os botões são
+    <strong>Concordo / Discordo</strong>, com a mesma caixa de texto. Discordância entra em
+    destaque na resposta copiada, porque é o que eu mais preciso enxergar.</p>
+
+    <div class="thesis" id="ivT">
+      <div class="thesis-label">A tese central</div>
+      <blockquote>O hub não responde <i>&ldquo;quais vagas boas existem?&rdquo;</i>.
+      Responde <b>&ldquo;em quais cidades nós dois temos vaga boa ao mesmo tempo?&rdquo;</b></blockquote>
+      <p class="after">São duas carreiras que não se movem juntas. Uma vaga excelente numa cidade
+      onde a outra pessoa não trabalha vale zero. Essa é a diferença entre construir mais um
+      agregador — existem dezenas, todos melhores do que o nosso jamais será — e construir a única
+      ferramenta que resolve o nosso problema real. Todo o resto deriva daí.</p>
+      <div class="iv-foot">
+        <div class="triage" role="radiogroup" aria-label="Concordância com a tese central">
+          <label class="tri cc"><input type="radio" name="tT" value="concordo" data-n="T"><span>Concordo</span></label>
+          <label class="tri dd"><input type="radio" name="tT" value="discordo" data-n="T"><span>Discordo</span></label>
+          <span class="estado" data-estado="T"></span>
+        </div>
+        <textarea class="cmt nota" data-n="T" data-rotulo="Tese central" rows="1" aria-label="Comentário sobre a tese central" placeholder="Comentário sobre a tese central…"></textarea>
+      </div>
+    </div>
+  </header>
+
+  <div class="divider">O que a pesquisa muda</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">23 páginas &middot; corte em 26/05/2026</div>
+    <h2>Três achados que refinam o PLAN.md</h2>
+    <p class="art-sub">A pesquisa foi escrita para um produto de mercado, multiusuário, com CRM,
+    scoring e compliance desde o MVP. O nosso caso é outro — dois usuários conhecidos, sem cliente
+    externo — e isso libera simplificações grandes. Mas três conclusões valem para nós, e não são
+    decisões de arquitetura: são fatos sobre <strong>de onde vem o dado</strong>, que determinam
+    <strong>o que dá para filtrar</strong>.</p>
+
+    <div class="findings">
+      <div class="fnd" id="ivA1">
+        <h4>O JSON vai ser nosso</h4>
+        <p>Nenhuma das plataformas revisadas expõe RSS ou API pública para candidato. O
+        <code>PLAN.md</code> fala em vagas “descritas através de jsons fechados” — esse JSON é
+        produzido pela nossa normalização, não é algo que os sites entregam.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Concordância com o achado 1">
+            <label class="tri cc"><input type="radio" name="tA1" value="concordo" data-n="A1"><span>Concordo</span></label>
+            <label class="tri dd"><input type="radio" name="tA1" value="discordo" data-n="A1"><span>Discordo</span></label>
+            <span class="estado" data-estado="A1"></span>
+          </div>
+          <textarea class="cmt nota" data-n="A1" data-rotulo="Achado 1 (o JSON vai ser nosso)" rows="1" aria-label="Comentário sobre o achado 1" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+      <div class="fnd" id="ivA2">
+        <h4>A melhor fonte é o e-mail</h4>
+        <p>LinkedIn, Indeed, Catho, Vagas, InfoJobs e Empregos oferecem alerta nativo por e-mail,
+        de graça, com frescor de 15–30 min. Ler a caixa de entrada dá cobertura que raspagem
+        não dá — e sem atrito.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Concordância com o achado 2">
+            <label class="tri cc"><input type="radio" name="tA2" value="concordo" data-n="A2"><span>Concordo</span></label>
+            <label class="tri dd"><input type="radio" name="tA2" value="discordo" data-n="A2"><span>Discordo</span></label>
+            <span class="estado" data-estado="A2"></span>
+          </div>
+          <textarea class="cmt nota" data-n="A2" data-rotulo="Achado 2 (a melhor fonte é o e-mail)" rows="1" aria-label="Comentário sobre o achado 2" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+      <div class="fnd" id="ivA3">
+        <h4>Gupy é a melhor fonte estruturada</h4>
+        <p>Portal público agregado, com salário, benefícios e senioridade em boa parte das vagas,
+        e o menor atrito de coleta do Brasil. É a fonte com melhor relação valor/esforço.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Concordância com o achado 3">
+            <label class="tri cc"><input type="radio" name="tA3" value="concordo" data-n="A3"><span>Concordo</span></label>
+            <label class="tri dd"><input type="radio" name="tA3" value="discordo" data-n="A3"><span>Discordo</span></label>
+            <span class="estado" data-estado="A3"></span>
+          </div>
+          <textarea class="cmt nota" data-n="A3" data-rotulo="Achado 3 (Gupy é a melhor fonte)" rows="1" aria-label="Comentário sobre o achado 3" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="secao-nota" id="ivS1">
+      <div class="rot">Comentário sobre esta seção — incluindo o texto de abertura</div>
+      <div class="triage" role="radiogroup" aria-label="Concordância com a seção sobre a pesquisa">
+        <label class="tri cc"><input type="radio" name="tS1" value="concordo" data-n="S1"><span>Concordo</span></label>
+        <label class="tri dd"><input type="radio" name="tS1" value="discordo" data-n="S1"><span>Discordo</span></label>
+        <span class="estado" data-estado="S1"></span>
+      </div>
+      <textarea class="cmt nota" data-n="S1" data-rotulo="Seção: o que a pesquisa muda" rows="1" aria-label="Comentário sobre a seção da pesquisa" placeholder="Comentário sobre a seção…"></textarea>
+    </div>
+  </div>
+
+  <div class="divider">As ideias &middot; triagem</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">Seções 3 e 4 do markdown</div>
+    <h2>Onze ideias, do mais barato ao mais caro</h2>
+    <p class="art-sub">As oito primeiras são o que eu defenderia como núcleo do MVP. As três
+    últimas (série 4) existem para produzir o dado de UX que vai guiar o que construímos depois —
+    são baratas agora e impossíveis de recuperar retroativamente. Clique num ponto da régua para
+    pular até a ideia; clique de novo no botão já marcado para desmarcá-lo.</p>
+
+    <div class="spectrum">
+      <div class="spec-labels">
+        <span class="lo">Uma tarde</span>
+        <span class="hi">Um fim de semana longo</span>
+      </div>
+      <div class="spec-track">
+        <div class="spec-line"></div>
+        <button class="spec-dot" style="left:4%" data-n="3.2" type="button" title="Cidades bloqueadas e desejadas">3.2</button>
+        <button class="spec-dot" style="left:14%" data-n="3.5" type="button" title="Sinônimos por área">3.5</button>
+        <button class="spec-dot" style="left:24%" data-n="3.6" type="button" title="Filtro de reprovação">3.6</button>
+        <button class="spec-dot" style="left:34%" data-n="3.8" type="button" title="Estado da vaga">3.8</button>
+        <button class="spec-dot" style="left:44%" data-n="4.2" type="button" title="Por que esta vaga apareceu">4.2</button>
+        <button class="spec-dot" style="left:54%" data-n="4.1" type="button" title="Descarte com motivo">4.1</button>
+        <button class="spec-dot" style="left:64%" data-n="3.1" type="button" title="Perfis de busca nomeados">3.1</button>
+        <button class="spec-dot" style="left:74%" data-n="3.4" type="button" title="Cidade que fecha">3.4</button>
+        <button class="spec-dot" style="left:83%" data-n="4.3" type="button" title="Diário de números">4.3</button>
+        <button class="spec-dot" style="left:91%" data-n="3.3" type="button" title="Painel de cidades">3.3</button>
+        <button class="spec-dot" style="left:97%" data-n="3.7" type="button" title="Deduplicação">3.7</button>
+      </div>
+      <div class="spec-ticks"><span>listas à mão</span><span>filtro</span><span>tela nova</span><span>lógica nova</span></div>
+    </div>
+
+    <div class="cards">
+
+      <div class="iv" id="iv3.1">
+        <div class="iv-top">
+          <span class="iv-num">#3.1</span>
+          <h3>Perfis de busca nomeados, não um perfil por pessoa</h3>
+          <div class="chips"><span class="effort m">MÉDIO</span></div>
+        </div>
+        <p class="iv-body">Não são 2 perfis, são pelo menos 4 buscas independentes — porque um de
+        nós tem três carreiras plausíveis, com oferta, geografia e vocabulário radicalmente
+        diferentes.</p>
+        <div class="perfis-wrap">
+          <table class="perfis">
+            <tr><th>Perfil</th><th>Termos-semente</th><th>Observação</th></tr>
+            <tr><td>dados</td><td>cientista de dados, data scientist, analista de dados, engenheiro de dados, BI</td><td>maior oferta remota</td></tr>
+            <tr><td>dev</td><td>desenvolvedor, backend, python, fullstack</td><td>maior oferta remota</td></tr>
+            <tr><td>financeiro</td><td>administrador financeiro, controladoria, analista financeiro, FP&amp;A, tesouraria</td><td>oferta muito presencial</td></tr>
+            <tr><td>odonto</td><td>dentista, cirurgião-dentista, odontologia, clínico geral, odontopediatra</td><td>oferta local, fontes diferentes</td></tr>
+          </table>
+        </div>
+        <div class="iv-why"><span class="tag">Por quê</span>Tratar tudo como uma busca só produz um feed inútil.</div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 3.1">
+            <label class="tri ap"><input type="radio" name="t3.1" value="aprovado" data-n="3.1"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t3.1" value="icebox" data-n="3.1"><span>Icebox</span></label>
+            <span class="estado" data-estado="3.1"></span>
+          </div>
+          <textarea class="cmt" data-n="3.1" rows="1" aria-label="Comentário sobre a ideia 3.1" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv3.2">
+        <div class="iv-top">
+          <span class="iv-num">#3.2</span>
+          <h3>Lista de cidades bloqueadas — e uma de desejadas</h3>
+          <div class="chips"><span class="effort p">PEQUENO</span></div>
+        </div>
+        <p class="iv-body">Duas listas explícitas, editáveis à mão. <strong>Bloqueadas</strong>
+        descartam a vaga direto, sem aparecer no feed. <strong>Desejadas</strong> sobem ao topo,
+        mesmo com vaga mediana. O resto do Brasil aparece, mas embaixo.</p>
+        <div class="iv-why"><span class="tag">Por quê</span>É o filtro que você pediu, e o mais barato de todos — uma lista em arquivo resolve na v0.</div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 3.2">
+            <label class="tri ap"><input type="radio" name="t3.2" value="aprovado" data-n="3.2"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t3.2" value="icebox" data-n="3.2"><span>Icebox</span></label>
+            <span class="estado" data-estado="3.2"></span>
+          </div>
+          <textarea class="cmt" data-n="3.2" rows="1" aria-label="Comentário sobre a ideia 3.2" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv3.3">
+        <div class="iv-top">
+          <span class="iv-num">#3.3</span>
+          <h3>Painel de cidades: a tela principal, não o feed</h3>
+          <div class="chips"><span class="effort m">MÉDIO</span></div>
+        </div>
+        <p class="iv-body">Em vez de abrir numa lista cronológica de vagas, abrir num
+        <strong>placar de cidades</strong>. Clicar na cidade abre as vagas dela.</p>
+        <div class="mock">
+          <div class="mock-cap">Esboço da tela — dados fictícios</div>
+          <table class="placar">
+            <tr>
+              <th>Cidade</th><th>dados</th><th>dev</th><th>financeiro</th><th>odonto</th><th>Situação</th>
+            </tr>
+            <tr class="fecha">
+              <td>Florianópolis/SC</td><td>12</td><td>8</td><td>3</td><td>5</td>
+              <td><span class="badge on">os 2 fecham</span></td>
+            </tr>
+            <tr class="fecha">
+              <td>Curitiba/PR</td><td>9</td><td>6</td><td>7</td><td>4</td>
+              <td><span class="badge on">os 2 fecham</span></td>
+            </tr>
+            <tr>
+              <td>Uberlândia/MG</td><td>1</td><td class="num-zero">0</td><td>2</td><td>6</td>
+              <td><span class="badge off">só odonto</span></td>
+            </tr>
+            <tr>
+              <td>Recife/PE</td><td>7</td><td>5</td><td>1</td><td class="num-zero">0</td>
+              <td><span class="badge off">só tech</span></td>
+            </tr>
+          </table>
+        </div>
+        <div class="iv-why"><span class="tag">Por quê</span>É a resposta direta à pergunta que importa, e nenhum job board do mercado faz isso. É a tela que justifica o projeto existir.</div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 3.3">
+            <label class="tri ap"><input type="radio" name="t3.3" value="aprovado" data-n="3.3"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t3.3" value="icebox" data-n="3.3"><span>Icebox</span></label>
+            <span class="estado" data-estado="3.3"></span>
+          </div>
+          <textarea class="cmt" data-n="3.3" rows="1" aria-label="Comentário sobre a ideia 3.3" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv3.4">
+        <div class="iv-top">
+          <span class="iv-num">#3.4</span>
+          <h3>Marcador de “cidade que fecha para os dois”</h3>
+          <div class="chips"><span class="effort m">MÉDIO</span></div>
+        </div>
+        <p class="iv-body">Uma cidade <em>fecha</em> quando tem pelo menos uma vaga viva em
+        <code>odonto</code> <strong>e</strong> pelo menos uma em qualquer um de
+        <code>dados</code>/<code>dev</code>/<code>financeiro</code>. Fica destacada no placar.</p>
+        <div class="iv-why debate"><span class="tag">A debater</span>Remoto quebra a regra: se a vaga de dados for remota, só a cidade dela importa e o Brasil inteiro “fecha”. <strong>Minha sugestão:</strong> tratar remoto como categoria separada, não como coringa, para não poluir o placar.</div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 3.4">
+            <label class="tri ap"><input type="radio" name="t3.4" value="aprovado" data-n="3.4"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t3.4" value="icebox" data-n="3.4"><span>Icebox</span></label>
+            <span class="estado" data-estado="3.4"></span>
+          </div>
+          <textarea class="cmt" data-n="3.4" rows="1" aria-label="Comentário sobre a ideia 3.4" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv3.5">
+        <div class="iv-top">
+          <span class="iv-num">#3.5</span>
+          <h3>Sinônimos por área, escritos à mão</h3>
+          <div class="chips"><span class="effort p">PEQUENO</span></div>
+        </div>
+        <p class="iv-body">Um dicionário simples por perfil.
+        <code>dentista → cirurgião-dentista, odontologia, CD, clínico geral</code>.</p>
+        <div class="iv-why"><span class="tag">Por quê</span>É o que separa um filtro que acha 3 vagas de um que acha 40. E é trabalho de 20 minutos, não de engenharia.</div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 3.5">
+            <label class="tri ap"><input type="radio" name="t3.5" value="aprovado" data-n="3.5"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t3.5" value="icebox" data-n="3.5"><span>Icebox</span></label>
+            <span class="estado" data-estado="3.5"></span>
+          </div>
+          <textarea class="cmt" data-n="3.5" rows="1" aria-label="Comentário sobre a ideia 3.5" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv3.6">
+        <div class="iv-top">
+          <span class="iv-num">#3.6</span>
+          <h3>Filtro de reprovação por palavra</h3>
+          <div class="chips"><span class="effort p">PEQUENO</span></div>
+        </div>
+        <p class="iv-body">Lista de termos que descartam a vaga na hora: <code>estágio</code>,
+        <code>trainee</code>, <code>voluntário</code>, <code>comissionado</code>,
+        <code>sem salário fixo</code>, <code>franquia</code>, <code>MEI obrigatório</code>.</p>
+        <div class="iv-why"><span class="tag">Por quê</span>Em odontologia e financeiro o ruído de vaga comissionada e de franquia é enorme. Sem isso o feed fica impraticável.</div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 3.6">
+            <label class="tri ap"><input type="radio" name="t3.6" value="aprovado" data-n="3.6"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t3.6" value="icebox" data-n="3.6"><span>Icebox</span></label>
+            <span class="estado" data-estado="3.6"></span>
+          </div>
+          <textarea class="cmt" data-n="3.6" rows="1" aria-label="Comentário sobre a ideia 3.6" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv3.7">
+        <div class="iv-top">
+          <span class="iv-num">#3.7</span>
+          <h3>Deduplicação: um card, vários links</h3>
+          <div class="chips"><span class="effort g">GRANDE</span></div>
+        </div>
+        <p class="iv-body">A mesma vaga aparece em Catho, Indeed e Vagas. Vira <strong>um</strong>
+        card com três links de origem. A pesquisa dá a receita pronta: chave canônica por
+        <code>empresa + título + cidade + modalidade</code>.</p>
+        <div class="iv-why"><span class="tag">Por quê</span>Sem isso o feed triplica e — pior — a contagem do placar de cidades mente.</div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 3.7">
+            <label class="tri ap"><input type="radio" name="t3.7" value="aprovado" data-n="3.7"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t3.7" value="icebox" data-n="3.7"><span>Icebox</span></label>
+            <span class="estado" data-estado="3.7"></span>
+          </div>
+          <textarea class="cmt" data-n="3.7" rows="1" aria-label="Comentário sobre a ideia 3.7" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv3.8">
+        <div class="iv-top">
+          <span class="iv-num">#3.8</span>
+          <h3>Estado da vaga em um clique</h3>
+          <div class="chips"><span class="effort p">PEQUENO</span></div>
+        </div>
+        <p class="iv-body"><code>nova</code> → <code>salva</code> / <code>descartada</code>.
+        Só isso. Sem kanban, sem pipeline, sem status de candidatura.</p>
+        <div class="iv-why"><span class="tag">Por quê</span>É o mínimo para o feed não repetir o que já vimos — e é a origem do dado de UX da série 4.</div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 3.8">
+            <label class="tri ap"><input type="radio" name="t3.8" value="aprovado" data-n="3.8"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t3.8" value="icebox" data-n="3.8"><span>Icebox</span></label>
+            <span class="estado" data-estado="3.8"></span>
+          </div>
+          <textarea class="cmt" data-n="3.8" rows="1" aria-label="Comentário sobre a ideia 3.8" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv4.1">
+        <div class="iv-top">
+          <span class="iv-num">#4.1</span>
+          <h3>Descarte com motivo, em um clique</h3>
+          <div class="chips"><span class="effort p">PEQUENO</span></div>
+        </div>
+        <p class="iv-body">Ao descartar, escolher o porquê: <code>cidade</code> ·
+        <code>salário</code> · <code>requisito que não tenho</code> · <code>modalidade</code> ·
+        <code>empresa</code> · <code>não é minha área</code> · <code>vaga velha/fantasma</code>.</p>
+        <div class="iv-why"><span class="tag">Por quê</span>Depois de 200 descartes, a distribuição dos motivos diz exatamente qual é o próximo filtro a construir. É a diferença entre adivinhar o roadmap e derivá-lo.</div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 4.1">
+            <label class="tri ap"><input type="radio" name="t4.1" value="aprovado" data-n="4.1"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t4.1" value="icebox" data-n="4.1"><span>Icebox</span></label>
+            <span class="estado" data-estado="4.1"></span>
+          </div>
+          <textarea class="cmt" data-n="4.1" rows="1" aria-label="Comentário sobre a ideia 4.1" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv4.2">
+        <div class="iv-top">
+          <span class="iv-num">#4.2</span>
+          <h3>“Por que esta vaga apareceu”</h3>
+          <div class="chips"><span class="effort p">PEQUENO</span></div>
+        </div>
+        <p class="iv-body">Cada card mostra qual perfil e quais termos casaram.</p>
+        <div class="iv-why"><span class="tag">Por quê</span>Quando o feed traz lixo, você vê na hora se o problema é o sinônimo, a cidade ou a fonte. Debuga o filtro sem abrir o código.</div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 4.2">
+            <label class="tri ap"><input type="radio" name="t4.2" value="aprovado" data-n="4.2"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t4.2" value="icebox" data-n="4.2"><span>Icebox</span></label>
+            <span class="estado" data-estado="4.2"></span>
+          </div>
+          <textarea class="cmt" data-n="4.2" rows="1" aria-label="Comentário sobre a ideia 4.2" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv4.3">
+        <div class="iv-top">
+          <span class="iv-num">#4.3</span>
+          <h3>Diário de números por semana</h3>
+          <div class="chips"><span class="effort m">MÉDIO</span></div>
+        </div>
+        <p class="iv-body">Quantas vagas entraram, por fonte, por perfil, por cidade; quantas foram
+        descartadas e por quê.</p>
+        <div class="iv-why"><span class="tag">Por quê</span>Mede se a fonte nova valeu o esforço. Também revela sazonalidade do mercado.</div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 4.3">
+            <label class="tri ap"><input type="radio" name="t4.3" value="aprovado" data-n="4.3"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t4.3" value="icebox" data-n="4.3"><span>Icebox</span></label>
+            <span class="estado" data-estado="4.3"></span>
+          </div>
+          <textarea class="cmt" data-n="4.3" rows="1" aria-label="Comentário sobre a ideia 4.3" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="secao-nota" id="ivS2">
+      <div class="rot">Comentário sobre esta seção — o recorte do núcleo, a régua de esforço, o que ficou de fora</div>
+      <div class="triage" role="radiogroup" aria-label="Concordância com a seção das ideias">
+        <label class="tri cc"><input type="radio" name="tS2" value="concordo" data-n="S2"><span>Concordo</span></label>
+        <label class="tri dd"><input type="radio" name="tS2" value="discordo" data-n="S2"><span>Discordo</span></label>
+        <span class="estado" data-estado="S2"></span>
+      </div>
+      <textarea class="cmt nota" data-n="S2" data-rotulo="Seção: as onze ideias" rows="1" aria-label="Comentário sobre a seção das ideias" placeholder="Comentário sobre a seção…"></textarea>
+    </div>
+  </div>
+
+  <div class="divider">Registrado para depois</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">Seção 5 do markdown</div>
+    <h2>Ideias legais que eu adiaria</h2>
+    <p class="art-sub">Não são descartes — são coisas boas cujo momento, na minha leitura, não é
+    agora. Estão abertas à triagem como as outras: se alguma delas é essencial para você, marque
+    <strong>Aprovado</strong> e ela sobe para esta rodada.</p>
+
+    <div class="cards">
+
+      <div class="iv" id="iv5.1">
+        <div class="iv-top">
+          <span class="iv-num">#5.1</span>
+          <h3>Score de aderência explicável</h3>
+          <div class="chips"><span class="effort adiada">ADIARIA</span></div>
+        </div>
+        <p class="iv-body"><span class="rotulo">Por que eu adiaria</span>Precisa de perfil
+        estruturado e do dado de UX que ainda não temos.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 5.1">
+            <label class="tri ap"><input type="radio" name="t5.1" value="aprovado" data-n="5.1"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t5.1" value="icebox" data-n="5.1"><span>Icebox</span></label>
+            <span class="estado" data-estado="5.1"></span>
+          </div>
+          <textarea class="cmt" data-n="5.1" rows="1" aria-label="Comentário sobre a ideia 5.1" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv5.2">
+        <div class="iv-top">
+          <span class="iv-num">#5.2</span>
+          <h3>Alertas por e-mail e Telegram</h3>
+          <div class="chips"><span class="effort adiada">ADIARIA</span></div>
+        </div>
+        <p class="iv-body"><span class="rotulo">Por que eu adiaria</span>Enquanto formos 2 pessoas,
+        abrir a página resolve.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 5.2">
+            <label class="tri ap"><input type="radio" name="t5.2" value="aprovado" data-n="5.2"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t5.2" value="icebox" data-n="5.2"><span>Icebox</span></label>
+            <span class="estado" data-estado="5.2"></span>
+          </div>
+          <textarea class="cmt" data-n="5.2" rows="1" aria-label="Comentário sobre a ideia 5.2" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv5.3">
+        <div class="iv-top">
+          <span class="iv-num">#5.3</span>
+          <h3>Kanban de candidaturas</h3>
+          <div class="chips"><span class="effort adiada">ADIARIA</span></div>
+        </div>
+        <p class="iv-body"><span class="rotulo">Por que eu adiaria</span>Só faz sentido quando
+        estivermos aplicando em volume.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 5.3">
+            <label class="tri ap"><input type="radio" name="t5.3" value="aprovado" data-n="5.3"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t5.3" value="icebox" data-n="5.3"><span>Icebox</span></label>
+            <span class="estado" data-estado="5.3"></span>
+          </div>
+          <textarea class="cmt" data-n="5.3" rows="1" aria-label="Comentário sobre a ideia 5.3" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv5.4">
+        <div class="iv-top">
+          <span class="iv-num">#5.4</span>
+          <h3>Watchlist de empresas</h3>
+          <div class="chips"><span class="effort adiada">ADIARIA</span></div>
+        </div>
+        <p class="iv-body"><span class="rotulo">Por que eu adiaria</span>Depende de saber quais
+        empresas importam — que é justamente dado de UX.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 5.4">
+            <label class="tri ap"><input type="radio" name="t5.4" value="aprovado" data-n="5.4"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t5.4" value="icebox" data-n="5.4"><span>Icebox</span></label>
+            <span class="estado" data-estado="5.4"></span>
+          </div>
+          <textarea class="cmt" data-n="5.4" rows="1" aria-label="Comentário sobre a ideia 5.4" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv5.5">
+        <div class="iv-top">
+          <span class="iv-num">#5.5</span>
+          <h3>Mapa do Brasil com as cidades</h3>
+          <div class="chips"><span class="effort adiada">ADIARIA</span></div>
+        </div>
+        <p class="iv-body"><span class="rotulo">Por que eu adiaria</span>Bonito, mas o placar em
+        tabela resolve melhor.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 5.5">
+            <label class="tri ap"><input type="radio" name="t5.5" value="aprovado" data-n="5.5"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t5.5" value="icebox" data-n="5.5"><span>Icebox</span></label>
+            <span class="estado" data-estado="5.5"></span>
+          </div>
+          <textarea class="cmt" data-n="5.5" rows="1" aria-label="Comentário sobre a ideia 5.5" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv5.6">
+        <div class="iv-top">
+          <span class="iv-num">#5.6</span>
+          <h3>RSS próprio de saída</h3>
+          <div class="chips"><span class="effort adiada">ADIARIA</span></div>
+        </div>
+        <p class="iv-body"><span class="rotulo">Por que eu adiaria</span>Zero valor para 2 usuários
+        na mesma casa.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 5.6">
+            <label class="tri ap"><input type="radio" name="t5.6" value="aprovado" data-n="5.6"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t5.6" value="icebox" data-n="5.6"><span>Icebox</span></label>
+            <span class="estado" data-estado="5.6"></span>
+          </div>
+          <textarea class="cmt" data-n="5.6" rows="1" aria-label="Comentário sobre a ideia 5.6" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv5.7">
+        <div class="iv-top">
+          <span class="iv-num">#5.7</span>
+          <h3>Custo de vida e salário relativo por cidade</h3>
+          <div class="chips"><span class="effort adiada">ADIARIA</span></div>
+        </div>
+        <p class="iv-body"><span class="rotulo">Por que eu adiaria</span>Muito legal para decidir a
+        mudança, mas é outro projeto.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 5.7">
+            <label class="tri ap"><input type="radio" name="t5.7" value="aprovado" data-n="5.7"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t5.7" value="icebox" data-n="5.7"><span>Icebox</span></label>
+            <span class="estado" data-estado="5.7"></span>
+          </div>
+          <textarea class="cmt" data-n="5.7" rows="1" aria-label="Comentário sobre a ideia 5.7" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv5.8">
+        <div class="iv-top">
+          <span class="iv-num">#5.8</span>
+          <h3>“Esta cidade fechava em março, não fecha mais”</h3>
+          <div class="chips"><span class="effort adiada">ADIARIA</span></div>
+        </div>
+        <p class="iv-body"><span class="rotulo">Por que eu adiaria</span>Precisa de meses de dado
+        acumulado.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da ideia 5.8">
+            <label class="tri ap"><input type="radio" name="t5.8" value="aprovado" data-n="5.8"><span>Aprovado</span></label>
+            <label class="tri ic"><input type="radio" name="t5.8" value="icebox" data-n="5.8"><span>Icebox</span></label>
+            <span class="estado" data-estado="5.8"></span>
+          </div>
+          <textarea class="cmt" data-n="5.8" rows="1" aria-label="Comentário sobre a ideia 5.8" placeholder="Comentário — o que mudar? Escrever aqui já significa “aprovado com mudanças”."></textarea>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="secao-nota" id="ivS3">
+      <div class="rot">Comentário sobre esta seção — a premissa de que essas oito podem esperar</div>
+      <div class="triage" role="radiogroup" aria-label="Concordância com a seção do que adiar">
+        <label class="tri cc"><input type="radio" name="tS3" value="concordo" data-n="S3"><span>Concordo</span></label>
+        <label class="tri dd"><input type="radio" name="tS3" value="discordo" data-n="S3"><span>Discordo</span></label>
+        <span class="estado" data-estado="S3"></span>
+      </div>
+      <textarea class="cmt nota" data-n="S3" data-rotulo="Seção: registrado para depois" rows="1" aria-label="Comentário sobre a seção do que adiar" placeholder="Comentário sobre a seção…"></textarea>
+    </div>
+  </div>
+
+  <div class="divider">O que eu preciso que você decida</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">Seção 6 do markdown</div>
+    <h2>Seis perguntas em aberto</h2>
+    <p class="art-sub">Estas travam o design. Responda na caixa de cada uma — as respostas vão
+    junto na mesma resposta copiada.</p>
+    <div class="qs">
+      <div class="q">
+        <div class="q-num">1</div>
+        <div class="q-txt"><b>“Cidades não bloqueadas” — confirmo o entendimento?</b>
+        Varre o Brasil inteiro e exclui uma lista de cidades/UFs, em vez de escolher um punhado de
+        cidades-alvo.
+        <textarea class="cmt resp" data-n="P1" rows="1" aria-label="Resposta à pergunta 1" placeholder="Sua resposta…"></textarea></div>
+      </div>
+      <div class="q">
+        <div class="q-num">2</div>
+        <div class="q-txt"><b>Remoto entra como coringa ou como categoria separada?</b>
+        Ver o debate na ideia 3.4 — isso muda a lógica do placar inteiro.
+        <textarea class="cmt resp" data-n="P2" rows="1" aria-label="Resposta à pergunta 2" placeholder="Sua resposta…"></textarea></div>
+      </div>
+      <div class="q">
+        <div class="q-num">3</div>
+        <div class="q-txt"><b>O perfil odonto tem fontes próprias?</b>
+        A pesquisa mapeia job boards generalistas e ATSs com viés forte de tech. Vaga de dentista
+        vive em Catho, Indeed, redes de clínicas e canais regionais. É a maior incerteza de
+        cobertura do projeto.
+        <textarea class="cmt resp" data-n="P3" rows="1" aria-label="Resposta à pergunta 3" placeholder="Sua resposta…"></textarea></div>
+      </div>
+      <div class="q">
+        <div class="q-num">4</div>
+        <div class="q-txt"><b>Os três perfis dele são realmente três, ou é para focar em um?</b>
+        Três perfis triplicam o trabalho de sinônimos e o ruído do feed.
+        <textarea class="cmt resp" data-n="P4" rows="1" aria-label="Resposta à pergunta 4" placeholder="Sua resposta…"></textarea></div>
+      </div>
+      <div class="q">
+        <div class="q-num">5</div>
+        <div class="q-txt"><b>Qual o horizonte?</b>
+        Procurar mudança nos próximos 6 meses é um produto; monitorar o mercado de forma contínua
+        por anos é outro.
+        <textarea class="cmt resp" data-n="P5" rows="1" aria-label="Resposta à pergunta 5" placeholder="Sua resposta…"></textarea></div>
+      </div>
+      <div class="q">
+        <div class="q-num">6</div>
+        <div class="q-txt"><b>Quantas vagas por dia você tolera ver?</b>
+        Se a resposta for “10”, o produto é agressivo em filtro. Se for “100”, é permissivo e o
+        placar de cidades importa ainda mais.
+        <textarea class="cmt resp" data-n="P6" rows="1" aria-label="Resposta à pergunta 6" placeholder="Sua resposta…"></textarea></div>
+      </div>
+    </div>
+
+    <div class="secao-nota" id="ivS4">
+      <div class="rot">Comentário sobre esta seção — falta alguma pergunta? sobra alguma?</div>
+      <div class="triage" role="radiogroup" aria-label="Concordância com a seção das perguntas">
+        <label class="tri cc"><input type="radio" name="tS4" value="concordo" data-n="S4"><span>Concordo</span></label>
+        <label class="tri dd"><input type="radio" name="tS4" value="discordo" data-n="S4"><span>Discordo</span></label>
+        <span class="estado" data-estado="S4"></span>
+      </div>
+      <textarea class="cmt nota" data-n="S4" data-rotulo="Seção: perguntas em aberto" rows="1" aria-label="Comentário sobre a seção das perguntas" placeholder="Comentário sobre a seção…"></textarea>
+    </div>
+  </div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">Seção 7 do markdown</div>
+    <h2>Fora de escopo nesta rodada</h2>
+    <p class="art-sub">Registrado só para não voltar como surpresa.</p>
+    <div class="oos">
+      <span>arquitetura e stack</span>
+      <span>banco de dados</span>
+      <span>legislação e LGPD</span>
+      <span>termos de uso das plataformas</span>
+      <span>candidatura automática</span>
+      <span>geração de currículo e carta</span>
+      <span>multiusuário e autenticação</span>
+      <span>qualquer coisa de recrutador</span>
+    </div>
+
+    <div class="secao-nota" id="ivS5">
+      <div class="rot">Comentário sobre esta seção — algo aqui deveria estar dentro do escopo?</div>
+      <div class="triage" role="radiogroup" aria-label="Concordância com o fora de escopo">
+        <label class="tri cc"><input type="radio" name="tS5" value="concordo" data-n="S5"><span>Concordo</span></label>
+        <label class="tri dd"><input type="radio" name="tS5" value="discordo" data-n="S5"><span>Discordo</span></label>
+        <span class="estado" data-estado="S5"></span>
+      </div>
+      <textarea class="cmt nota" data-n="S5" data-rotulo="Seção: fora de escopo" rows="1" aria-label="Comentário sobre o fora de escopo" placeholder="Comentário sobre a seção…"></textarea>
+    </div>
+  </div>
+
+  <footer>
+    Companion de <code>planning/IDEIAS.md</code> · fonte:
+    <code>minhas_notas/Pesquisa profunda sobre monitoramento de vagas e candidaturas no Brasil.pdf</code>
+    · inspirado nos modelos de <code>planning/html-effectiveness/</code>.
+    A triagem e os comentários ficam salvos neste navegador; nada sai daqui até você copiar a resposta.
+  </footer>
+</div>
+
+<div class="replybar">
+  <div class="replybar-inner">
+    <div class="rb-counts">
+      <span class="rb-pill ap zero" id="rbAp">0 aprov.</span>
+      <span class="rb-pill ch zero" id="rbCh">0 c/ mud.</span>
+      <span class="rb-pill ic zero" id="rbIc">0 icebox</span>
+      <span class="rb-pill tx zero" id="rbTx">0 no texto</span>
+    </div>
+    <span class="rb-reply" id="rbReply">Nada marcado — sua resposta é montada aqui.</span>
+    <button class="rb-clear" id="rbClear" type="button">limpar</button>
+    <button class="rb-copy" id="rbCopy" type="button" disabled>copiar resposta</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Chave versionada: a v5 acrescentou os blocos de texto (tese, achados,
+  // notas de secao), entao o formato guardado mudou de novo.
+  var KEY = 'monitor_vagas_triagem_v5';
+
+  var radios = Array.prototype.slice.call(document.querySelectorAll('.tri input[type="radio"]'));
+  var caixas = Array.prototype.slice.call(document.querySelectorAll('textarea.cmt'));
+
+  // Indexa radios e caixa por identificador. Tres tipos convivem na pagina:
+  //   ideia   -> botoes Aprovado/Icebox, numeradas 3.x / 4.x / 5.x
+  //   texto   -> botoes Concordo/Discordo, afirmacoes minhas (T, A1..A3, S1..S5)
+  //   pergunta-> so caixa de texto (P1..P6)
+  var porItem = {};
+  function slot(n) {
+    if (!porItem[n]) porItem[n] = { radios: [], ta: null, tipo: 'ideia', rotulo: n };
+    return porItem[n];
+  }
+  radios.forEach(function (r) { slot(r.getAttribute('data-n')).radios.push(r); });
+  caixas.forEach(function (t) {
+    var s = slot(t.getAttribute('data-n'));
+    s.ta = t;
+    if (t.classList.contains('resp')) s.tipo = 'pergunta';
+    else if (t.classList.contains('nota')) s.tipo = 'texto';
+    var rot = t.getAttribute('data-rotulo');
+    if (rot) s.rotulo = rot;
+  });
+
+  // Ideias e perguntas sao ordenadas; os blocos de texto seguem a ordem da
+  // pagina, que ja e a ordem de leitura.
+  var ideias = [], perguntas = [], textos = [];
+  Object.keys(porItem).forEach(function (n) {
+    var t = porItem[n].tipo;
+    if (t === 'ideia') ideias.push(n);
+    else if (t === 'pergunta') perguntas.push(n);
+  });
+  caixas.forEach(function (t) {
+    var n = t.getAttribute('data-n');
+    if (porItem[n].tipo === 'texto') textos.push(n);
+  });
+  var totalIdeias = ideias.length;
+
+  // Guarda o valor marcado de cada grupo para permitir desmarcar clicando de
+  // novo (radio nativo nao desmarca sozinho).
+  var ultimo = {};
+
+  var dots = {};
+  Array.prototype.forEach.call(document.querySelectorAll('.spec-dot'), function (d) {
+    var n = d.getAttribute('data-n');
+    dots[n] = d;
+    d.addEventListener('click', function () {
+      var alvo = document.getElementById('iv' + n);
+      if (alvo) alvo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+
+  var rbAp = document.getElementById('rbAp');
+  var rbCh = document.getElementById('rbCh');
+  var rbIc = document.getElementById('rbIc');
+  var rbTx = document.getElementById('rbTx');
+  var rbReply = document.getElementById('rbReply');
+  var rbCopy = document.getElementById('rbCopy');
+  var rbClear = document.getElementById('rbClear');
+  var respostaAtual = '';
+
+  // Ordena "3.10" depois de "3.9" comparando os dois campos como numeros.
+  function porNumero(a, b) {
+    var pa = a.split('.').map(Number);
+    var pb = b.split('.').map(Number);
+    return (pa[0] - pb[0]) || (pa[1] - pb[1]);
+  }
+
+  function textoDe(n) {
+    var ta = porItem[n].ta;
+    return ta ? ta.value.trim() : '';
+  }
+
+  function marcadoEm(n) {
+    var v = null;
+    porItem[n].radios.forEach(function (r) { if (r.checked) v = r.value; });
+    return v;
+  }
+
+  // Estado derivado. Nas ideias: Icebox vence sempre, comentario sem Icebox
+  // significa "aprovado com mudancas". Nos blocos de texto: o botao manda, e
+  // comentario sem botao vira apenas "nota".
+  function estadoDe(n) {
+    var marcado = marcadoEm(n);
+    var cmt = textoDe(n);
+    if (porItem[n].tipo === 'texto') {
+      if (marcado) return marcado;
+      return cmt ? 'nota' : null;
+    }
+    if (marcado === 'icebox') return 'icebox';
+    if (cmt) return 'mudancas';
+    if (marcado === 'aprovado') return 'aprovado';
+    return null;
+  }
+
+  var LEGIVEL = {
+    aprovado: 'Aprovado',
+    mudancas: 'Aprovado c/ mudanças',
+    icebox: 'Icebox',
+    concordo: 'Concordo',
+    discordo: 'Discordo',
+    nota: 'Comentado'
+  };
+
+  function crescer(ta) {
+    ta.style.height = 'auto';
+    ta.style.height = (ta.scrollHeight + 2) + 'px';
+  }
+
+  function pintar(n, estado) {
+    var alvo = document.getElementById('iv' + n);
+    if (alvo) {
+      alvo.classList.remove('st-aprovado', 'st-icebox', 'st-mudancas',
+                            'st-concordo', 'st-discordo', 'st-nota');
+      if (estado) alvo.classList.add('st-' + estado);
+    }
+    var ponto = dots[n];
+    if (ponto) {
+      ponto.classList.remove('on-aprovado', 'on-icebox', 'on-mudancas');
+      if (estado) ponto.classList.add('on-' + estado);
+    }
+    var etiqueta = document.querySelector('[data-estado="' + n + '"]');
+    if (etiqueta) {
+      etiqueta.className = 'estado' + (estado ? ' s-' + estado : '');
+      etiqueta.textContent = estado ? LEGIVEL[estado] : '';
+    }
+    var ta = porItem[n].ta;
+    if (ta) ta.classList.toggle('preenchida', textoDe(n).length > 0);
+  }
+
+  function contaPill(el, num, rotulo) {
+    el.textContent = num + ' ' + rotulo;
+    el.classList.toggle('zero', num === 0);
+  }
+
+  function salvar() {
+    var estado = {};
+    Object.keys(porItem).forEach(function (n) {
+      var marcado = marcadoEm(n);
+      var ta = porItem[n].ta;
+      var bruto = ta ? ta.value : '';
+      if (marcado || bruto.trim()) estado[n] = { s: marcado, c: bruto };
+    });
+    try { localStorage.setItem(KEY, JSON.stringify(estado)); } catch (e) {}
+  }
+
+  function restaurar() {
+    var bruto = null;
+    try { bruto = localStorage.getItem(KEY); } catch (e) { return; }
+    if (!bruto) return;
+    var estado;
+    try { estado = JSON.parse(bruto); } catch (e) { return; }
+    if (!estado || typeof estado !== 'object') return;
+    Object.keys(porItem).forEach(function (n) {
+      var g = estado[n];
+      if (!g) return;
+      porItem[n].radios.forEach(function (r) {
+        if (g.s === r.value) { r.checked = true; ultimo[r.getAttribute('name')] = r.value; }
+      });
+      if (porItem[n].ta && typeof g.c === 'string') porItem[n].ta.value = g.c;
+    });
+  }
+
+  // Achata quebras de linha para manter um item por linha na resposta copiada.
+  function achatar(txt) { return txt.replace(/\s+/g, ' ').trim(); }
+
+  function update() {
+    var aprovados = [], mudancas = [], iceLimpos = [], iceNotas = [];
+
+    ideias.slice().sort(porNumero).forEach(function (n) {
+      var e = estadoDe(n);
+      pintar(n, e);
+      if (e === 'aprovado') aprovados.push(n);
+      else if (e === 'mudancas') mudancas.push({ n: n, c: achatar(textoDe(n)) });
+      else if (e === 'icebox') {
+        var c = achatar(textoDe(n));
+        if (c) iceNotas.push({ n: n, c: c }); else iceLimpos.push(n);
+      }
+    });
+
+    var sobreTexto = [];
+    textos.forEach(function (n) {
+      var e = estadoDe(n);
+      pintar(n, e);
+      if (!e) return;
+      sobreTexto.push({ rotulo: porItem[n].rotulo, estado: e, c: achatar(textoDe(n)) });
+    });
+
+    var respondidas = [];
+    perguntas.slice().sort().forEach(function (n) {
+      var ta = porItem[n].ta;
+      if (ta) ta.classList.toggle('preenchida', ta.value.trim().length > 0);
+      var c = achatar(textoDe(n));
+      if (c) respondidas.push({ n: n, c: c });
+    });
+
+    contaPill(rbAp, aprovados.length, 'aprov.');
+    contaPill(rbCh, mudancas.length, 'c/ mud.');
+    contaPill(rbIc, iceLimpos.length + iceNotas.length, 'icebox');
+    contaPill(rbTx, sobreTexto.length, 'no texto');
+
+    var triadas = aprovados.length + mudancas.length + iceLimpos.length + iceNotas.length;
+
+    if (triadas === 0 && sobreTexto.length === 0 && respondidas.length === 0) {
+      respostaAtual = '';
+      rbReply.textContent = 'Nada marcado — sua resposta é montada aqui.';
+      rbReply.classList.remove('live');
+      rbCopy.disabled = true;
+      salvar();
+      return;
+    }
+
+    var linhas = ['Triagem das ideias (planning/IDEIAS.md):'];
+
+    if (aprovados.length) {
+      linhas.push('', 'APROVADO: ' + aprovados.join(', '));
+    }
+    if (mudancas.length) {
+      linhas.push('', 'APROVADO COM MUDANÇAS:');
+      mudancas.forEach(function (m) { linhas.push('- ' + m.n + ' — ' + m.c); });
+    }
+    if (iceLimpos.length || iceNotas.length) {
+      linhas.push('', 'ICEBOX' + (iceLimpos.length ? ': ' + iceLimpos.join(', ') : ':'));
+      iceNotas.forEach(function (m) { linhas.push('- ' + m.n + ' — ' + m.c); });
+    }
+    if (sobreTexto.length) {
+      linhas.push('', 'SOBRE O QUE VOCÊ ESCREVEU:');
+      sobreTexto.forEach(function (m) {
+        var veredito = m.estado === 'discordo' ? ' — DISCORDO'
+                     : m.estado === 'concordo' ? ' — concordo' : '';
+        linhas.push('- ' + m.rotulo + veredito + (m.c ? ': ' + m.c : ''));
+      });
+    }
+    if (respondidas.length) {
+      linhas.push('', 'RESPOSTAS ÀS PERGUNTAS EM ABERTO:');
+      respondidas.forEach(function (m) {
+        linhas.push('- ' + m.n.replace('P', 'Pergunta ') + ': ' + m.c);
+      });
+    }
+    var faltam = totalIdeias - triadas;
+    if (faltam > 0) {
+      linhas.push('', '(' + faltam + ' ideia' + (faltam > 1 ? 's' : '') + ' sem marcar)');
+    }
+
+    respostaAtual = linhas.join('\n');
+
+    // Previa de uma linha: so contagens e numeros, porque o texto dos
+    // comentarios estouraria a barra.
+    var previa = [];
+    if (aprovados.length) previa.push('Aprovado ' + aprovados.join(', '));
+    if (mudancas.length) previa.push('Mudanças ' + mudancas.map(function (m) { return m.n; }).join(', '));
+    if (iceLimpos.length || iceNotas.length) {
+      previa.push('Icebox ' + iceLimpos.concat(iceNotas.map(function (m) { return m.n; })).sort(porNumero).join(', '));
+    }
+    var discordancias = sobreTexto.filter(function (m) { return m.estado === 'discordo'; }).length;
+    if (sobreTexto.length) {
+      previa.push(sobreTexto.length + ' no texto' + (discordancias ? ' (' + discordancias + ' discordância)' : ''));
+    }
+    if (respondidas.length) previa.push(respondidas.length + ' pergunta(s) respondida(s)');
+    rbReply.textContent = previa.join('  ·  ');
+    rbReply.classList.add('live');
+    rbCopy.disabled = false;
+    salvar();
+  }
+
+  radios.forEach(function (r) {
+    r.addEventListener('click', function () {
+      var grupo = r.getAttribute('name');
+      if (ultimo[grupo] === r.value) {
+        r.checked = false;
+        ultimo[grupo] = null;
+      } else {
+        ultimo[grupo] = r.value;
+      }
+      update();
+    });
+  });
+
+  caixas.forEach(function (ta) {
+    ta.addEventListener('input', function () { crescer(ta); update(); });
+  });
+
+  rbClear.addEventListener('click', function () {
+    radios.forEach(function (r) { r.checked = false; });
+    caixas.forEach(function (ta) { ta.value = ''; crescer(ta); });
+    ultimo = {};
+    update();
+  });
+
+  // Copia para a area de transferencia, com fallback para file://, onde a
+  // navigator.clipboard as vezes e bloqueada.
+  function copiar(texto, btn, rotulo, rotuloOk) {
+    function pronto() {
+      btn.classList.add('copied');
+      btn.textContent = rotuloOk;
+      setTimeout(function () {
+        btn.classList.remove('copied');
+        btn.textContent = rotulo;
+      }, 1600);
+    }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = texto;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      pronto();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto).then(pronto, fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  rbCopy.addEventListener('click', function () {
+    if (respostaAtual) copiar(respostaAtual, rbCopy, 'copiar resposta', 'copiado');
+  });
+
+  restaurar();
+  caixas.forEach(crescer);
+  update();
+})();
+</script>
+</body>
+</html>

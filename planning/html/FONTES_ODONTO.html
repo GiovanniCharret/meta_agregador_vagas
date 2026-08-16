@@ -1,0 +1,1134 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fontes — onde vive a vaga de odontologia no Brasil</title>
+<style>
+  :root {
+    --ivory:  #FAF9F5;
+    --paper:  #FFFFFF;
+    --slate:  #141413;
+    --clay:   #D97757;
+    --clay-d: #B85C3E;
+    --clay-bg:#FDF6F2;
+    --oat:    #E3DACC;
+    --olive:  #788C5D;
+    --olive-d:#5E7047;
+    --olive-bg:#F1F5EA;
+    --ice:    #5F7A8A;
+    --ice-d:  #4A626F;
+    --ice-bg: #EDF2F5;
+    --out:    #7A736A;
+    --out-d:  #5E574F;
+    --out-bg: #F2F0EC;
+    --g100:   #F0EEE6;
+    --g200:   #E6E3DA;
+    --g300:   #D1CFC5;
+    --g500:   #87867F;
+    --g700:   #3D3D3A;
+    --serif: ui-serif, Georgia, "Times New Roman", Times, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--ivory); color: var(--slate);
+    font-family: var(--sans); line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px 170px; }
+
+  /* ── cabecalho ──────────────────────── */
+  header.page-head { padding: 56px 0 8px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--g500); margin-bottom: 18px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .eyebrow::before { content: ""; width: 24px; height: 1.5px; background: var(--clay); flex: none; }
+  h1 {
+    font-family: var(--serif); font-weight: 500;
+    font-size: clamp(32px, 4.6vw, 46px); line-height: 1.08;
+    letter-spacing: -0.018em; margin: 0 0 10px;
+  }
+  .lede { font-size: 16px; color: var(--g700); max-width: 680px; margin: 0 0 22px; }
+
+  /* ── legenda ────────────────────────── */
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 12px; }
+  .lg {
+    display: flex; align-items: flex-start; gap: 10px;
+    border: 1.5px solid var(--g300); border-radius: 10px;
+    background: var(--paper); padding: 11px 14px; flex: 1 1 210px; min-width: 0;
+  }
+  .lg-key {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    border-radius: 999px; padding: 3px 10px; flex: none; color: #fff;
+    margin-top: 1px; white-space: nowrap;
+  }
+  .lg-key.co { background: var(--olive); }
+  .lg-key.de { background: var(--ice); }
+  .lg-key.dc { background: var(--out); }
+  .lg-txt { font-size: 12.5px; color: var(--g700); line-height: 1.4; }
+  .legend-nota {
+    font-size: 13px; color: var(--g700); margin: 0 0 30px;
+    padding-left: 14px; border-left: 3px solid var(--oat); max-width: 68ch;
+  }
+
+  /* ── cartao de destaque ─────────────── */
+  .thesis {
+    background: var(--paper); border: 1.5px solid var(--g300);
+    border-radius: 14px; padding: 22px 24px;
+    transition: border-color 140ms, background 140ms;
+  }
+  .thesis.st-concordo { border-color: var(--olive); background: var(--olive-bg); }
+  .thesis.st-discordo { border-color: var(--clay);  background: var(--clay-bg); }
+  .thesis.st-nota     { border-color: var(--clay);  background: var(--clay-bg); }
+  .thesis-label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--clay); margin-bottom: 12px;
+  }
+  .thesis blockquote {
+    margin: 0; font-family: var(--serif); font-style: italic;
+    font-size: 17.5px; line-height: 1.5; color: var(--slate); max-width: 62ch;
+  }
+  .thesis blockquote b { font-style: normal; font-weight: 600; color: var(--clay-d); }
+  .thesis p.after {
+    font-size: 14px; color: var(--g700); margin: 16px 0 0; max-width: 68ch;
+    padding-top: 14px; border-top: 1px dashed var(--g300);
+  }
+
+  /* ── divisor ────────────────────────── */
+  .divider {
+    display: flex; align-items: center; gap: 16px; margin: 46px 0 26px;
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--g500); white-space: nowrap;
+  }
+  .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--g300); }
+
+  /* ── secao ──────────────────────────── */
+  .artifact {
+    background: var(--paper); border: 1.5px solid var(--g300);
+    border-radius: 14px; padding: 30px clamp(16px, 3.5vw, 34px) 30px; margin-bottom: 22px;
+  }
+  .artifact h2 {
+    font-family: var(--serif); font-weight: 500;
+    font-size: clamp(23px, 3vw, 29px); letter-spacing: -0.015em;
+    line-height: 1.15; margin: 6px 0 6px;
+  }
+  .artifact h3.grupo {
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--clay-d);
+    margin: 30px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--g200);
+  }
+  .artifact h3.grupo:first-of-type { margin-top: 4px; }
+  .art-eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--g500);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .art-eyebrow::before { content: ""; width: 24px; height: 1.5px; background: var(--clay); flex: none; }
+  .art-sub { font-size: 14.5px; color: var(--g700); max-width: 68ch; margin: 0 0 22px; }
+  code { font-family: var(--mono); font-size: 12.5px; background: var(--g100); border-radius: 5px; padding: 1px 5px; }
+
+  /* ── cartoes ────────────────────────── */
+  .cards { display: flex; flex-direction: column; gap: 12px; }
+  .iv {
+    border: 1.5px solid var(--g300); border-radius: 12px;
+    background: var(--ivory); padding: 16px 18px 14px;
+    scroll-margin-top: 20px;
+    transition: border-color 140ms, background 140ms;
+  }
+  .iv.st-coletar   { border-color: var(--olive); background: var(--olive-bg); }
+  .iv.st-depois    { border-color: var(--ice);   background: var(--ice-bg); }
+  .iv.st-descartar { border-color: var(--out);   background: var(--out-bg); }
+  .iv.st-concordo  { border-color: var(--olive); background: var(--olive-bg); }
+  .iv.st-discordo  { border-color: var(--clay);  background: var(--clay-bg); }
+  .iv.st-nota      { border-color: var(--clay);  background: var(--clay-bg); }
+  .iv-top { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .iv h4 {
+    font-family: var(--serif); font-weight: 500; font-size: 18px;
+    letter-spacing: -0.01em; margin: 0; flex: 1 1 auto; min-width: 180px;
+  }
+  .selo {
+    font-family: var(--mono); font-size: 9.5px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    border-radius: 999px; padding: 2px 9px; flex: none; white-space: nowrap;
+  }
+  .selo.novo    { background: var(--clay); color: #fff; }
+  .selo.estrela { background: var(--olive); color: #fff; }
+  .selo.risco   { background: #F8E7DE; color: var(--clay-d); border: 1px solid #EBC5B4; }
+  .url {
+    display: inline-block; font-family: var(--mono); font-size: 11.5px;
+    color: var(--g700); background: var(--g100); border: 1px solid var(--g200);
+    border-radius: 6px; padding: 2px 8px; margin: 9px 0 0;
+    max-width: 100%; overflow-wrap: anywhere;
+  }
+  .iv-body { font-size: 13.5px; color: var(--g700); margin: 9px 0 0; }
+  .iv-body strong { color: var(--slate); font-weight: 600; }
+  .iv-foot { margin-top: 12px; padding-top: 11px; border-top: 1px dashed var(--g300); }
+
+  /* ── controles ──────────────────────── */
+  .triage { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+  .tri { position: relative; display: inline-flex; }
+  .tri input {
+    position: absolute; opacity: 0; width: 1px; height: 1px;
+    margin: -1px; overflow: hidden; clip: rect(0 0 0 0);
+  }
+  .tri span {
+    display: inline-block; font-family: var(--mono);
+    font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+    padding: 6px 14px; border-radius: 999px;
+    border: 1.5px solid var(--g300); background: var(--paper);
+    color: var(--g700); cursor: pointer; user-select: none;
+    transition: background 120ms, border-color 120ms, color 120ms;
+  }
+  .tri span:hover { border-color: var(--g500); }
+  .tri input:focus-visible + span { outline: 2px solid var(--slate); outline-offset: 2px; }
+  .tri.co input:checked + span { background: var(--olive); border-color: var(--olive-d); color: #fff; }
+  .tri.de input:checked + span { background: var(--ice);   border-color: var(--ice-d);   color: #fff; }
+  .tri.dc input:checked + span { background: var(--out);   border-color: var(--out-d);   color: #fff; }
+  .tri.cc input:checked + span { background: var(--olive); border-color: var(--olive-d); color: #fff; }
+  .tri.dd input:checked + span { background: var(--clay);  border-color: var(--clay-d);  color: #fff; }
+
+  .estado {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--g500); margin-left: auto; padding-left: 10px; text-align: right;
+  }
+  .estado.s-coletar, .estado.s-concordo { color: var(--olive-d); }
+  .estado.s-depois   { color: var(--ice-d); }
+  .estado.s-descartar{ color: var(--out-d); }
+  .estado.s-discordo, .estado.s-nota { color: var(--clay-d); }
+
+  textarea.cmt {
+    display: block; width: 100%; margin-top: 10px;
+    font-family: var(--sans); font-size: 13.5px; line-height: 1.5;
+    color: var(--slate); background: var(--paper);
+    border: 1.5px solid var(--g300); border-radius: 9px;
+    padding: 9px 12px; resize: none; overflow: hidden; min-height: 42px;
+    transition: border-color 120ms, box-shadow 120ms;
+  }
+  textarea.cmt::placeholder { color: var(--g500); }
+  textarea.cmt:focus { outline: none; border-color: var(--clay); box-shadow: 0 0 0 3px rgba(217,119,87,.16); }
+  textarea.cmt.preenchida { border-color: var(--clay); }
+
+  /* ── ordem de ataque ────────────────── */
+  ol.ordem { margin: 0 0 4px; padding-left: 0; list-style: none; counter-reset: passo; }
+  ol.ordem li {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 11px 0; border-bottom: 1px solid var(--g100);
+    font-size: 14px; color: var(--g700);
+  }
+  ol.ordem li:last-child { border-bottom: none; }
+  ol.ordem li::before {
+    counter-increment: passo; content: counter(passo);
+    font-family: var(--serif); font-size: 20px; color: var(--clay);
+    flex: none; width: 26px; text-align: center; line-height: 1.2;
+  }
+  ol.ordem li b { color: var(--slate); font-weight: 600; }
+
+  /* ── verificacoes ───────────────────── */
+  .qs { display: flex; flex-direction: column; gap: 12px; }
+  .q {
+    display: flex; gap: 14px; align-items: flex-start;
+    border: 1.5px solid var(--g300); border-radius: 12px;
+    background: var(--ivory); padding: 16px 18px;
+    transition: border-color 140ms, background 140ms;
+  }
+  .q.st-nota { border-color: var(--clay); background: var(--clay-bg); }
+  .q-num {
+    font-family: var(--serif); font-size: 22px; font-weight: 500;
+    color: var(--clay); line-height: 1; flex: none;
+    width: 30px; text-align: center; padding-top: 2px;
+  }
+  .q-txt { font-size: 14px; color: var(--g700); flex: 1 1 auto; min-width: 0; }
+  .q-txt b { color: var(--slate); font-weight: 600; display: block; margin-bottom: 3px; font-size: 14.5px; }
+
+  /* ── barra fixa ─────────────────────── */
+  .replybar {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--slate); color: var(--ivory); z-index: 50;
+    box-shadow: 0 -8px 24px rgba(20,20,19,.15);
+  }
+  .replybar-inner {
+    max-width: 980px; margin: 0 auto; padding: 11px 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .rb-counts { display: flex; gap: 5px; flex: none; }
+  .rb-pill {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.03em; padding: 4px 9px; border-radius: 999px;
+    white-space: nowrap; border: 1.5px solid transparent; color: #fff;
+  }
+  .rb-pill.co { background: var(--olive); border-color: var(--olive-d); }
+  .rb-pill.de { background: var(--ice);   border-color: var(--ice-d); }
+  .rb-pill.dc { background: var(--out);   border-color: var(--out-d); }
+  .rb-pill.tx { background: var(--g700);  border-color: var(--g500); }
+  .rb-pill.zero { background: transparent; color: var(--g500); border-color: var(--g700); }
+  .rb-reply {
+    flex: 1; font-family: var(--mono); font-size: 12px; color: var(--g300);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+  }
+  .rb-reply.live { color: var(--ivory); }
+  button.rb-copy {
+    flex: none; font-family: var(--mono); font-size: 12px; letter-spacing: 0.03em;
+    background: var(--clay); color: #fff; border: 1.5px solid var(--clay-d);
+    border-radius: 8px; padding: 8px 16px; cursor: pointer;
+    transition: background 120ms, opacity 120ms;
+  }
+  button.rb-copy:hover:not(:disabled) { background: var(--clay-d); }
+  button.rb-copy:disabled { opacity: .35; cursor: default; }
+  button.rb-copy.copied { background: var(--olive); border-color: var(--olive); }
+  button.rb-clear {
+    flex: none; font-family: var(--mono); font-size: 11px;
+    background: transparent; color: var(--g500);
+    border: 1.5px solid var(--g700); border-radius: 8px;
+    padding: 8px 12px; cursor: pointer;
+    transition: color 120ms, border-color 120ms;
+  }
+  button.rb-clear:hover { color: var(--ivory); border-color: var(--g500); }
+  @media (max-width: 860px) {
+    .replybar-inner { flex-wrap: wrap; gap: 8px; padding: 10px 16px; }
+    .rb-reply { order: 3; flex-basis: 100%; }
+  }
+
+  footer { margin-top: 46px; font-size: 13px; color: var(--g500); }
+  footer code { font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page-head">
+    <div class="eyebrow">monitor_vagas &middot; pesquisa de fontes &middot; prioridade nº 1</div>
+    <h1>Onde vive a vaga de odontologia</h1>
+    <p class="lede">Companion visual de <code>planning/FONTES_ODONTO.md</code>. Dezenove fontes
+    para você decidir quais entram na primeira rodada de coleta, mais seis afirmações minhas e
+    cinco verificações em aberto. A barra no rodapé monta a resposta para copiar e me mandar.</p>
+
+    <div class="legend">
+      <div class="lg">
+        <span class="lg-key co">Coletar</span>
+        <span class="lg-txt">Entra na primeira rodada. Vira conector no <code>DESIGN.md</code>.</span>
+      </div>
+      <div class="lg">
+        <span class="lg-key de">Depois</span>
+        <span class="lg-txt">Boa fonte, momento errado. Fica registrada para a rodada seguinte.</span>
+      </div>
+      <div class="lg">
+        <span class="lg-key dc">Descartar</span>
+        <span class="lg-txt">Não vale o esforço, nem agora nem depois. Sai do mapa.</span>
+      </div>
+    </div>
+
+    <p class="legend-nota">A caixa de texto é <strong>independente do botão</strong> nesta página —
+    serve para ressalva ou instrução ("coletar, mas só o recorte X"). Escrever sem clicar em nada
+    vale como nota, sem decisão. Nos blocos que são <strong>afirmação minha</strong>, os botões são
+    <strong>Concordo / Discordo</strong>, e discordância sai em destaque na resposta.</p>
+
+    <div class="thesis" id="ivT1">
+      <div class="thesis-label">O achado principal</div>
+      <blockquote>A vaga de dentista <b>não vive nos mesmos lugares</b> que a vaga de dados, dev ou
+      financeiro.</blockquote>
+      <p class="after">Além dos generalistas, ela se concentra em quatro canais que a pesquisa do
+      PDF não mapeia: concurso público municipal, classificados dos Conselhos Regionais, redes e
+      franquias de clínicas, e uma plataforma dedicada. O SUS municipal é um dos maiores
+      empregadores de dentistas do país — a Prefeitura de Florianópolis está com concurso de
+      R$&nbsp;16.289,86.</p>
+      <div class="iv-foot">
+        <div class="triage" role="radiogroup" aria-label="Concordância com o achado principal">
+          <label class="tri cc"><input type="radio" name="tT1" value="concordo" data-n="T1"><span>Concordo</span></label>
+          <label class="tri dd"><input type="radio" name="tT1" value="discordo" data-n="T1"><span>Discordo</span></label>
+          <span class="estado" data-estado="T1"></span>
+        </div>
+        <textarea class="cmt nota" data-n="T1" data-rotulo="Achado principal" rows="1" aria-label="Comentário sobre o achado principal" placeholder="Comentário…"></textarea>
+      </div>
+    </div>
+  </header>
+
+  <div class="divider">A consequência estrutural</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">Decisão de modelagem, ainda em aberto</div>
+    <h2>Concurso público quebra o modelo de dados</h2>
+    <p class="art-sub">Concurso <strong>não é uma vaga</strong> no formato do resto do sistema. Tem
+    <strong>órgão</strong> em vez de empresa, <strong>prazo de inscrição</strong> em vez de data de
+    publicação, <strong>banca organizadora</strong>, número de vagas, e a distinção entre
+    <em>vaga imediata</em> e <em>cadastro reserva</em> — que é uma vaga que talvez nunca exista.
+    Precisa entrar como o mesmo tipo de item, ou como entidade separada? Isso trava o
+    <code>DESIGN.md</code>.</p>
+    <div class="cards">
+      <div class="iv" id="ivT2">
+        <div class="iv-top">
+          <h4>A minha leitura: entidade separada, com o mesmo feed de saída</h4>
+          <span class="estado" data-estado="T2"></span>
+        </div>
+        <p class="iv-body">Forçar concurso no esquema de vaga faz metade dos campos ficarem vazios
+        e a outra metade mentir. Modelar como entidade própria e unificar só na apresentação custa
+        pouco agora e evita retrabalho quando entrarem prazo, banca e cadastro reserva.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Concordância com a modelagem de concurso">
+            <label class="tri cc"><input type="radio" name="tT2" value="concordo" data-n="T2"><span>Concordo</span></label>
+            <label class="tri dd"><input type="radio" name="tT2" value="discordo" data-n="T2"><span>Discordo</span></label>
+          </div>
+          <textarea class="cmt nota" data-n="T2" data-rotulo="Modelagem de concurso (entidade separada)" rows="1" aria-label="Comentário sobre a modelagem de concurso" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">As dezenove fontes</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">Seção 2 do markdown</div>
+    <h2>Mapa de fontes, por canal</h2>
+    <p class="art-sub">Marque cada uma. Clique de novo no botão marcado para desmarcá-lo. Use a
+    caixa quando a decisão tiver ressalva — por exemplo, coletar só um dos recortes de um site.</p>
+
+    <h3 class="grupo">2.1 · Generalistas com URL dedicada de odontologia</h3>
+    <div class="cards">
+
+      <div class="iv" id="ivcatho">
+        <div class="iv-top"><h4>Catho — área de odontologia</h4><span class="estado" data-estado="catho"></span></div>
+        <span class="url">catho.com.br/vagas/area-odontologia/</span>
+        <p class="iv-body">Área própria de odontologia já recortada. Volume relatado de ~358–398 vagas.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da fonte Catho">
+            <label class="tri co"><input type="radio" name="tcatho" value="coletar" data-n="catho"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="tcatho" value="depois" data-n="catho"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="tcatho" value="descartar" data-n="catho"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="catho" data-rotulo="Catho" rows="1" aria-label="Comentário sobre Catho" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivvagas">
+        <div class="iv-top"><h4>Vagas.com</h4><span class="estado" data-estado="vagas"></span></div>
+        <span class="url">vagas.com.br/vagas-de-dentista · /vagas-de-odontologia</span>
+        <p class="iv-body">Dois recortes distintos — vale checar se um contém o outro antes de coletar os dois.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da fonte Vagas.com">
+            <label class="tri co"><input type="radio" name="tvagas" value="coletar" data-n="vagas"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="tvagas" value="depois" data-n="vagas"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="tvagas" value="descartar" data-n="vagas"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="vagas" data-rotulo="Vagas.com" rows="1" aria-label="Comentário sobre Vagas.com" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivindeed">
+        <div class="iv-top"><h4>Indeed</h4><span class="selo estrela">maior volume</span><span class="estado" data-estado="indeed"></span></div>
+        <span class="url">br.indeed.com/q-dentista-vagas.html</span>
+        <p class="iv-body">~1.455 vagas relatadas — o maior volume de odonto que encontrei. A pesquisa
+        original marca o Indeed como difícil fora de integração oficial.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da fonte Indeed">
+            <label class="tri co"><input type="radio" name="tindeed" value="coletar" data-n="indeed"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="tindeed" value="depois" data-n="indeed"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="tindeed" value="descartar" data-n="indeed"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="indeed" data-rotulo="Indeed" rows="1" aria-label="Comentário sobre Indeed" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivinfojobs">
+        <div class="iv-top"><h4>InfoJobs</h4><span class="estado" data-estado="infojobs"></span></div>
+        <span class="url">infojobs.com.br — busca por cirurgião-dentista</span>
+        <p class="iv-body">Traz recorte por especialidade, incluindo odontologia do trabalho. Salários
+        anunciados até R$ 15.000.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da fonte InfoJobs">
+            <label class="tri co"><input type="radio" name="tinfojobs" value="coletar" data-n="infojobs"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="tinfojobs" value="depois" data-n="infojobs"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="tinfojobs" value="descartar" data-n="infojobs"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="infojobs" data-rotulo="InfoJobs" rows="1" aria-label="Comentário sobre InfoJobs" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivlinkedin">
+        <div class="iv-top"><h4>LinkedIn</h4><span class="selo risco">termos restritivos</span><span class="estado" data-estado="linkedin"></span></div>
+        <span class="url">br.linkedin.com/jobs/dentista-vagas</span>
+        <p class="iv-body">836 vagas de "dentista" e 273–408 de "cirurgião-dentista". <strong>Mas o
+        LinkedIn proíbe expressamente coleta automatizada</strong> — a pesquisa original recomenda
+        usar só o alerta nativo por e-mail.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da fonte LinkedIn">
+            <label class="tri co"><input type="radio" name="tlinkedin" value="coletar" data-n="linkedin"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="tlinkedin" value="depois" data-n="linkedin"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="tlinkedin" value="descartar" data-n="linkedin"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="linkedin" data-rotulo="LinkedIn" rows="1" aria-label="Comentário sobre LinkedIn" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivglassdoor">
+        <div class="iv-top"><h4>Glassdoor</h4><span class="estado" data-estado="glassdoor"></span></div>
+        <span class="url">glassdoor.com.br — busca por cirurgião-dentista</span>
+        <p class="iv-body">Volume baixo: 31 vagas no Brasil inteiro. Confirma a leitura do PDF de tratá-lo
+        como enriquecimento de contexto, não como fonte primária.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da fonte Glassdoor">
+            <label class="tri co"><input type="radio" name="tglassdoor" value="coletar" data-n="glassdoor"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="tglassdoor" value="depois" data-n="glassdoor"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="tglassdoor" value="descartar" data-n="glassdoor"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="glassdoor" data-rotulo="Glassdoor" rows="1" aria-label="Comentário sobre Glassdoor" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivbne">
+        <div class="iv-top"><h4>BNE — Banco Nacional de Empregos</h4><span class="selo novo">novo</span><span class="estado" data-estado="bne"></span></div>
+        <span class="url">bne.com.br/vagas-de-emprego-para-dentista</span>
+        <p class="iv-body"><strong>Não está na pesquisa original.</strong> Anuncia canal exclusivo para
+        profissionais de odontologia.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da fonte BNE">
+            <label class="tri co"><input type="radio" name="tbne" value="coletar" data-n="bne"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="tbne" value="depois" data-n="bne"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="tbne" value="descartar" data-n="bne"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="bne" data-rotulo="BNE" rows="1" aria-label="Comentário sobre BNE" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivjooble">
+        <div class="iv-top"><h4>Jooble — meta-agregador</h4><span class="selo novo">novo</span><span class="estado" data-estado="jooble"></span></div>
+        <span class="url">br.jooble.org</span>
+        <p class="iv-body"><strong>Não está na pesquisa original.</strong> Agrega de sites de empresas,
+        agências e outras plataformas; filtra por cidade, estado e tipo de contrato. Pode dar cobertura
+        que nenhum dos seis grandes dá — ao custo de <strong>duplicação alta</strong>, o que reforça a 3.7.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da fonte Jooble">
+            <label class="tri co"><input type="radio" name="tjooble" value="coletar" data-n="jooble"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="tjooble" value="depois" data-n="jooble"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="tjooble" value="descartar" data-n="jooble"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="jooble" data-rotulo="Jooble" rows="1" aria-label="Comentário sobre Jooble" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="grupo">2.2 · Concursos públicos — o canal que falta</h3>
+    <div class="cards">
+
+      <div class="iv" id="ivpci">
+        <div class="iv-top"><h4>PCI Concursos — página do cargo</h4><span class="selo estrela">melhor achado</span><span class="estado" data-estado="pci"></span></div>
+        <span class="url">pciconcursos.com.br/vagas/cirurgiao-dentista</span>
+        <p class="iv-body"><strong>Verifiquei abrindo a página.</strong> Listagem contínua com órgão, UF,
+        número de vagas, salário máximo, escolaridade e prazo. Navegação por região e por cidade.
+        <strong>Não encontrei RSS nem alerta por e-mail</strong> — precisa confirmar (ver V1).
+        Melhor relação valor/esforço da lista inteira.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da fonte PCI Concursos">
+            <label class="tri co"><input type="radio" name="tpci" value="coletar" data-n="pci"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="tpci" value="depois" data-n="pci"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="tpci" value="descartar" data-n="pci"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="pci" data-rotulo="PCI Concursos" rows="1" aria-label="Comentário sobre PCI Concursos" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivodontoconcursos">
+        <div class="iv-top"><h4>OdontoConcursos</h4><span class="estado" data-estado="odontoconcursos"></span></div>
+        <span class="url">odontoconcursos.com.br</span>
+        <p class="iv-body">Especializado em concursos de odontologia. Não abri para avaliar estrutura.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da fonte OdontoConcursos">
+            <label class="tri co"><input type="radio" name="todontoconcursos" value="coletar" data-n="odontoconcursos"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="todontoconcursos" value="depois" data-n="odontoconcursos"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="todontoconcursos" value="descartar" data-n="odontoconcursos"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="odontoconcursos" data-rotulo="OdontoConcursos" rows="1" aria-label="Comentário sobre OdontoConcursos" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivodonconcursos">
+        <div class="iv-top"><h4>OdonConcursos</h4><span class="estado" data-estado="odonconcursos"></span></div>
+        <span class="url">odonconcursos.com.br/noticia/editais-abertos-para-dentista</span>
+        <p class="iv-body">Agrega editais abertos para dentista. Formato de notícia, provavelmente menos
+        estruturado que o PCI.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da fonte OdonConcursos">
+            <label class="tri co"><input type="radio" name="todonconcursos" value="coletar" data-n="odonconcursos"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="todonconcursos" value="depois" data-n="odonconcursos"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="todonconcursos" value="descartar" data-n="odonconcursos"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="odonconcursos" data-rotulo="OdonConcursos" rows="1" aria-label="Comentário sobre OdonConcursos" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivcdconcursos">
+        <div class="iv-top"><h4>CD Concursos</h4><span class="estado" data-estado="cdconcursos"></span></div>
+        <span class="url">cdconcursos.com.br/blog/</span>
+        <p class="iv-body">Formato de blog, o menos estruturado dos quatro. Provavelmente redundante com
+        o PCI.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da fonte CD Concursos">
+            <label class="tri co"><input type="radio" name="tcdconcursos" value="coletar" data-n="cdconcursos"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="tcdconcursos" value="depois" data-n="cdconcursos"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="tcdconcursos" value="descartar" data-n="cdconcursos"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="cdconcursos" data-rotulo="CD Concursos" rows="1" aria-label="Comentário sobre CD Concursos" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivapcd">
+        <div class="iv-top"><h4>APCD — Associação Paulista de Cirurgiões-Dentistas</h4><span class="estado" data-estado="apcd"></span></div>
+        <span class="url">apcd.org.br — seção de concursos e classificados</span>
+        <p class="iv-body">Cobre concursos e também classificados de clínicas. Recorte estadual (SP), o
+        que só importa se SP sobreviver à sua lista de cidades.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da fonte APCD">
+            <label class="tri co"><input type="radio" name="tapcd" value="coletar" data-n="apcd"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="tapcd" value="depois" data-n="apcd"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="tapcd" value="descartar" data-n="apcd"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="apcd" data-rotulo="APCD" rows="1" aria-label="Comentário sobre APCD" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="grupo">2.3 · Conselhos Regionais de Odontologia</h3>
+    <div class="cards">
+      <div class="iv" id="ivcro">
+        <div class="iv-top"><h4>CROs regionais — 27 conselhos, classificados próprios</h4><span class="estado" data-estado="cro"></span></div>
+        <span class="url">crors.org.br · cropr.org.br · croba.org.br (RS, PR e BA confirmados)</span>
+        <p class="iv-body">Volume individual baixo, <strong>sinal alto</strong>: são clínicas locais
+        anunciando direto, o tipo de vaga que não chega aos portais grandes.
+        <strong>Estratégia sugerida:</strong> não varrer os 27 — varrer só os das UFs que sobreviverem
+        à lista de cidades bloqueadas da 3.2.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem das fontes CRO">
+            <label class="tri co"><input type="radio" name="tcro" value="coletar" data-n="cro"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="tcro" value="depois" data-n="cro"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="tcro" value="descartar" data-n="cro"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="cro" data-rotulo="CROs regionais" rows="1" aria-label="Comentário sobre os CROs" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="grupo">2.4 · Redes e franquias de clínicas</h3>
+    <div class="cards">
+
+      <div class="iv" id="ivodontoprev">
+        <div class="iv-top"><h4>OdontoPrev — publica na Gupy</h4><span class="selo estrela">confirma a Gupy</span><span class="estado" data-estado="odontoprev"></span></div>
+        <span class="url">vagasodontoprev.gupy.io</span>
+        <p class="iv-body">Confirma que o canal que você mandou atacar primeiro, por ser o mais fácil,
+        <strong>também serve para odontologia</strong>.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da fonte OdontoPrev">
+            <label class="tri co"><input type="radio" name="todontoprev" value="coletar" data-n="odontoprev"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="todontoprev" value="depois" data-n="odontoprev"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="todontoprev" value="descartar" data-n="odontoprev"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="odontoprev" data-rotulo="OdontoPrev (Gupy)" rows="1" aria-label="Comentário sobre OdontoPrev" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivsorridents">
+        <div class="iv-top"><h4>Sorridents</h4><span class="selo risco">franquia</span><span class="estado" data-estado="sorridents"></span></div>
+        <span class="url">sorridents.com.br/trabalhe-conosco + uma página em Google Sites</span>
+        <p class="iv-body">500+ unidades franqueadas. Canal improvisado, sem listagem estruturada.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da fonte Sorridents">
+            <label class="tri co"><input type="radio" name="tsorridents" value="coletar" data-n="sorridents"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="tsorridents" value="depois" data-n="sorridents"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="tsorridents" value="descartar" data-n="sorridents"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="sorridents" data-rotulo="Sorridents" rows="1" aria-label="Comentário sobre Sorridents" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivodontocompany">
+        <div class="iv-top"><h4>OdontoCompany</h4><span class="selo risco">franquia</span><span class="estado" data-estado="odontocompany"></span></div>
+        <span class="url">odontocompany.com/trabalhe-conosco</span>
+        <p class="iv-body">Cadastro de currículo em PDF, <strong>sem listagem pública de vagas</strong> —
+        o que a torna quase inútil como fonte de coleta.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da fonte OdontoCompany">
+            <label class="tri co"><input type="radio" name="todontocompany" value="coletar" data-n="odontocompany"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="todontocompany" value="depois" data-n="odontocompany"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="todontocompany" value="descartar" data-n="odontocompany"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="odontocompany" data-rotulo="OdontoCompany" rows="1" aria-label="Comentário sobre OdontoCompany" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivT3">
+        <div class="iv-top"><h4>Alerta: o ruído de franquia é estrutural em odontologia</h4><span class="estado" data-estado="T3"></span></div>
+        <p class="iv-body">OdontoCompany e Sorridents são <strong>redes de franquia</strong>. Boa parte do
+        que aparece como "oportunidade" nesse universo é venda de franquia ou vaga comissionada, não
+        emprego. O filtro de reprovação da <strong>3.6</strong> precisa cobrir <code>franquia</code>,
+        <code>seja um franqueado</code>, <code>sócio</code>, <code>comissionado</code>,
+        <code>percentual de produção</code>. Isso vale mais para odonto do que para qualquer outro perfil.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Concordância com o alerta de franquia">
+            <label class="tri cc"><input type="radio" name="tT3" value="concordo" data-n="T3"><span>Concordo</span></label>
+            <label class="tri dd"><input type="radio" name="tT3" value="discordo" data-n="T3"><span>Discordo</span></label>
+          </div>
+          <textarea class="cmt nota" data-n="T3" data-rotulo="Alerta de franquia/comissionado (impacto na 3.6)" rows="1" aria-label="Comentário sobre o alerta de franquia" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="grupo">2.5 · Plataforma dedicada e canais informais</h3>
+    <div class="cards">
+
+      <div class="iv" id="ivodontojob">
+        <div class="iv-top"><h4>Odonto.Job</h4><span class="estado" data-estado="odontojob"></span></div>
+        <span class="url">odontojob.com.br (antes myodontojob.com)</span>
+        <p class="iv-body">Única plataforma <strong>exclusiva de odontologia</strong> encontrada. Ativa em
+        2026, anuncia "1.200+ profissionais ativos" e uma seção nova de vagas publicadas por clínicas.
+        <strong>Parece exigir cadastro</strong> e não expõe busca pública — cara de coletar e pequena
+        demais para valer agora (ver V3).</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem da fonte Odonto.Job">
+            <label class="tri co"><input type="radio" name="todontojob" value="coletar" data-n="odontojob"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="todontojob" value="depois" data-n="odontojob"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="todontojob" value="descartar" data-n="odontojob"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="odontojob" data-rotulo="Odonto.Job" rows="1" aria-label="Comentário sobre Odonto.Job" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivfacebook">
+        <div class="iv-top"><h4>Grupos de Facebook</h4><span class="selo risco">coleta inviável</span><span class="estado" data-estado="facebook"></span></div>
+        <span class="url">grupos fechados e abertos, por região</span>
+        <p class="iv-body">Citados por fonte do setor como tendo "centenas de vagas" anunciadas por donos
+        de clínica. <strong>Sinal alto, coleta automatizada inviável</strong> — a pesquisa original já
+        concluía isso para redes sociais de terceiros.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Triagem dos grupos de Facebook">
+            <label class="tri co"><input type="radio" name="tfacebook" value="coletar" data-n="facebook"><span>Coletar</span></label>
+            <label class="tri de"><input type="radio" name="tfacebook" value="depois" data-n="facebook"><span>Depois</span></label>
+            <label class="tri dc"><input type="radio" name="tfacebook" value="descartar" data-n="facebook"><span>Descartar</span></label>
+          </div>
+          <textarea class="cmt fonte" data-n="facebook" data-rotulo="Grupos de Facebook" rows="1" aria-label="Comentário sobre grupos de Facebook" placeholder="Ressalva ou instrução…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">Ordem de ataque sugerida</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">Seção 3 do markdown</div>
+    <h2>Por onde eu começaria</h2>
+    <ol class="ordem">
+      <li><b>Generalistas com URL de área pronta</b> — Catho, Vagas, Indeed, InfoJobs, BNE. Reaproveita tudo que já será construído para os outros perfis; só muda o dicionário de sinônimos da 3.5.</li>
+      <li><b>PCI Concursos</b>, página do cargo. Uma URL, campos estruturados, filtro por região, e cobre um canal que nenhum concorrente cobre.</li>
+      <li><b>Gupy</b>, já planejada — com OdontoPrev confirmando que há odonto lá.</li>
+      <li><b>CROs das UFs que sobrarem</b> depois do filtro de cidades.</li>
+      <li><b>Jooble</b>, para medir quanto ele acrescenta além dos itens 1–3.</li>
+      <li><b>Odonto.Job, APCD, Facebook</b> — manual, ou rodada seguinte.</li>
+    </ol>
+    <div class="cards" style="margin-top:18px">
+      <div class="iv" id="ivT4">
+        <div class="iv-top"><h4>Esta ordem faz sentido para você?</h4><span class="estado" data-estado="T4"></span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Concordância com a ordem de ataque">
+            <label class="tri cc"><input type="radio" name="tT4" value="concordo" data-n="T4"><span>Concordo</span></label>
+            <label class="tri dd"><input type="radio" name="tT4" value="discordo" data-n="T4"><span>Discordo</span></label>
+          </div>
+          <textarea class="cmt nota" data-n="T4" data-rotulo="Ordem de ataque" rows="1" aria-label="Comentário sobre a ordem de ataque" placeholder="Trocaria a ordem? Como?"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">O que ainda precisa ser verificado</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">Seção 4 do markdown</div>
+    <h2>Cinco verificações em aberto</h2>
+    <p class="art-sub">Não são afirmações, são buracos. Responda o que souber, ou diga quem verifica
+    e quando — as respostas vão junto na resposta copiada.</p>
+    <div class="qs">
+      <div class="q" id="ivV1">
+        <div class="q-num">1</div>
+        <div class="q-txt"><b>PCI Concursos tem RSS ou alerta por e-mail?</b>
+        Não apareceu na parte visível da página. Muda bastante o custo de coleta da melhor fonte da lista.
+        <textarea class="cmt resp" data-n="V1" data-rotulo="V1 (RSS do PCI)" rows="1" aria-label="Resposta à verificação 1" placeholder="Sua resposta…"></textarea></div>
+      </div>
+      <div class="q" id="ivV2">
+        <div class="q-num">2</div>
+        <div class="q-txt"><b>Os alertas gratuitos por e-mail cobrem o Brasil inteiro?</b>
+        Sua própria pergunta no achado 2, e aqui vale dobrado: se o plano grátis limitar a uma região, o
+        alerta por e-mail deixa de ser a fonte barata que a pesquisa original promete. <strong>É a
+        verificação que mais me preocupa.</strong>
+        <textarea class="cmt resp" data-n="V2" data-rotulo="V2 (alcance dos alertas grátis)" rows="1" aria-label="Resposta à verificação 2" placeholder="Sua resposta…"></textarea></div>
+      </div>
+      <div class="q" id="ivV3">
+        <div class="q-num">3</div>
+        <div class="q-txt"><b>Odonto.Job exige login mesmo?</b>
+        Se tiver listagem pública, sobe várias posições na ordem de ataque.
+        <textarea class="cmt resp" data-n="V3" data-rotulo="V3 (login no Odonto.Job)" rows="1" aria-label="Resposta à verificação 3" placeholder="Sua resposta…"></textarea></div>
+      </div>
+      <div class="q" id="ivV4">
+        <div class="q-num">4</div>
+        <div class="q-txt"><b>Quais dos 27 CROs têm HTML aproveitável?</b>
+        Provavelmente muito heterogêneo — cada conselho fez o seu site.
+        <textarea class="cmt resp" data-n="V4" data-rotulo="V4 (HTML dos CROs)" rows="1" aria-label="Resposta à verificação 4" placeholder="Sua resposta…"></textarea></div>
+      </div>
+      <div class="q" id="ivV5">
+        <div class="q-num">5</div>
+        <div class="q-txt"><b>Qual o volume real de odonto por cidade fora dos grandes centros?</b>
+        Toda a lógica do selo da 3.4 depende de haver vaga de odonto em cidade média. Isso ainda não foi
+        medido, e é o que decide se o produto funciona.
+        <textarea class="cmt resp" data-n="V5" data-rotulo="V5 (volume por cidade média)" rows="1" aria-label="Resposta à verificação 5" placeholder="Sua resposta…"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">Impacto e ressalvas</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">Seções 5 e método</div>
+    <h2>O que isso muda, e no que não confiar</h2>
+    <div class="cards">
+
+      <div class="iv" id="ivT5">
+        <div class="iv-top"><h4>Impacto no escopo já aprovado</h4><span class="estado" data-estado="T5"></span></div>
+        <p class="iv-body">A <strong>3.1</strong> se confirma e vai além: o perfil <code>odonto</code>
+        precisa de lista de <em>fontes</em> própria, não só de termos próprios. A <strong>3.6</strong>
+        fica mais importante do que estimei, pelo ruído estrutural de franquia. A <strong>3.7</strong>
+        também sobe, porque o Jooble agrega dos outros e triplica duplicatas.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Concordância com o impacto no escopo">
+            <label class="tri cc"><input type="radio" name="tT5" value="concordo" data-n="T5"><span>Concordo</span></label>
+            <label class="tri dd"><input type="radio" name="tT5" value="discordo" data-n="T5"><span>Discordo</span></label>
+          </div>
+          <textarea class="cmt nota" data-n="T5" data-rotulo="Impacto no escopo aprovado" rows="1" aria-label="Comentário sobre o impacto no escopo" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivT6">
+        <div class="iv-top"><h4>Ressalva de método — leia antes de confiar na lista</h4><span class="estado" data-estado="T6"></span></div>
+        <p class="iv-body">Busca web em 15/08/2026, <strong>primeira passada</strong>. O índice de busca
+        disponível é orientado a resultados dos EUA, o que pode <strong>subrepresentar sites regionais
+        brasileiros pequenos</strong>. Abri e verifiquei o PCI Concursos e o Odonto.Job; o resto veio de
+        resultado de busca. Trate como ponto de partida verificado, <strong>não como levantamento
+        exaustivo</strong>.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Concordância com a ressalva de método">
+            <label class="tri cc"><input type="radio" name="tT6" value="concordo" data-n="T6"><span>Concordo</span></label>
+            <label class="tri dd"><input type="radio" name="tT6" value="discordo" data-n="T6"><span>Discordo</span></label>
+          </div>
+          <textarea class="cmt nota" data-n="T6" data-rotulo="Ressalva de método" rows="1" aria-label="Comentário sobre a ressalva de método" placeholder="Quer que eu aprofunde alguma frente?"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Companion de <code>planning/FONTES_ODONTO.md</code> · pesquisa de 15/08/2026 ·
+    inspirado nos modelos de <code>planning/html-effectiveness/</code>.
+    A triagem fica salva neste navegador; nada sai daqui até você copiar a resposta.
+  </footer>
+</div>
+
+<div class="replybar">
+  <div class="replybar-inner">
+    <div class="rb-counts">
+      <span class="rb-pill co zero" id="rbCo">0 coletar</span>
+      <span class="rb-pill de zero" id="rbDe">0 depois</span>
+      <span class="rb-pill dc zero" id="rbDc">0 descartar</span>
+      <span class="rb-pill tx zero" id="rbTx">0 no texto</span>
+    </div>
+    <span class="rb-reply" id="rbReply">Nada marcado — sua resposta é montada aqui.</span>
+    <button class="rb-clear" id="rbClear" type="button">limpar</button>
+    <button class="rb-copy" id="rbCopy" type="button" disabled>copiar resposta</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var KEY = 'monitor_vagas_fontes_v1';
+
+  var radios = Array.prototype.slice.call(document.querySelectorAll('.tri input[type="radio"]'));
+  var caixas = Array.prototype.slice.call(document.querySelectorAll('textarea.cmt'));
+
+  // Tres tipos convivem na pagina:
+  //   fonte    -> Coletar / Depois / Descartar, decisao de coleta
+  //   texto    -> Concordo / Discordo, afirmacao minha
+  //   verifica -> so caixa, buraco a preencher
+  // Em todos, a caixa e independente do botao: texto sem botao vale como nota.
+  var porItem = {};
+  function slot(n) {
+    if (!porItem[n]) porItem[n] = { radios: [], ta: null, tipo: 'fonte', rotulo: n };
+    return porItem[n];
+  }
+  radios.forEach(function (r) { slot(r.getAttribute('data-n')).radios.push(r); });
+  caixas.forEach(function (t) {
+    var s = slot(t.getAttribute('data-n'));
+    s.ta = t;
+    if (t.classList.contains('resp')) s.tipo = 'verifica';
+    else if (t.classList.contains('nota')) s.tipo = 'texto';
+    var rot = t.getAttribute('data-rotulo');
+    if (rot) s.rotulo = rot;
+  });
+
+  // Ordem de leitura da pagina, que ja e a ordem por canal.
+  var fontes = [], textos = [], verificacoes = [];
+  caixas.forEach(function (t) {
+    var n = t.getAttribute('data-n');
+    var tipo = porItem[n].tipo;
+    if (tipo === 'fonte') fontes.push(n);
+    else if (tipo === 'texto') textos.push(n);
+    else verificacoes.push(n);
+  });
+  var totalFontes = fontes.length;
+
+  // Permite desmarcar clicando de novo no botao ja escolhido.
+  var ultimo = {};
+
+  var rbCo = document.getElementById('rbCo');
+  var rbDe = document.getElementById('rbDe');
+  var rbDc = document.getElementById('rbDc');
+  var rbTx = document.getElementById('rbTx');
+  var rbReply = document.getElementById('rbReply');
+  var rbCopy = document.getElementById('rbCopy');
+  var rbClear = document.getElementById('rbClear');
+  var respostaAtual = '';
+
+  function textoDe(n) {
+    var ta = porItem[n].ta;
+    return ta ? ta.value.trim() : '';
+  }
+
+  function marcadoEm(n) {
+    var v = null;
+    porItem[n].radios.forEach(function (r) { if (r.checked) v = r.value; });
+    return v;
+  }
+
+  // O botao sempre manda; a caixa sozinha vale como nota, sem decisao.
+  function estadoDe(n) {
+    var marcado = marcadoEm(n);
+    if (marcado) return marcado;
+    return textoDe(n) ? 'nota' : null;
+  }
+
+  var LEGIVEL = {
+    coletar: 'Coletar', depois: 'Depois', descartar: 'Descartar',
+    concordo: 'Concordo', discordo: 'Discordo', nota: 'Comentado'
+  };
+
+  function crescer(ta) {
+    ta.style.height = 'auto';
+    ta.style.height = (ta.scrollHeight + 2) + 'px';
+  }
+
+  function pintar(n, estado) {
+    var alvo = document.getElementById('iv' + n);
+    if (alvo) {
+      alvo.classList.remove('st-coletar', 'st-depois', 'st-descartar',
+                            'st-concordo', 'st-discordo', 'st-nota');
+      if (estado) alvo.classList.add('st-' + estado);
+    }
+    var etiqueta = document.querySelector('[data-estado="' + n + '"]');
+    if (etiqueta) {
+      etiqueta.className = 'estado' + (estado ? ' s-' + estado : '');
+      etiqueta.textContent = estado ? LEGIVEL[estado] : '';
+    }
+    var ta = porItem[n].ta;
+    if (ta) ta.classList.toggle('preenchida', textoDe(n).length > 0);
+  }
+
+  function contaPill(el, num, rotulo) {
+    el.textContent = num + ' ' + rotulo;
+    el.classList.toggle('zero', num === 0);
+  }
+
+  function salvar() {
+    var estado = {};
+    Object.keys(porItem).forEach(function (n) {
+      var marcado = marcadoEm(n);
+      var ta = porItem[n].ta;
+      var bruto = ta ? ta.value : '';
+      if (marcado || bruto.trim()) estado[n] = { s: marcado, c: bruto };
+    });
+    try { localStorage.setItem(KEY, JSON.stringify(estado)); } catch (e) {}
+  }
+
+  function restaurar() {
+    var bruto = null;
+    try { bruto = localStorage.getItem(KEY); } catch (e) { return; }
+    if (!bruto) return;
+    var estado;
+    try { estado = JSON.parse(bruto); } catch (e) { return; }
+    if (!estado || typeof estado !== 'object') return;
+    Object.keys(porItem).forEach(function (n) {
+      var g = estado[n];
+      if (!g) return;
+      porItem[n].radios.forEach(function (r) {
+        if (g.s === r.value) { r.checked = true; ultimo[r.getAttribute('name')] = r.value; }
+      });
+      if (porItem[n].ta && typeof g.c === 'string') porItem[n].ta.value = g.c;
+    });
+  }
+
+  function achatar(txt) { return txt.replace(/\s+/g, ' ').trim(); }
+
+  // Monta "Nome" ou "Nome — comentario", conforme haja ressalva.
+  function linhaDe(n) {
+    var c = achatar(textoDe(n));
+    return '- ' + porItem[n].rotulo + (c ? ' — ' + c : '');
+  }
+
+  function update() {
+    var grupos = { coletar: [], depois: [], descartar: [] };
+    // Fonte comentada sem botao continua pendente de decisao, mas a nota nao
+    // pode sumir da resposta — ela vai num bloco proprio.
+    var notasSemDecisao = [];
+
+    fontes.forEach(function (n) {
+      var e = estadoDe(n);
+      pintar(n, e);
+      if (grupos[e]) grupos[e].push(n);
+      else if (e === 'nota') notasSemDecisao.push(n);
+    });
+
+    var sobreTexto = [];
+    textos.forEach(function (n) {
+      var e = estadoDe(n);
+      pintar(n, e);
+      if (e) sobreTexto.push({ rotulo: porItem[n].rotulo, estado: e, c: achatar(textoDe(n)) });
+    });
+
+    var respondidas = [];
+    verificacoes.forEach(function (n) {
+      var e = estadoDe(n);
+      pintar(n, e);
+      var c = achatar(textoDe(n));
+      if (c) respondidas.push({ rotulo: porItem[n].rotulo, c: c });
+    });
+
+    contaPill(rbCo, grupos.coletar.length, 'coletar');
+    contaPill(rbDe, grupos.depois.length, 'depois');
+    contaPill(rbDc, grupos.descartar.length, 'descartar');
+    contaPill(rbTx, sobreTexto.length, 'no texto');
+
+    var triadas = grupos.coletar.length + grupos.depois.length + grupos.descartar.length;
+
+    if (triadas === 0 && notasSemDecisao.length === 0 &&
+        sobreTexto.length === 0 && respondidas.length === 0) {
+      respostaAtual = '';
+      rbReply.textContent = 'Nada marcado — sua resposta é montada aqui.';
+      rbReply.classList.remove('live');
+      rbCopy.disabled = true;
+      salvar();
+      return;
+    }
+
+    var linhas = ['Triagem de fontes (planning/FONTES_ODONTO.md):'];
+
+    [['coletar', 'COLETAR NA PRIMEIRA RODADA'],
+     ['depois', 'DEPOIS'],
+     ['descartar', 'DESCARTAR']].forEach(function (par) {
+      var lista = grupos[par[0]];
+      if (!lista.length) return;
+      linhas.push('', par[1] + ':');
+      lista.forEach(function (n) { linhas.push(linhaDe(n)); });
+    });
+
+    if (notasSemDecisao.length) {
+      linhas.push('', 'FONTES COMENTADAS, SEM DECISÃO:');
+      notasSemDecisao.forEach(function (n) { linhas.push(linhaDe(n)); });
+    }
+
+    if (sobreTexto.length) {
+      linhas.push('', 'SOBRE O QUE VOCÊ ESCREVEU:');
+      sobreTexto.forEach(function (m) {
+        var veredito = m.estado === 'discordo' ? ' — DISCORDO'
+                     : m.estado === 'concordo' ? ' — concordo' : '';
+        linhas.push('- ' + m.rotulo + veredito + (m.c ? ': ' + m.c : ''));
+      });
+    }
+
+    if (respondidas.length) {
+      linhas.push('', 'VERIFICAÇÕES:');
+      respondidas.forEach(function (m) { linhas.push('- ' + m.rotulo + ': ' + m.c); });
+    }
+
+    var faltam = totalFontes - triadas;
+    if (faltam > 0) {
+      linhas.push('', '(' + faltam + ' fonte' + (faltam > 1 ? 's' : '') + ' sem marcar)');
+    }
+
+    respostaAtual = linhas.join('\n');
+
+    var previa = [];
+    if (grupos.coletar.length) previa.push(grupos.coletar.length + ' para coletar');
+    if (grupos.depois.length) previa.push(grupos.depois.length + ' depois');
+    if (grupos.descartar.length) previa.push(grupos.descartar.length + ' descartadas');
+    if (notasSemDecisao.length) previa.push(notasSemDecisao.length + ' comentada(s) sem decisão');
+    var discordancias = sobreTexto.filter(function (m) { return m.estado === 'discordo'; }).length;
+    if (sobreTexto.length) {
+      previa.push(sobreTexto.length + ' no texto' + (discordancias ? ' (' + discordancias + ' discordância)' : ''));
+    }
+    if (respondidas.length) previa.push(respondidas.length + ' verificação(ões)');
+    rbReply.textContent = previa.join('  ·  ');
+    rbReply.classList.add('live');
+    rbCopy.disabled = false;
+    salvar();
+  }
+
+  radios.forEach(function (r) {
+    r.addEventListener('click', function () {
+      var grupo = r.getAttribute('name');
+      if (ultimo[grupo] === r.value) { r.checked = false; ultimo[grupo] = null; }
+      else { ultimo[grupo] = r.value; }
+      update();
+    });
+  });
+
+  caixas.forEach(function (ta) {
+    ta.addEventListener('input', function () { crescer(ta); update(); });
+  });
+
+  rbClear.addEventListener('click', function () {
+    radios.forEach(function (r) { r.checked = false; });
+    caixas.forEach(function (ta) { ta.value = ''; crescer(ta); });
+    ultimo = {};
+    update();
+  });
+
+  function copiar(texto, btn, rotulo, rotuloOk) {
+    function pronto() {
+      btn.classList.add('copied');
+      btn.textContent = rotuloOk;
+      setTimeout(function () { btn.classList.remove('copied'); btn.textContent = rotulo; }, 1600);
+    }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = texto;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      pronto();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto).then(pronto, fallback);
+    } else { fallback(); }
+  }
+
+  rbCopy.addEventListener('click', function () {
+    if (respostaAtual) copiar(respostaAtual, rbCopy, 'copiar resposta', 'copiado');
+  });
+
+  restaurar();
+  caixas.forEach(crescer);
+  update();
+})();
+</script>
+</body>
+</html>
