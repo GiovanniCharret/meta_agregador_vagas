@@ -30,8 +30,12 @@ Desenvolver um modelo MVP de plataforma. Dispõe inicialmenete só do feed e ale
 `x` Companions HTML: `html/IDEIAS.html` e `html/FONTES_ODONTO.html`
 `x` `planning/PROMPT_COMPANION_HTML.md` — semente da skill futura de companion
 `a` `planning/ADVERSARIAL_REVIEW.md` — **anulado** em 16/08/2026: projeto sem complexidade que justifique
-`[ ]` `planning/TESTES.md` · `definition of done.md`
-`[ ]` Infraestrutura: `git init`, venv uv, requirements
+`x` `planning/TESTES.md` — mapa de testes por fase, com verificação manual do S0
+`[ ]` `definition of done.md`
+`x` Infraestrutura — venv uv 3.12.13, pytest 9.1.1, `requirements.txt`, `.gitignore`
+`x` **S0 concluída** — `caminhos.py`, `erros.py`, `config.py`, `main.py`, lançador `monitor.py`.
+  27 testes passando, executável verificado rodando de outro diretório.
+`[ ]` S1 — uma fonte só, ponta a ponta até JSON normalizado
 
 ## Decisões tomadas
 

@@ -1,0 +1,13 @@
+# ambiente
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# dados gerados - reconstruiveis e pesados
+dados/
+saida/
+
+# configuracao pessoal: perfis, cidades bloqueadas, pretensao.
+# O repositorio tem remote no GitHub - o modelo versionado e o config.exemplo.json.
+config/config.json

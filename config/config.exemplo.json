@@ -1,0 +1,56 @@
+{
+  "perfis": [
+    {
+      "nome": "dados",
+      "lado": "meu",
+      "termos": ["cientista de dados", "analista de dados"],
+      "sinonimos": ["data scientist", "engenheiro de dados", "analista de bi"]
+    },
+    {
+      "nome": "dev",
+      "lado": "meu",
+      "termos": ["desenvolvedor"],
+      "sinonimos": ["backend", "fullstack", "python"]
+    },
+    {
+      "nome": "financeiro",
+      "lado": "meu",
+      "termos": ["administrador financeiro", "analista financeiro"],
+      "sinonimos": ["controladoria", "tesouraria", "fpa"]
+    },
+    {
+      "nome": "odonto",
+      "lado": "dela",
+      "termos": ["dentista", "cirurgiao-dentista"],
+      "sinonimos": ["odontologia", "clinico geral", "odontopediatra"]
+    }
+  ],
+
+  "ufs_bloqueadas": ["AC", "RR"],
+
+  "cidades_bloqueadas": [],
+
+  "cidades_desejadas": [],
+
+  "termos_reprovacao": [
+    "estagio",
+    "trainee",
+    "voluntario",
+    "franquia",
+    "seja um franqueado",
+    "socio",
+    "comissionado",
+    "percentual de producao"
+  ],
+
+  "fontes_ativas": [
+    "catho",
+    "vagas",
+    "indeed",
+    "infojobs",
+    "bne",
+    "jooble",
+    "pci",
+    "gupy"
+  ]
+}
