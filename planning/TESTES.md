@@ -105,6 +105,78 @@ cd C:\Users\gioch\Documents\Python_Projects\monitor_vagas
 
 ---
 
+## S1 — uma fonte ponta a ponta
+
+**Estado: 59 testes passando. 178 vagas reais coletadas do BNE.**
+
+### A sondagem que escolheu a fonte
+
+Cinco candidatas testadas em 16/08/2026, com User-Agent honesto e uma requisição cada:
+
+| Fonte | Resultado |
+|---|---|
+| **Catho** | **403 Forbidden.** Bloqueia. Fora — o projeto não contorna bloqueio. |
+| **Jooble** | **403 com desafio Cloudflare.** Fora, mesmo motivo. |
+| **BNE** | 200, lista inteira de vagas em JSON dentro de um input escondido. **Escolhida.** |
+| InfoJobs | 200, mas exige interpretar HTML — precisaria de parser. |
+| Gupy (OdontoPrev) | 200, JSON limpo no `__NEXT_DATA__`, **mas só 3 vagas de odonto, todas "banco de talentos" e duas sem cidade.** |
+
+O achado sobre a Gupy contradiz em parte a pesquisa: ela é ótima estruturalmente, mas para
+odontologia, nessa empresa, hoje não rende.
+
+### `tests/test_fonte_bne.py` — 12 testes
+
+Testam as duas funções puras do coletor sobre uma **fixture gerada de dados reais** — três
+vagas verdadeiras, de três estados, reembrulhadas no formato exato da página.
+
+Travam, entre outras coisas: que a UF vem do topo do registro e **não** de dentro de `City`
+(que vem nula em 100% das vagas medidas); que `Home_Office` vira modalidade; que salário
+`0.0` vira "não informado" em vez de anunciar vaga de R$ 0,00; que o mapeamento **não carimba
+horário**, para não quebrar o determinismo que a S2 vai exigir.
+
+### `tests/test_coleta.py` — 8 testes
+
+Paginação, deduplicação e parada, com **buscador injetado** — nenhuma requisição de rede.
+
+A distinção mais importante que eles travam: **página válida e vazia** (fim dos resultados,
+encerra em silêncio) versus **página sem o bloco** (o site mudou, falha alto).
+
+### `tests/test_normaliza.py` — 5 testes
+
+O slug do termo, que entra dentro da URL. Acento e espaço quebram o endereço, e o sintoma
+seria a coleta voltar vazia — falha difícil de enxergar.
+
+### Três defeitos que só a execução real revelou
+
+1. **`python src/main.py` estava quebrado** enquanto 25 testes passavam. O `pytest.ini`
+   coloca a raiz no caminho de import e escondia isso. Daí o lançador `monitor.py`.
+2. **BOM no arquivo de configuração.** O PowerShell e o Bloco de Notas gravam UTF-8 com BOM;
+   `json.loads` falha na linha 1, coluna 1, e o usuário vê erro de sintaxe num arquivo que na
+   tela dele está perfeito. Corrigido lendo com `utf-8-sig`.
+3. **Soft 404 do BNE.** Slug de função que não existe na taxonomia deles devolve **200 com a
+   página inicial**. O coletor gritava "o site mudou de formato" três vezes por rodada —
+   alarme falso, que destrói a confiança no aviso. O sinal confiável é o `canonical` apontar
+   para a raiz. Hoje o aviso diz a verdade e ensina o que fazer.
+
+Nenhum dos três seria pego por teste de unidade. **Toda subfase precisa rodar o programa como
+o usuário roda.**
+
+### Verificação manual do S1
+
+```powershell
+.venv\Scripts\python.exe monitor.py
+# esperado: "178 vaga(s) gravada(s) em ...\dados\vagas_normalizadas.json" e codigo 0
+# tres AVISOs sobre termos que o BNE nao conhece sao esperados, nao sao falha
+```
+
+### Limitação conhecida, registrada para a S4
+
+O BNE **não devolve o título original do anúncio** — `Titulo` vem nulo em 100% dos casos, e o
+que sobra é `Function.Name`, a função normalizada por eles ("dentista"). Isso enfraquece a
+chave canônica de deduplicação para esta fonte, porque o título deixa de discriminar.
+
+---
+
 ## Subfases seguintes — o que cada uma precisa provar
 
 Registro antecipado para o teste não virar reflexão tardia. **Subfase sem teste não conta

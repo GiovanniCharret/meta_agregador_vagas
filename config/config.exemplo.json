@@ -1,4 +1,4 @@
-{
+﻿{
   "perfis": [
     {
       "nome": "dados",
@@ -49,14 +49,6 @@
     "percentual de producao"
   ],
 
-  "fontes_ativas": [
-    "catho",
-    "vagas",
-    "indeed",
-    "infojobs",
-    "bne",
-    "jooble",
-    "pci",
-    "gupy"
-  ]
+  "fontes_ativas": ["bne"]
 }
+

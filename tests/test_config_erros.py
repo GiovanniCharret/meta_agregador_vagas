@@ -81,6 +81,22 @@ def test_json_malformado_e_recusado_com_mensagem_legivel(tmp_path):
     assert "JSON" in str(erro.value)
 
 
+def test_arquivo_salvo_com_bom_e_lido_normalmente(tmp_path):
+    """Por que este teste existe: no Windows, o Bloco de Notas e o PowerShell gravam
+    UTF-8 com BOM por padrao. O BOM e um caractere invisivel no inicio do arquivo que
+    faz o leitor de JSON falhar na linha 1, coluna 1 - e o usuario ve uma mensagem de
+    sintaxe apontando para um arquivo que, na tela dele, esta perfeito.
+
+    Aconteceu de verdade em 16/08/2026, na primeira execucao real do pipeline."""
+    from src.config import carregar_config
+    caminho = tmp_path / "config.json"
+    # utf-8-sig na escrita e exatamente o que produz o BOM.
+    caminho.write_text(json.dumps(CONFIG_VALIDA, ensure_ascii=False), encoding="utf-8-sig")
+    # Tem que carregar sem reclamar, como se o BOM nao existisse.
+    cfg = carregar_config(caminho)
+    assert [p.nome for p in cfg.perfis] == ["dados", "odonto"]
+
+
 def test_sem_perfis_e_recusado(tmp_path):
     """Por que este teste existe: sem perfil nao ha o que buscar, e o programa rodaria
     inteiro para produzir um feed vazio - uma limitacao silenciosa."""

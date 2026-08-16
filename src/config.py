@@ -197,9 +197,12 @@ def carregar_config(caminho):
             )
         )
 
-    # Fase 2: UTF-8 explicito, porque o console do Windows usa cp1252 e o arquivo tem
-    # acento nos nomes de cidade.
-    texto = caminho.read_text(encoding="utf-8")
+    # Fase 2: utf-8-sig, e nao utf-8. O "sig" descarta o BOM quando ele existe e nao
+    # atrapalha quando nao existe. Isso importa porque no Windows o Bloco de Notas e o
+    # PowerShell gravam UTF-8 com BOM por padrao, e o BOM e um caractere invisivel que
+    # faz o leitor de JSON falhar na linha 1, coluna 1 - o usuario receberia um erro de
+    # sintaxe apontando para um arquivo que, na tela dele, esta perfeito.
+    texto = caminho.read_text(encoding="utf-8-sig")
 
     # Fase 3: o traceback do json cita coluna e byte, o que nao ajuda quem esqueceu uma
     # virgula. A traducao aponta o arquivo e a linha.

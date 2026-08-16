@@ -40,6 +40,91 @@ def test_erro_de_dado_escreve_mensagem_limpa_sem_traceback(tmp_path, capsys):
     assert "File \"" not in capturado.err
 
 
+def pagina_com_vagas():
+    """HTML da fixture com tres vagas reais do BNE."""
+    from pathlib import Path
+    return (Path(__file__).resolve().parent / "fixtures" / "bne_pagina.html").read_text(
+        encoding="utf-8"
+    )
+
+
+def config_com_bne():
+    """Configuracao valida cuja unica fonte ativa e o BNE."""
+    copia = json.loads(json.dumps(CONFIG_VALIDA))
+    copia["fontes_ativas"] = ["bne"]
+    return copia
+
+
+def test_grava_o_json_normalizado_com_as_vagas_coletadas(tmp_path):
+    """Por que este teste existe: e a entrega da subfase S1 - da configuracao ate um
+    arquivo JSON com vagas no formato do projeto, passando por coleta e traducao."""
+    from src.main import main
+    caminho = escreve_config(tmp_path, config_com_bne())
+    destino = tmp_path / "vagas.json"
+    # Buscador falso: toda URL devolve a mesma pagina de fixture.
+    assert main(caminho, buscador=lambda url: pagina_com_vagas(), destino=destino) == 0
+    # O arquivo tem que existir e conter as tres vagas da fixture.
+    vagas = json.loads(destino.read_text(encoding="utf-8"))
+    assert len(vagas) == 3
+    assert {v["uf"] for v in vagas} == {"MS", "RJ", "SP"}
+
+
+def test_json_gravado_e_deterministico(tmp_path):
+    """Por que este teste existe: a subfase S2 vai exigir HTML identico byte a byte
+    entre duas execucoes. Se o JSON que alimenta o HTML ja variar, aquele teste se
+    torna impossivel de cumprir."""
+    from src.main import main
+    caminho = escreve_config(tmp_path, config_com_bne())
+    primeiro = tmp_path / "a.json"
+    segundo = tmp_path / "b.json"
+    main(caminho, buscador=lambda url: pagina_com_vagas(), destino=primeiro)
+    main(caminho, buscador=lambda url: pagina_com_vagas(), destino=segundo)
+    # Byte a byte, e nao apenas equivalente como estrutura.
+    assert primeiro.read_bytes() == segundo.read_bytes()
+
+
+def test_fonte_sem_coletor_vira_aviso_e_nao_derruba_a_rodada(tmp_path, capsys):
+    """Por que este teste existe: `fontes_ativas` lista o que se pretende coletar, e
+    varias fontes ainda nao tem coletor. Derrubar a rodada por causa delas impediria a
+    coleta das que ja funcionam - mas ignorar em silencio esconderia um erro de
+    digitacao. Aviso visivel resolve os dois."""
+    from src.main import main
+    configuracao = json.loads(json.dumps(CONFIG_VALIDA))
+    configuracao["fontes_ativas"] = ["bne", "catho"]
+    caminho = escreve_config(tmp_path, configuracao)
+    destino = tmp_path / "vagas.json"
+    # A rodada termina bem, apesar da fonte sem coletor.
+    assert main(caminho, buscador=lambda url: pagina_com_vagas(), destino=destino) == 0
+    saida = capsys.readouterr().out
+    # O aviso tem que citar a fonte pulada.
+    assert "AVISO" in saida and "catho" in saida
+    # E as vagas do BNE continuam sendo coletadas.
+    assert len(json.loads(destino.read_text(encoding="utf-8"))) == 3
+
+
+def test_fonte_indisponivel_vira_aviso_e_a_rodada_continua(tmp_path, capsys):
+    """Por que este teste existe: um termo do config pode simplesmente nao existir
+    naquela fonte, e o site responde 404. Isso e ausencia de resultado, nao defeito -
+    derrubar a rodada por causa disso faria um termo mal escolhido apagar a coleta
+    inteira. Vale igual para 403, que e a resposta de quem bloqueia."""
+    from src.main import main
+    from src.erros import FonteIndisponivel
+
+    caminho = escreve_config(tmp_path, config_com_bne())
+    destino = tmp_path / "vagas.json"
+
+    def buscador_que_falha(url):
+        # Simula o 404 que o site devolve para um termo que ele nao conhece.
+        raise FonteIndisponivel("bne respondeu 404 em {}".format(url))
+
+    # A rodada termina bem, com zero vaga, em vez de estourar.
+    assert main(caminho, buscador=buscador_que_falha, destino=destino) == 0
+    saida = capsys.readouterr().out
+    assert "AVISO" in saida and "404" in saida
+    # O arquivo e gravado mesmo vazio, para o passo seguinte do pipeline nao quebrar.
+    assert json.loads(destino.read_text(encoding="utf-8")) == []
+
+
 def test_bug_de_programa_nao_e_engolido(tmp_path):
     """Por que este teste existe: o `except EntradaInvalida` nao pode virar um
     `except Exception` com o tempo. Se virar, um bug nosso passaria a ser mostrado ao

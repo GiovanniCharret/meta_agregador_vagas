@@ -38,8 +38,23 @@ Desenvolver um modelo MVP de plataforma. Dispõe inicialmenete só do feed e ale
 `x` Lista de estados — `ufs_liberadas` com as 27 UFs na config; tabela por região em
   `planning/ESTADOS.md`. **Modelo invertido para lista branca**, a ser podada com o tempo.
 `[ ]` Poda dos estados — decidir quais saem. Dimensiona a S-P (27 conselhos ou menos).
-`[ ]` S1 — uma fonte só, ponta a ponta até JSON normalizado. Começa sondando duas ou três
-  candidatas antes de escrever o coletor (aprovado em 16/08/2026).
+`x` **S1 concluída** — sondagem de 5 candidatas, coletor do **BNE**, orquestração com paginação
+  e deduplicação, slug de termo, camada de rede isolada. **178 vagas reais coletadas**,
+  59 testes passando. Detalhes em `planning/TESTES.md`.
+`[ ]` S2 — feed HTML a partir do JSON, sem estado ainda
+
+### Achados da S1 que mudam premissas
+
+- **Catho e Jooble bloqueiam** (403; o Jooble com Cloudflare). Saem da primeira rodada — o
+  projeto não contorna bloqueio. Isso reduz de 9 para 7 as fontes viáveis daquela lista.
+- **Gupy rende pouco para odonto**: das 48 vagas da OdontoPrev, só 3 são de odontologia, todas
+  "banco de talentos" e duas sem cidade. A pesquisa a apontava como confirmação para odonto;
+  na prática, hoje, não é.
+- **BNE tem soft 404**: slug de função inexistente devolve 200 com a página inicial. Três termos
+  do config não existem lá (`analista-de-dados`, `administrador-financeiro`,
+  `cirurgiao-dentista`). Não é erro — é vocabulário próprio da fonte, e o aviso já ensina isso.
+- **BNE não expõe o título do anúncio**, só a função normalizada. Enfraquece a chave canônica
+  para esta fonte. Registrado para a S4.
 
 ## Decisões tomadas
 
