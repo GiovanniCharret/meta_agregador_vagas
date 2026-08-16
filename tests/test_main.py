@@ -49,9 +49,15 @@ def pagina_com_vagas():
 
 
 def config_com_bne():
-    """Configuracao valida cuja unica fonte ativa e o BNE."""
+    """Configuracao valida cuja unica fonte ativa e o BNE.
+
+    A lista de estados libera MS, RJ e SP porque sao os estados das tres vagas da
+    fixture. Sem isso o filtro geografico da S5 as removeria - corretamente - e os testes
+    de feed passariam a checar uma pagina vazia sem que ninguem percebesse o motivo.
+    """
     copia = json.loads(json.dumps(CONFIG_VALIDA))
     copia["fontes_ativas"] = ["bne"]
+    copia["ufs_liberadas"] = ["MS", "RJ", "SP"]
     return copia
 
 

@@ -28,6 +28,9 @@ from src.caminhos import ARQUIVO_CONFIG, DIR_DADOS, DIR_SAIDA
 # montar_feed transforma a lista de vagas na pagina que o usuario abre.
 from src.feed import montar_feed
 
+# aplicar roda os filtros de lugar e de termo antes de a pagina ser montada.
+from src.filtros import aplicar
+
 # As funcoes de persistencia: sem elas a coleta se perderia a cada execucao.
 from src.armazena import (
     criar_esquema, listar_vagas, salvar_detalhe, salvar_vagas, vagas_sem_detalhe,
@@ -286,11 +289,21 @@ def main(caminho=None, usar_padrao=True, buscador=None, destino=None,
     # O diretorio pode nao existir na primeira execucao.
     destino_feed.parent.mkdir(parents=True, exist_ok=True)
 
+    # Os filtros rodam na leitura, aqui e no servidor, sobre o mesmo dado do banco.
+    vagas, filtradas = aplicar(
+        vagas, configuracao.ufs_liberadas, configuracao.cidades_bloqueadas,
+        configuracao.termos_reprovacao,
+    )
+    if filtradas["fora_do_mapa"] or filtradas["reprovadas"]:
+        print("Filtradas: {} fora dos estados, {} por termo.".format(
+            filtradas["fora_do_mapa"], sum(filtradas["reprovadas"].values())))
+
     # newline="" impede o Windows de trocar \n por \r\n na gravacao, o que faria o
     # arquivo mudar de tamanho entre plataformas sem nenhuma mudanca de conteudo.
     with open(destino_feed, "w", encoding="utf-8", newline="") as arquivo:
         arquivo.write(
-            montar_feed(vagas, configuracao.cidades_desejadas, gerado_em)
+            montar_feed(vagas, configuracao.cidades_desejadas, gerado_em,
+                        filtradas=filtradas)
         )
 
     print("Feed gerado em {}".format(destino_feed))

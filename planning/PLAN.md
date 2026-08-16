@@ -58,7 +58,14 @@ Desenvolver um modelo MVP de plataforma. Dispõe inicialmenete só do feed e ale
   cards**, agrupando 4 republicações reais. A chave antiga formaria 181 grupos, com o pior
   juntando 8 vagas distintas. Estado passou a pertencer ao grupo; cópias continuam no banco;
   o card mostra um link por anúncio. **146 testes.** Migração aplicada ao banco de produção.
-`[ ]` S5 — filtros: cidades bloqueadas, palavras de reprovação, sinônimos
+`x` **S5 concluída** — `src/filtros.py` com o filtro geográfico (`3.2`) e o de termos
+  (`3.6`), rodando na **leitura** para mudar a lista ter efeito sem recoletar. **167 testes.**
+  - **Fronteira de palavra**, não pedaço: `mei` casava em "meio dia" e derrubava 4 vagas boas.
+  - Hoje remove **2 de 265**. A lista configurada era quase decorativa.
+  - **Sinônimos (`3.5`) não entraram**: os termos de especialidade não existem no vocabulário
+    do BNE — virariam 404 sem trazer vaga.
+`[ ]` **Decisão pendente sua:** 21 vagas são `autônomo` e 13 são `freelancer` — 13% do acervo.
+  Reprovar ou não é decisão dela, não minha.
 `[ ]` S3b — enriquecimento pela página de detalhe (novo, 16/08/2026). Vira **pré-requisito da
   deduplicação**, porque a descrição só existe lá. Chave canônica revisada no `DESIGN.md` D3
   depois de medir 26 colisões reais nas 178 vagas coletadas.

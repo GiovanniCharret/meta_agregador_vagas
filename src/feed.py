@@ -312,7 +312,7 @@ def _card(vaga, desejadas, quem=None, motivos=()):
 
 
 def montar_feed(vagas, cidades_desejadas=(), gerado_em=None,
-                quem=None, motivos=(), descartadas=0):
+                quem=None, motivos=(), descartadas=0, filtradas=None):
     """Monta a pagina inteira do feed.
 
     Por que esta funcao existe: e a fronteira entre dado e tela. Recebe dicionarios e
@@ -343,6 +343,24 @@ def montar_feed(vagas, cidades_desejadas=(), gerado_em=None,
     # daria para saber se o feed encolheu porque filtrou bem ou porque a coleta falhou.
     if descartadas:
         resumo += " {} descartada(s), fora da lista.".format(descartadas)
+
+    # O mesmo vale para os filtros: dizer quantas sumiram e por qual termo e o que permite
+    # perceber que um termo esta reprovando demais. Contagem zerada NAO e exibida - com as
+    # 27 UFs liberadas o filtro geografico nao remove nada, e anunciar "0" toda rodada
+    # ensinaria a ignorar o aviso justamente quando ele passasse a importar.
+    if filtradas:
+        if filtradas.get("fora_do_mapa"):
+            resumo += " {} fora dos estados liberados.".format(filtradas["fora_do_mapa"])
+        reprovadas = filtradas.get("reprovadas") or {}
+        if reprovadas:
+            detalhe = ", ".join(
+                "{} por {}".format(quantas, escape(termo))
+                # Ordem fixa pela contagem e depois pelo nome, para a saida nao variar
+                # entre execucoes com o mesmo acervo.
+                for termo, quantas in sorted(
+                    reprovadas.items(), key=lambda p: (-p[1], p[0]))
+            )
+            resumo += " Reprovadas por termo: {}.".format(detalhe)
 
     # Fase 3: pagina em branco seria indistinguivel de programa quebrado.
     if ordenadas:

@@ -368,6 +368,50 @@ apontar ao grupo, mapeando as marcações existentes. Rodou sobre as 269 vagas r
 
 ---
 
+## S5 — filtros
+
+**Estado: 167 testes passando. 265 cards viram 263.**
+
+### `tests/test_filtros.py` — 18 testes
+
+Os dois filtros: geográfico (`3.2`) e termos de reprovação (`3.6`).
+
+**O teste mais importante trava um bug medido no acervo real.** O termo `mei` casava dentro
+de **"meio dia"** e reprovava 4 vagas boas por acidente. Busca por pedaço de palavra é
+armadilha clássica — quanto mais curto o termo, mais dano causa. O filtro passou a exigir
+**fronteira de palavra**, e o teste usa exatamente o par `mei` / `meio dia`.
+
+Outro teste fixa uma decisão que eu não tinha tomado: **lista branca vazia desliga o filtro
+de estado**, em vez de reprovar tudo. A leitura da configuração já recusa lista vazia com
+mensagem própria, então chegar ao filtro sem lista é defeito nosso — e nesse caso é melhor o
+feed aparecer inteiro, que se percebe na hora, do que vazio, que parece "não tem vaga hoje".
+
+### A medição que mudou o desenho
+
+Testei termos candidatos contra o texto real das 161 vagas com descrição:
+
+| Termo | Vagas | Veredito |
+|---|---|---|
+| `autonomo` | **21** | sinal real de vínculo — **decisão dela** |
+| `freelan` | **13** | idem |
+| `a combinar` | 25 | salário não informado, não é motivo de reprovar |
+| `comiss` | 3 | **falso positivo**: uma paga R$ 3.500 **mais** comissão |
+| `franquia` | 2 | **um é falso positivo**: texto de anúncio, não a vaga |
+| `mei` | 4 | **falso positivo**: casava em "meio dia" |
+
+**Conclusão desconfortável: a lista configurada era quase decorativa.** Com fronteira de
+palavra ela remove **2 de 265**. O ruído de franquia que a pesquisa previa como "enorme" em
+odontologia não apareceu no BNE.
+
+### O que ficou de fora, e por quê
+
+**Sinônimos (`3.5`) não foram implementados como expansão de busca.** Medido: `odontologia`,
+`ortodontista`, `endodontista`, `implantodontista`, `odontopediatra` e `periodontista` **não
+existem** no vocabulário do BNE. Cada um viraria um 404 e um aviso por rodada, sem trazer
+vaga nenhuma. O mecanismo espera uma fonte cujo vocabulário recompense.
+
+---
+
 ## Subfases seguintes — o que cada uma precisa provar
 
 Registro antecipado para o teste não virar reflexão tardia. **Subfase sem teste não conta

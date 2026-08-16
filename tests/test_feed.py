@@ -216,6 +216,26 @@ def test_pagina_vazia_explica_em_vez_de_ficar_em_branco():
     assert "nenhuma vaga" in html.lower()
 
 
+def test_resumo_diz_quantas_foram_filtradas_e_por_que():
+    """Por que este teste existe: esconder vaga sem dizer quantas e por que seria
+    limitacao silenciosa. Com a contagem por termo a vista, voce percebe quando um termo
+    esta reprovando demais - foi assim que descobrimos o "mei" casando em "meio dia"."""
+    from src.feed import montar_feed
+    html = montar_feed([vaga()], filtradas={
+        "fora_do_mapa": 12, "reprovadas": {"franquia": 3, "comissionado": 1}})
+    assert "12" in html and "fora dos estados" in html.lower()
+    assert "franquia" in html and "3" in html
+
+
+def test_resumo_omite_o_que_nao_filtrou_nada():
+    """Por que este teste existe: com as 27 UFs liberadas, o filtro geografico nao remove
+    nada. Anunciar "0 fora dos estados" em toda rodada seria ruido que ensina a ignorar o
+    aviso - e no dia em que o numero importasse, ninguem olharia."""
+    from src.feed import montar_feed
+    html = montar_feed([vaga()], filtradas={"fora_do_mapa": 0, "reprovadas": {}})
+    assert "fora dos estados" not in html.lower()
+
+
 def test_contagem_de_vagas_aparece_no_topo():
     """Por que este teste existe: com centenas de vagas, o numero e a primeira coisa
     que diz se a coleta funcionou. Sem ele, so contando card na mao."""

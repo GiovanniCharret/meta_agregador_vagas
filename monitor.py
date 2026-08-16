@@ -57,7 +57,13 @@ def servir():
         return 1
 
     # Fase 2: o banco e o mesmo que a coleta alimenta.
-    app = criar_app(DIR_DADOS / "vagas.sqlite", configuracao.cidades_desejadas)
+    app = criar_app(
+        DIR_DADOS / "vagas.sqlite",
+        cidades_desejadas=configuracao.cidades_desejadas,
+        ufs_liberadas=configuracao.ufs_liberadas,
+        cidades_bloqueadas=configuracao.cidades_bloqueadas,
+        termos_reprovacao=configuracao.termos_reprovacao,
+    )
 
     # Fase 3: 127.0.0.1 de proposito, e nao 0.0.0.0 - o servidor nao deve ficar exposto
     # na rede local, porque nao tem autenticacao nenhuma.

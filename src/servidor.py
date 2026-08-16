@@ -34,8 +34,12 @@ from src.erros import EntradaInvalida
 # montar_feed transforma a lista de vagas na pagina.
 from src.feed import montar_feed
 
+# aplicar roda os filtros de lugar e de termo sobre o que veio do banco.
+from src.filtros import aplicar
 
-def criar_app(caminho_banco, cidades_desejadas=()):
+
+def criar_app(caminho_banco, cidades_desejadas=(), ufs_liberadas=(),
+              cidades_bloqueadas=(), termos_reprovacao=()):
     """Monta o aplicativo apontado para um banco.
 
     Por que o caminho do banco entra por parametro em vez de vir da ancora de caminhos:
@@ -96,8 +100,15 @@ def criar_app(caminho_banco, cidades_desejadas=()):
         visiveis = [v for v in todas if v["estado"] != "descartada"]
         escondidas = len(todas) - len(visiveis)
 
-        # Fase 3 e saida: o contador das escondidas evita a limitacao silenciosa de o
-        # feed encolher sem explicacao.
+        # Fase 3: os filtros da configuracao rodam na LEITURA, e nao na coleta. Assim,
+        # mudar a lista de cidades tem efeito imediato sem recoletar, e nenhuma vaga se
+        # perde por causa de uma lista mal escrita - o dado continua no banco.
+        visiveis, filtradas = aplicar(
+            visiveis, ufs_liberadas, cidades_bloqueadas, termos_reprovacao
+        )
+
+        # Fase 4 e saida: os contadores evitam a limitacao silenciosa de o feed encolher
+        # sem explicacao.
         return montar_feed(
             visiveis,
             cidades_desejadas=cidades_desejadas,
@@ -105,6 +116,7 @@ def criar_app(caminho_banco, cidades_desejadas=()):
             quem=quem,
             motivos=MOTIVOS,
             descartadas=escondidas,
+            filtradas=filtradas,
         )
 
     @app.post("/marcar")
