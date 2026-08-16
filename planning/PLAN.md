@@ -90,6 +90,23 @@ Decisão sua, urgente: **desligar `dados`, `dev` e `financeiro`. Só odontologia
 nesta fase de desenvolvimento.** Aplicado na configuração e no banco (126 vagas dos perfis
 desligados removidas; nenhuma marcação foi perdida).
 
+### Por que, e por quanto tempo
+
+**A busca dela é prioridade; a dele pode esperar dias ou meses.** O foco é de urgência, não de
+escopo — os outros perfis **voltam**.
+
+**Consequência para o código, e é a que mais importa:** nada da máquina de múltiplos perfis
+deve ser simplificado ou removido. O campo `lado`, a lista de perfis, o selo de companheiro da
+`3.4` e a lógica de dois lados continuam de pé, dormentes. A tentação natural de "só existe um
+perfil agora, dá para simplificar" produziria retrabalho garantido quando eles voltarem.
+
+**Subfases afetadas enquanto durar o foco:**
+
+- **`S7` selo de companheiro — suspensa.** Ela pergunta se a cidade fecha para os dois, e hoje
+  só existe um lado. Volta sozinha quando os perfis dele voltarem, sem precisar ser reescrita.
+- **`S6` múltiplos perfis — encolhe.** A parte de "por que esta vaga apareceu" continua valendo
+  e é a que interessa agora; a de cruzar vários perfis fica dormente.
+
 ### O que a sondagem do vocabulário do BNE mostrou
 
 | Slug | Vagas | Serve? |
