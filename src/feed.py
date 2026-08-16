@@ -80,6 +80,9 @@ h1 { font-family:var(--serif); font-weight:500; font-size:clamp(30px,4vw,42px);
                font-size:12.5px; color:var(--g500); flex-wrap:wrap; }
 .rodape-card a { color:var(--clay-d); text-decoration-color:var(--oat);
                  text-underline-offset:3px; }
+/* Os links vivem num agrupador proprio: soltos, o space-between do rodape jogaria
+   cada um numa ponta da tela em janela larga. */
+.rodape-card .links { display:flex; gap:14px; flex-wrap:wrap; flex:none; }
 footer { margin-top:40px; font-size:12.5px; color:var(--g500); }
 .vaga.salva { border-color:var(--olive); background:#F1F5EA; }
 .acoes { margin-top:12px; padding-top:10px; border-top:1px dashed var(--g300);
@@ -261,15 +264,21 @@ def _card(vaga, desejadas, quem=None, motivos=()):
     if len(copias) > 1:
         # O aviso explica por que ha mais de um link; sem ele, o segundo pareceria erro.
         origem += " &middot; {} anuncios".format(len(copias))
-        link = " ".join(
+        # O agrupador nao e decoracao: o rodape usa `justify-content: space-between`, e
+        # links soltos como filhos diretos seriam espalhados um em cada ponta da tela.
+        link = '<span class="links">{}</span>'.format("".join(
             '<a href="{}" target="_blank" rel="noopener">anuncio {}</a>'.format(
                 escape(c.get("url") or "", quote=True), numero)
             for numero, c in enumerate(copias, 1)
-        )
+        ))
     else:
-        link = '<a href="{}" target="_blank" rel="noopener">ver na origem</a>'.format(
-            escape(copias[0].get("url") or "", quote=True)
-        )
+        # O mesmo agrupador vale para o link unico, para os dois casos terem a mesma
+        # estrutura e o CSS nao precisar tratar excecao.
+        link = (
+            '<span class="links">'
+            '<a href="{}" target="_blank" rel="noopener">ver na origem</a>'
+            "</span>"
+        ).format(escape(copias[0].get("url") or "", quote=True))
 
     # As linhas do card sao montadas em lista para o controle de quebra ser explicito.
     linhas = [

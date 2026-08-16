@@ -95,6 +95,25 @@ def test_card_agrupado_mostra_um_link_por_copia():
     assert "https://bne/2" in html
 
 
+def test_links_do_card_agrupado_ficam_num_agrupador_proprio():
+    """Por que este teste existe: o rodape do card usa `justify-content: space-between`.
+    Com os links soltos como filhos diretos, o navegador espalha CADA UM pela largura da
+    tela - em janela larga, "anuncio 1" e "anuncio 2" ficam em pontas opostas.
+
+    Relatado por voce em 16/08/2026 ao olhar o feed em tela larga. Envolver os links num
+    agrupador faz o flex tratar os dois como um bloco so."""
+    from src.feed import montar_feed
+    import re
+    html = montar_feed([vaga(origens=[
+        {"fonte": "bne", "id_na_fonte": "1", "url": "https://bne/1"},
+        {"fonte": "bne", "id_na_fonte": "2", "url": "https://bne/2"},
+    ])])
+    # Os dois links precisam estar dentro do mesmo agrupador.
+    agrupador = re.search(r'<span class="links">(.*?)</span>\s*</div>', html, re.S)
+    assert agrupador is not None
+    assert agrupador.group(1).count("<a ") == 2
+
+
 def test_card_agrupado_avisa_quantas_copias_existem():
     """Por que este teste existe: sem o aviso, o segundo link pareceria um erro. Dizer
     "2 anuncios" explica por que ha mais de um caminho para a mesma vaga."""
